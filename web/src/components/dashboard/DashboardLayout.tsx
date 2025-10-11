@@ -9,7 +9,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ 
   children, 
-  backgroundColor = "from-blue-100 via-purple-50 to-pink-100" 
+  backgroundColor = "from-cyan-50 via-blue-50 to-sky-100" 
 }: DashboardLayoutProps) {
   return (
     <div className={`min-h-screen bg-gradient-to-br ${backgroundColor} p-8`}>

@@ -99,7 +99,7 @@ export function RequestDetails({
   const estimatedDaily = request.hourlyRate * request.totalHours;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50">
       {/* Header */}
       <div className="bg-white border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
@@ -107,7 +107,7 @@ export function RequestDetails({
             variant="ghost" 
             size="sm" 
             onClick={onBack}
-            className="hover:bg-purple-100"
+            className="hover:bg-sky-100"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -175,12 +175,12 @@ export function RequestDetails({
                 </div>
                 <div className="text-sm text-cyan-600 font-medium">por hora</div>
               </div>
-              <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-pink-50 rounded-xl border-2 border-orange-100">
+              <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-sky-50 rounded-xl border-2 border-blue-100">
                 <div className="flex items-center justify-center gap-1 mb-1">
-                  <DollarSign className="w-5 h-5 text-orange-600" />
-                  <div className="text-2xl font-bold text-orange-700">${estimatedDaily}</div>
+                  <DollarSign className="w-5 h-5 text-blue-600" />
+                  <div className="text-2xl font-bold text-blue-700">${estimatedDaily}</div>
                 </div>
-                <div className="text-sm text-orange-600 font-medium">estimado/día</div>
+                <div className="text-sm text-blue-600 font-medium">estimado/día</div>
               </div>
             </div>
 
@@ -239,9 +239,9 @@ export function RequestDetails({
 
         {/* Schedule and Dates */}
         <Card>
-          <CardHeader className="bg-gradient-to-r from-orange-50 to-pink-50">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-sky-50">
             <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-orange-600" />
+              <Calendar className="w-5 h-5 text-blue-600" />
               Horarios y Fechas
             </CardTitle>
           </CardHeader>
@@ -308,16 +308,16 @@ export function RequestDetails({
 
         {/* Posted By */}
         <Card>
-          <CardHeader className="bg-gradient-to-r from-pink-50 to-orange-50">
+          <CardHeader className="bg-gradient-to-r from-sky-50 to-cyan-50">
             <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5 text-pink-600" />
+              <User className="w-5 h-5 text-sky-600" />
               Publicado por
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <Avatar className="w-14 h-14 border-2 border-pink-200 shadow-md">
-                <AvatarFallback className="bg-gradient-to-br from-pink-400 to-orange-400 text-white font-semibold text-lg">
+              <Avatar className="w-14 h-14 border-2 border-sky-200 shadow-md">
+                <AvatarFallback className="bg-gradient-to-br from-sky-400 to-cyan-400 text-white font-semibold text-lg">
                   {request.createdBy.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>

@@ -7,7 +7,6 @@ interface DashboardHeaderProps {
   icon: LucideIcon;
   title: string;
   subtitle: string;
-  onLogout: () => void;
   gradientFrom?: string;
   gradientTo?: string;
 }
@@ -16,9 +15,8 @@ export function DashboardHeader({
   icon: Icon,
   title,
   subtitle,
-  onLogout,
   gradientFrom = "blue-500",
-  gradientTo = "purple-500",
+  gradientTo = "cyan-500",
 }: DashboardHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-8">
@@ -33,9 +31,6 @@ export function DashboardHeader({
           <p className="text-muted-foreground">{subtitle}</p>
         </div>
       </div>
-      <Button onClick={onLogout} variant="outline">
-        Cerrar Sesión
-      </Button>
     </div>
   );
 }

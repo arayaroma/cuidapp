@@ -1,23 +1,27 @@
 "use client";
 
-import { Heart } from "lucide-react";
+import { Search, FileText, History, Clock } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 
 interface UserDashboardCardsProps {
   onSearchCaregivers?: () => void;
   onViewRequests?: () => void;
-  onEditProfile?: () => void;
+  onViewInProgress?: () => void;
+  onViewHistory?: () => void;
+  inProgressCount?: number;
 }
 
 export function UserDashboardCards({
   onSearchCaregivers,
   onViewRequests,
-  onEditProfile,
+  onViewInProgress,
+  onViewHistory,
+  inProgressCount = 0,
 }: UserDashboardCardsProps) {
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       <DashboardCard
-        icon={Heart}
+        icon={Search}
         iconColor="cyan-500"
         title="Buscar Cuidadores"
         description="Explora perfiles de cuidadores profesionales disponibles en tu área."
@@ -27,23 +31,33 @@ export function UserDashboardCards({
       />
 
       <DashboardCard
-        icon={Heart}
-        iconColor="blue-500"
+        icon={FileText}
+        iconColor="cyan-500"
         title="Mis Solicitudes"
-        description="Gestiona tus solicitudes de cuidado y revisa el estado."
+        description="Gestiona tus solicitudes activas y revisa quiénes se han postulado."
         buttonText="Ver Solicitudes"
-        buttonGradient={{ from: "blue-500", to: "cyan-500" }}
+        buttonGradient={{ from: "cyan-500", to: "blue-500" }}
         onClick={onViewRequests}
       />
 
       <DashboardCard
-        icon={Heart}
-        iconColor="sky-500"
-        title="Mi Perfil"
-        description="Actualiza tu información y preferencias de cuidado."
-        buttonText="Editar Perfil"
-        buttonGradient={{ from: "sky-500", to: "cyan-500" }}
-        onClick={onEditProfile}
+        icon={Clock}
+        iconColor="amber-500"
+        title="En Proceso"
+        description={`Tienes ${inProgressCount} servicios activos en progreso que requieren tu atención.`}
+        buttonText="Ver Servicios"
+        buttonGradient={{ from: "amber-500", to: "orange-500" }}
+        onClick={onViewInProgress}
+      />
+
+      <DashboardCard
+        icon={History}
+        iconColor="blue-500"
+        title="Historial"
+        description="Revisa el historial de tus servicios completados."
+        buttonText="Ver Historial"
+        buttonGradient={{ from: "blue-500", to: "blue-600" }}
+        onClick={onViewHistory}
       />
     </div>
   );

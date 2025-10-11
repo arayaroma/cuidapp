@@ -39,7 +39,7 @@ export function DashboardCard({
           {description}
         </p>
         <Button 
-          className={`w-full bg-gradient-to-r from-${buttonGradient.from} to-${buttonGradient.to} hover:from-${buttonGradient.from.replace('500', '600')} hover:to-${buttonGradient.to.replace('500', '600')}`}
+          className={`w-full bg-gradient-to-r from-${buttonGradient.from} to-${buttonGradient.to} hover:from-${buttonGradient.from.replace('500', '600')} hover:to-${buttonGradient.to.replace('500', '600')} text-white font-semibold shadow-md`}
           onClick={onClick}
         >
           {buttonText}

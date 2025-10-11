@@ -3,7 +3,8 @@
 import { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AppNavBar, NavBarMenuItem } from "@/components/shared/AppNavBar";
-import { User, Settings, LogOut, Search, Calendar } from "lucide-react";
+import { User, Settings, LogOut } from "lucide-react";
+import { userNavSections } from "@/config/userNavConfig";
 
 interface UserLayoutProps {
   children: ReactNode;
@@ -12,7 +13,6 @@ interface UserLayoutProps {
 export default function UserLayout({ children }: UserLayoutProps) {
   const router = useRouter();
 
-  // Configurar menú items para usuario
   const menuItems: NavBarMenuItem[] = [
     {
       icon: User,
@@ -20,19 +20,9 @@ export default function UserLayout({ children }: UserLayoutProps) {
       onClick: () => router.push("/usuarios/profile"),
     },
     {
-      icon: Search,
-      label: "Buscar Cuidadores",
-      onClick: () => console.log("Buscar cuidadores"),
-    },
-    {
-      icon: Calendar,
-      label: "Mis Solicitudes",
-      onClick: () => console.log("Mis solicitudes"),
-    },
-    {
       icon: Settings,
       label: "Configuración",
-      onClick: () => console.log("Ir a configuración"),
+      onClick: () => router.push("/usuarios/settings"),
     },
     {
       icon: LogOut,
@@ -42,9 +32,9 @@ export default function UserLayout({ children }: UserLayoutProps) {
     },
   ];
 
-  const handleNotificationClick = () => {
-    console.log("Abrir notificaciones");
-    // TODO: Implementar panel de notificaciones
+  const handleLogout = () => {
+    console.log("Cerrando sesión...");
+    router.push("/login");
   };
 
   return (
@@ -53,6 +43,9 @@ export default function UserLayout({ children }: UserLayoutProps) {
         userName="Juan Pérez"
         userRole="Panel de Usuario"
         menuItems={menuItems}
+        navSections={userNavSections}
+        onLogout={handleLogout}
+        avatarGradient="from-blue-500 to-cyan-500"
       />
       {children}
     </div>

@@ -38,7 +38,7 @@ export function ApplicationModal({
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
       <Card className="w-full max-w-lg shadow-2xl animate-in zoom-in duration-200">
-        <CardHeader className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white">
+        <CardHeader className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-t-2xl">
           <CardTitle className="text-xl">Postularme a esta Solicitud</CardTitle>
           {requestTitle && (
             <p className="text-sm text-cyan-100 mt-1">

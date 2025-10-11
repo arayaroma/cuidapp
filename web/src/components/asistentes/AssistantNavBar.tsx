@@ -32,7 +32,7 @@ export function AppNavBar({
   userName,
   userRole,
   avatar,
-  avatarGradient = "from-purple-500 to-pink-500",
+  avatarGradient = "from-cyan-500 to-blue-500",
   notificationCount = 0,
   menuItems,
   onNotificationClick,
@@ -41,7 +41,7 @@ export function AppNavBar({
     <header className="bg-white border-b px-4 py-3 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
             CuidApp
           </h1>
           <p className="text-sm text-muted-foreground">{userRole}</p>

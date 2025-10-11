@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AppNavBar, NavBarMenuItem } from "@/components/shared/AppNavBar";
 import { User, Settings, LogOut } from "lucide-react";
+import { assistantNavSections } from "@/config/assistantNavConfig";
 
 interface AssistantLayoutProps {
   children: ReactNode;
@@ -21,7 +22,7 @@ export default function AssistantLayout({ children }: AssistantLayoutProps) {
     {
       icon: Settings,
       label: "Configuración",
-      onClick: () => console.log("Ir a configuración"),
+      onClick: () => router.push("/asistentes/settings"),
     },
     {
       icon: LogOut,
@@ -31,9 +32,9 @@ export default function AssistantLayout({ children }: AssistantLayoutProps) {
     },
   ];
 
-  const handleNotificationClick = () => {
-    console.log("Abrir notificaciones");
-    // TODO: Implementar panel de notificaciones
+  const handleLogout = () => {
+    console.log("Cerrando sesión...");
+    router.push("/login");
   };
 
   return (
@@ -42,6 +43,8 @@ export default function AssistantLayout({ children }: AssistantLayoutProps) {
         userName="María González"
         userRole="Panel de Asistente"
         menuItems={menuItems}
+        navSections={assistantNavSections}
+        onLogout={handleLogout}
       />
       {children}
     </div>
