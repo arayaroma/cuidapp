@@ -6,30 +6,29 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
-  schemas   = ["asoquetzal"]
+  schemas   = ["cuidapp"]
 }
 
 model Location {
-  id                  String              @id @default(cuid())
-  user_id             String              @unique
-  label               String?
-  address_line1       String?
-  address_line2       String?
-  district            String?
-  canton              String?
-  province            String?
-  country             String?
-  postal_code         String?
-  latitude            Float?
-  longitude           Float?
-  is_primary          Boolean             @default(true)
-  created_at          DateTime            @default(now())
-  updated_at          DateTime            @updatedAt
-  attendance_sessions AttendanceSession[] @relation("AttendanceLocation")
-  user                User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  id            String   @id @default(cuid())
+  user_id       String   @unique
+  label         String?
+  address_line1 String?
+  address_line2 String?
+  district      String?
+  canton        String?
+  province      String?
+  country       String?
+  postal_code   String?
+  latitude      Float?
+  longitude     Float?
+  is_primary    Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("locations")
-  @@schema("asoquetzal")
+  @@schema("cuidapp")
 }
 
 model Role {
@@ -41,7 +40,7 @@ model Role {
   users        User[]
 
   @@map("roles")
-  @@schema("asoquetzal")
+  @@schema("cuidapp")
 }
 
 model Disability {
@@ -53,60 +52,53 @@ model Disability {
   users       User[]
 
   @@map("disabilities")
-  @@schema("asoquetzal")
+  @@schema("cuidapp")
 }
 
 model User {
-  id                       String                  @id @default(cuid())
-  full_name                String
-  username                 String                  @unique
-  email                    String                  @unique
-  password                 String
-  otp_token                String?
-  photo_url                String?
-  phone_number             String?
-  emergency_number         String?
-  disability_id            String?
-  has_safeguard            Boolean                 @default(false)
-  notes                    String?
-  role_id                  String
-  is_active                Boolean                 @default(true)
-  created_at               DateTime                @default(now())
-  updated_at               DateTime                @updatedAt
-  absence_forms_approved   AbsenceForm[]           @relation("AbsenceFormApprover")
-  absence_forms_requested  AbsenceForm[]           @relation("AbsenceFormRequester")
-  absence_forms_user       AbsenceForm[]           @relation("AbsenceFormUser")
-  attendance_forms_filled  AttendanceForm[]        @relation("AttendanceFormFiller")
-  reports_created          GeneratedReport[]       @relation("ReportCreator")
-  reports_owned            GeneratedReport[]       @relation("ReportOwner")
-  location                 Location?
-  user_assistant_schedules ScheduleUserAssistant[] @relation("UserAssistantSchedule")
-  schedules_created        Schedule[]              @relation("ScheduleCreator")
-  schedules_owned          Schedule[]              @relation("ScheduleOwner")
-  schedules_assisted       Schedule[]              @relation("ScheduleAssistant")
-  disability               Disability?             @relation(fields: [disability_id], references: [id])
-  role                     Role                    @relation(fields: [role_id], references: [id])
-  assistant_of             UsersAssistant[]        @relation("AssistantOf")
-  users_assistants         UsersAssistant[]        @relation("UserAssistants")
+  id               String           @id @default(cuid())
+  full_name        String
+  username         String           @unique
+  email            String           @unique
+  password         String
+  photo_url        String?
+  phone_number     String?
+  emergency_number String?
+  disability_id    String?
+  has_safeguard    Boolean          @default(false)
+  notes            String?
+  rating           Float?
+  rating_count     Int?             @default(0)
+  role_id          String
+  is_active        Boolean          @default(true)
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+  location         Location?
+  disability       Disability?      @relation(fields: [disability_id], references: [id])
+  role             Role             @relation(fields: [role_id], references: [id])
+  assistant_of     UsersAssistant[] @relation("AssistantOf")
+  users_assistants UsersAssistant[] @relation("UserAssistants")
+  requests         UserRequests[]
 
   @@map("users")
-  @@schema("asoquetzal")
+  @@schema("cuidapp")
 }
 
 model UsersAssistant {
-  id           String                @id @default(cuid())
-  user_id      String
-  assistant_id String
-  start_date   DateTime
-  end_date     DateTime?
-  created_at   DateTime              @default(now())
-  updated_at   DateTime              @updatedAt
-  assistant    User                  @relation("AssistantOf", fields: [assistant_id], references: [id], onDelete: Cascade)
-  user         User                  @relation("UserAssistants", fields: [user_id], references: [id], onDelete: Cascade)
-  rules        UsersAssistantsRule[]
+  id                          String                     @id @default(cuid())
+  user_id                     String
+  assistant_id                String
+  start_date                  DateTime
+  end_date                    DateTime?
+  created_at                  DateTime                   @default(now())
+  updated_at                  DateTime                   @updatedAt
+  assistant                   User                       @relation("AssistantOf", fields: [assistant_id], references: [id], onDelete: Cascade)
+  user                        User                       @relation("UserAssistants", fields: [user_id], references: [id], onDelete: Cascade)
+  rules                       UsersAssistantsRule[]
+  user_assistant_applications UserAssistantApplication[]
 
   @@map("users_assistants")
-  @@schema("asoquetzal")
+  @@schema("cuidapp")
 }
 
 model UsersAssistantsRule {
@@ -118,186 +110,60 @@ model UsersAssistantsRule {
   users_assistant    UsersAssistant @relation(fields: [users_assistant_id], references: [id], onDelete: Cascade)
 
   @@map("users_assistants_rule")
-  @@schema("asoquetzal")
+  @@schema("cuidapp")
 }
 
-model Schedule {
-  id                       String                  @id @default(cuid())
-  owner_user_id            String
-  user_assistant_id        String
-  applies_role             String?
-  valid_from               DateTime
-  valid_to                 DateTime?
-  timezone                 String                  @default("UTC")
-  created_by               String
-  created_at               DateTime                @default(now())
-  updated_at               DateTime                @updatedAt
-  schedule_user_assistants ScheduleUserAssistant[]
-  creator                  User                    @relation("ScheduleCreator", fields: [created_by], references: [id])
-  owner_user               User                    @relation("ScheduleOwner", fields: [owner_user_id], references: [id], onDelete: Cascade)
-  user_assistant           User                    @relation("ScheduleAssistant", fields: [user_assistant_id], references: [id], onDelete: Cascade)
-  schedule_rules           ScheduleRule[]
-
-  @@map("schedules")
-  @@schema("asoquetzal")
-}
-
-model ScheduleUserAssistant {
-  id                String              @id @default(cuid())
+model UserAssistantApplication {
+  id                String               @id @default(cuid())
   user_assistant_id String
-  schedule_id       String
-  created_at        DateTime            @default(now())
-  updated_at        DateTime            @updatedAt
-  schedule          Schedule            @relation(fields: [schedule_id], references: [id], onDelete: Cascade)
-  user_assistant    User                @relation("UserAssistantSchedule", fields: [user_assistant_id], references: [id], onDelete: Cascade)
-  exceptions        ScheduleException[]
+  description       String?
+  status            String
+  created_at        DateTime             @default(now())
+  updated_at        DateTime             @updatedAt
+  user              UsersAssistant       @relation(fields: [user_assistant_id], references: [id], onDelete: Cascade)
+  requests          ApplicationRequest[]
 
-  @@map("schedule_user_assistant")
-  @@schema("asoquetzal")
+  @@map("user_assistant_applications")
+  @@schema("cuidapp")
 }
 
-model ScheduleRule {
-  id                  String              @id @default(cuid())
-  schedule_id         String
-  weekday             Int
-  start_time          DateTime
-  end_time            DateTime
-  required_role       String?
-  max_hours           Float?
-  created_at          DateTime            @default(now())
-  updated_at          DateTime            @updatedAt
-  attendance_sessions AttendanceSession[]
-  schedule            Schedule            @relation(fields: [schedule_id], references: [id], onDelete: Cascade)
+model ApplicationRequest {
+  id                            String            @id @default(cuid())
+  user_assistant_application_id String
+  user_request_id               String
+  status                        ApplicationStatus @default(PENDING)
+  notes                         String?
+  created_at                    DateTime          @default(now())
+  updated_at                    DateTime          @updatedAt
 
-  @@map("schedules_rules")
-  @@schema("asoquetzal")
+  user_assistant_application UserAssistantApplication @relation(fields: [user_assistant_application_id], references: [id], onDelete: Cascade)
+  user_request               UserRequests             @relation(fields: [user_request_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_assistant_application_id, user_request_id])
+  @@map("application_requests")
+  @@schema("cuidapp")
 }
 
-model ScheduleException {
-  id                      String                @id @default(cuid())
-  schedule_user_assis_id  String
-  date                    DateTime
-  time_overrides          Json?
-  is_cancellation         Boolean               @default(false)
-  note                    String?
-  created_at              DateTime              @default(now())
-  updated_at              DateTime              @updatedAt
-  schedule_user_assistant ScheduleUserAssistant @relation(fields: [schedule_user_assis_id], references: [id], onDelete: Cascade)
+model UserRequests {
+  id           String               @id @default(cuid())
+  user_id      String
+  description  String
+  request_date DateTime
+  request_time String
+  status       String
+  created_at   DateTime             @default(now())
+  updated_at   DateTime             @updatedAt
+  user         User                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  applications ApplicationRequest[]
 
-  @@map("schedules_exceptions")
-  @@schema("asoquetzal")
+  @@map("user_requests")
+  @@schema("cuidapp")
 }
 
-model AttendanceSession {
-  id                String           @id @default(cuid())
-  location_id       String
-  scheduled_rule_id String
-  clock_in_at       DateTime
-  clock_out_at      DateTime?
-  total_hours       Float?
-  verified          Boolean          @default(false)
-  notes             String?
-  created_at        DateTime         @default(now())
-  updated_at        DateTime         @updatedAt
-  attendance_forms  AttendanceForm[]
-  location          Location         @relation("AttendanceLocation", fields: [location_id], references: [id])
-  schedule_rule     ScheduleRule     @relation(fields: [scheduled_rule_id], references: [id])
-  time_entries      TimeEntry[]
-
-  @@map("attendance_sessions")
-  @@schema("asoquetzal")
-}
-
-model TimeEntry {
-  id                 String            @id @default(cuid())
-  session_id         String
-  occurred_at        DateTime
-  kind               TimeEntryKind
-  notes              String?
-  created_at         DateTime          @default(now())
-  attendance_session AttendanceSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
-
-  @@map("time_entries")
-  @@schema("asoquetzal")
-}
-
-model AbsenceForm {
-  id             String        @id @default(cuid())
-  user_id        String
-  requested_by   String
-  approved_by    String?
-  status         AbsenceStatus @default(PENDING)
-  start_at       DateTime
-  end_at         DateTime
-  reason         String
-  supporting_uri String?
-  created_at     DateTime      @default(now())
-  updated_at     DateTime      @updatedAt
-  approver       User?         @relation("AbsenceFormApprover", fields: [approved_by], references: [id])
-  requester      User          @relation("AbsenceFormRequester", fields: [requested_by], references: [id])
-  user           User          @relation("AbsenceFormUser", fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@map("absence_forms")
-  @@schema("asoquetzal")
-}
-
-model AttendanceForm {
-  id                 String            @id @default(cuid())
-  session_id         String
-  filled_by          String
-  filled_at          DateTime
-  notes              String?
-  created_at         DateTime          @default(now())
-  updated_at         DateTime          @updatedAt
-  filler             User              @relation("AttendanceFormFiller", fields: [filled_by], references: [id])
-  attendance_session AttendanceSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
-
-  @@map("attendance_forms")
-  @@schema("asoquetzal")
-}
-
-model GeneratedReport {
-  id            String     @id @default(cuid())
-  report_type   ReportType
-  owner_user_id String
-  period_start  DateTime
-  period_end    DateTime
-  filters       Json?
-  file_uri      String?
-  created_by    String
-  created_at    DateTime   @default(now())
-  updated_at    DateTime   @updatedAt
-  creator       User       @relation("ReportCreator", fields: [created_by], references: [id])
-  owner_user    User       @relation("ReportOwner", fields: [owner_user_id], references: [id])
-
-  @@map("generated_reports")
-  @@schema("asoquetzal")
-}
-
-enum TimeEntryKind {
-  CLOCK_IN
-  CLOCK_OUT
-  BREAK_START
-  BREAK_END
-  NOTE
-
-  @@schema("asoquetzal")
-}
-
-enum AbsenceStatus {
+enum ApplicationStatus {
   PENDING
-  APPROVED
+  ACCEPTED
   REJECTED
-  CANCELLED
 
-  @@schema("asoquetzal")
-}
-
-enum ReportType {
-  ATTENDANCE
-  ABSENCE
-  SCHEDULE
-  PERFORMANCE
-
-  @@schema("asoquetzal")
+  @@schema("cuidapp")
 }
