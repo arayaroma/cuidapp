@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, ArrowLeft, Star, Calendar, CheckCircle2 } from "lucide-react";
+import { Search, ArrowLeft, Star, CheckCircle2 } from "lucide-react";
 
 // Mock data de historial
 const mockHistory = [
@@ -78,10 +78,6 @@ export default function HistorialPage() {
 
   const handleViewDetails = (id: string) => {
     router.push(`/usuarios/history/${id}`);
-  };
-
-  const handleRateService = (id: string) => {
-    console.log("Calificando servicio:", id);
   };
 
   return (

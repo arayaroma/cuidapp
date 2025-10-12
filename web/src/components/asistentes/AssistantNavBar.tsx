@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bell, LogOut, LucideIcon } from "lucide-react";
+import { Bell, LucideIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,

@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ApplicationModal } from "@/components/shared/ApplicationModal";
-import { MapPin, Calendar, Users, Baby, Heart, Accessibility, User, Clock, Hospital } from "lucide-react";
+import { MapPin, Calendar, Users, Baby, Heart, Accessibility, Clock, Hospital } from "lucide-react";
 import { CareRequest, CareType } from "@/types/request";
 
 interface RequestCardProps {

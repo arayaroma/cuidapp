@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { RequestCard } from "@/components/asistentes/RequestCard";
+import { CareRequest } from "@/types/request";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -15,16 +16,19 @@ export default function SolicitudesDisponiblesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [availableRequests] = useState(mockAvailableRequests);
 
-  const handleViewDetails = (request: any) => {
+  const handleViewDetails = (request: CareRequest) => {
     router.push(`/asistentes/request-details/${request.id}`);
   };
 
-  const handleApply = (request: any) => {
-    console.log("Aplicando a solicitud:", request.id);
+  const handleApply = (requestId: string, message: string) => {
+    console.log("Aplicando a solicitud:", requestId, "con mensaje:", message);
     // Lógica para postularse
   };
 
-  // Filtrar solicitudes disponibles
+  const handleApplyClick = (request: CareRequest) => {
+    // Aquí podrías abrir un modal para ingresar el mensaje
+    handleApply(request.id, "Mensaje de aplicación por defecto");
+  };  // Filtrar solicitudes disponibles
   const filteredAvailable = useMemo(() => {
     return availableRequests.filter((request) =>
       request.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -96,7 +100,7 @@ export default function SolicitudesDisponiblesPage() {
                 onApply={handleApply}
                 actionButton={{
                   label: "Postularme",
-                  onClick: () => handleApply(request),
+                  onClick: () => handleApplyClick(request),
                   variant: "default",
                 }}
               />

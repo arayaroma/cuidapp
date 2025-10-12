@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { RequestCard } from "@/components/asistentes/RequestCard";
+import { CareRequest } from "@/types/request";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -15,11 +16,11 @@ export default function OfertasRecibidasPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [myOffers] = useState(mockMyOffers);
 
-  const handleViewDetails = (request: any) => {
+  const handleViewDetails = (request: CareRequest) => {
     router.push(`/asistentes/request-details/${request.id}`);
   };
 
-  const handleWithdraw = (request: any) => {
+  const handleWithdraw = (request: CareRequest) => {
     console.log("Retirando aplicación:", request.id);
     // Lógica para retirar
   };

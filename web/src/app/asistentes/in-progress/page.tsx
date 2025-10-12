@@ -12,8 +12,6 @@ import {
   Clock, 
   Calendar, 
   MapPin, 
-  User,
-  CheckCircle,
   MessageSquare
 } from "lucide-react";
 

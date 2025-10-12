@@ -53,20 +53,6 @@ export default function UserLayout({ children }: UserLayoutProps) {
     await signOut({ callbackUrl: "/login" });
   };
 
-  // Determinar el rol para mostrar
-  const getRoleDisplayName = (role: string) => {
-    switch (role) {
-      case 'USER':
-        return 'Panel de Usuario';
-      case 'ASSISTANT':
-        return 'Panel de Asistente';
-      case 'ADMIN':
-        return 'Panel de Administrador';
-      default:
-        return 'Panel de Usuario';
-    }
-  };
-
   return (
     <div className="min-h-screen">
       <AppNavBar
