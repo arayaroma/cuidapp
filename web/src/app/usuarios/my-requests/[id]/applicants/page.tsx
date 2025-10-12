@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -78,7 +78,6 @@ const mockApplicants = [
 
 export default function PostulantesPage() {
   const router = useRouter();
-  const params = useParams();
   const [applicants, setApplicants] = useState(mockApplicants);
 
   const handleAccept = (id: string) => {

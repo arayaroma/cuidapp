@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { AppNavBar, NavBarMenuItem } from "@/components/shared/AppNavBar";
 import { User, Settings, LogOut } from "lucide-react";
 import { userNavSections } from "@/config/userNavConfig";
@@ -12,6 +13,22 @@ interface UserLayoutProps {
 
 export default function UserLayout({ children }: UserLayoutProps) {
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  // Si está cargando, mostrar loading
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cyan-500"></div>
+      </div>
+    );
+  }
+
+  // Si no hay sesión, redirigir al login (aunque el middleware debería manejar esto)
+  if (!session?.user) {
+    router.push("/login");
+    return null;
+  }
 
   const menuItems: NavBarMenuItem[] = [
     {
@@ -27,21 +44,19 @@ export default function UserLayout({ children }: UserLayoutProps) {
     {
       icon: LogOut,
       label: "Cerrar Sesión",
-      onClick: () => router.push("/login"),
+      onClick: () => handleLogout(),
       variant: "destructive",
     },
   ];
 
-  const handleLogout = () => {
-    console.log("Cerrando sesión...");
-    router.push("/login");
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/login" });
   };
 
   return (
     <div className="min-h-screen">
       <AppNavBar
-        userName="Juan Pérez"
-        userRole="Panel de Usuario"
+        userName={session.user.name || 'Usuario'}
         menuItems={menuItems}
         navSections={userNavSections}
         onLogout={handleLogout}

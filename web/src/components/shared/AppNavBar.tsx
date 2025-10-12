@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bell, LucideIcon } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +21,6 @@ export interface NavBarMenuItem {
 
 interface AppNavBarProps {
   userName?: string;
-  userRole?: string;
   menuItems?: NavBarMenuItem[];
   avatarGradient?: string;
   onLogout?: () => void;
@@ -30,7 +29,6 @@ interface AppNavBarProps {
 
 export function AppNavBar({
   userName,
-  userRole,
   menuItems,
   avatarGradient = "from-cyan-500 to-blue-500",
   onLogout,
@@ -51,7 +49,6 @@ export function AppNavBar({
             {navSections.length > 0 && (
               <NavigationDrawer
                 userName={userName || "Usuario"}
-                userRole={userRole || ""}
                 avatarGradient={avatarGradient}
                 sections={navSections}
                 onLogout={onLogout}
@@ -80,7 +77,6 @@ export function AppNavBar({
             <DropdownMenuContent align="end" className="w-56">
               <div className="px-2 py-1.5">
                 <p className="text-sm font-medium">{userName}</p>
-                <p className="text-xs text-muted-foreground">{userRole}</p>
               </div>
               <DropdownMenuSeparator />
               

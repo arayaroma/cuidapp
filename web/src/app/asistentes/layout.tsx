@@ -1,7 +1,8 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { AppNavBar, NavBarMenuItem } from "@/components/shared/AppNavBar";
 import { User, Settings, LogOut } from "lucide-react";
 import { assistantNavSections } from "@/config/assistantNavConfig";
@@ -12,6 +13,22 @@ interface AssistantLayoutProps {
 
 export default function AssistantLayout({ children }: AssistantLayoutProps) {
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status === "loading") return; // Still loading
+    if (!session) {
+      router.push("/login");
+    }
+  }, [session, status, router]);
+
+  if (status === "loading") {
+    return <div className="min-h-screen flex items-center justify-center">Cargando...</div>;
+  }
+
+  if (!session) {
+    return null;
+  }
 
   const menuItems: NavBarMenuItem[] = [
     {
@@ -27,21 +44,19 @@ export default function AssistantLayout({ children }: AssistantLayoutProps) {
     {
       icon: LogOut,
       label: "Cerrar Sesión",
-      onClick: () => router.push("/login"),
+      onClick: () => signOut({ callbackUrl: "/login" }),
       variant: "destructive",
     },
   ];
 
   const handleLogout = () => {
-    console.log("Cerrando sesión...");
-    router.push("/login");
+    signOut({ callbackUrl: "/login" });
   };
 
   return (
     <div className="min-h-screen">
       <AppNavBar
-        userName="María González"
-        userRole="Panel de Asistente"
+        userName={session.user?.name || "Usuario"}
         menuItems={menuItems}
         navSections={assistantNavSections}
         onLogout={handleLogout}

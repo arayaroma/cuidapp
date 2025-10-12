@@ -62,12 +62,6 @@ const urgencyColors = {
   high: 'bg-red-100 text-red-800 border-red-200'
 };
 
-const urgencyLabels = {
-  low: 'Baja Prioridad',
-  medium: 'Media Prioridad',
-  high: 'Urgente'
-};
-
 export function RequestDetails({ 
   request, 
   userType, 

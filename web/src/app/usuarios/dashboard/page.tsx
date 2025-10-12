@@ -25,11 +25,6 @@ export default function UsersDashboardPage() {
     router.push("/usuarios/history");
   };
 
-  const handleLogout = () => {
-    // Lógica de logout
-    router.push("/");
-  };
-
   return (
     <DashboardLayout backgroundColor="from-cyan-50 via-blue-50 to-sky-100">
       <DashboardHeader

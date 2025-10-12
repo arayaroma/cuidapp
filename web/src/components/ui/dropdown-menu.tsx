@@ -38,7 +38,7 @@ export function DropdownMenuTrigger({ children, asChild }: DropdownMenuTriggerPr
   };
 
   if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
+    return React.cloneElement(children as React.ReactElement<React.HTMLAttributes<HTMLElement>>, {
       onClick: handleClick,
     });
   }
@@ -55,7 +55,7 @@ interface DropdownMenuContentProps extends React.HTMLAttributes<HTMLDivElement> 
 }
 
 export const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContentProps>(
-  ({ className, align = "center", children, ...props }, ref) => {
+  ({ className, align = "center", children, ...props }) => {
     const context = React.useContext(DropdownMenuContext);
     if (!context) throw new Error("DropdownMenuContent must be used within DropdownMenu");
 
@@ -99,7 +99,7 @@ export const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenu
 );
 DropdownMenuContent.displayName = "DropdownMenuContent";
 
-interface DropdownMenuItemProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+type DropdownMenuItemProps = React.ButtonHTMLAttributes<HTMLButtonElement>
 
 export const DropdownMenuItem = React.forwardRef<HTMLButtonElement, DropdownMenuItemProps>(
   ({ className, onClick, ...props }, ref) => {

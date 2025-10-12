@@ -4,10 +4,8 @@ import {
   MessageSquare,
   Calendar,
   User,
-  Heart,
   Settings,
   HelpCircle,
-  LogOut,
   Inbox,
   CheckCircle2,
 } from "lucide-react";

@@ -1,10 +1,10 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, Clock, Heart, MessageCircle, Phone } from "lucide-react";
+import { Star, MapPin, Heart, MessageCircle, Phone } from "lucide-react";
 
 export interface AssistantHeaderData {
   name: string;
@@ -28,7 +28,7 @@ interface AssistantProfileHeaderProps {
 
 export function AssistantProfileHeader({
   data,
-  onBookService,
+  onBookService, // eslint-disable-line @typescript-eslint/no-unused-vars
   onMessage,
   onCall,
   onToggleFavorite,

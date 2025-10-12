@@ -30,7 +30,6 @@ export interface NavSection {
 
 interface NavigationDrawerProps {
   userName: string;
-  userRole: string;
   avatar?: string;
   avatarGradient?: string;
   sections: NavSection[];
@@ -40,7 +39,6 @@ interface NavigationDrawerProps {
 
 export function NavigationDrawer({
   userName,
-  userRole,
   avatar,
   avatarGradient = "from-cyan-500 to-blue-500",
   sections,
@@ -95,9 +93,6 @@ export function NavigationDrawer({
                 <SheetTitle className="text-base font-semibold">
                   {userName}
                 </SheetTitle>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {userRole}
-                </p>
               </div>
             </div>
           </SheetHeader>

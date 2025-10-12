@@ -15,6 +15,7 @@ export default function LoginPage() {
     email,
     password,
     name,
+    error,
     setUserType,
     setEmail,
     setPassword,
@@ -31,6 +32,12 @@ export default function LoginPage() {
         <LoginHeader isRegistering={isRegistering} />
 
         <CardContent className="space-y-4">
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600 font-medium">{error}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {isRegistering && (
               <>

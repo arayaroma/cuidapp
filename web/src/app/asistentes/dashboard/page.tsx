@@ -30,10 +30,6 @@ export default function AssistantsDashboardPage() {
     router.push("/asistentes/accepted-jobs");
   };
 
-  const handleLogout = () => {
-    router.push("/");
-  };
-
   return (
     <DashboardLayout backgroundColor="from-cyan-50 via-blue-50 to-sky-50">
       <DashboardHeader

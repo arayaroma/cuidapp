@@ -2,12 +2,13 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { RequestCard } from "@/components/asistentes/RequestCard";
+import { CareRequest } from "@/types/request";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { mockAcceptedJobs } from "@/data/mockRequests";
+import { RequestCard } from "@/components/asistentes/RequestCard";
 import { CheckCircle2, Search, ArrowLeft } from "lucide-react";
 
 export default function TrabajosAceptadosPage() {
@@ -15,7 +16,7 @@ export default function TrabajosAceptadosPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [acceptedJobs] = useState(mockAcceptedJobs);
 
-  const handleViewDetails = (request: any) => {
+  const handleViewDetails = (request: CareRequest) => {
     router.push(`/asistentes/request-details/${request.id}`);
   };
 

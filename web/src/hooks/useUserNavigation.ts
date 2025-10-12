@@ -10,12 +10,12 @@ export function useUserNavigation() {
     // Aquí puedes navegar a la ruta de búsqueda cuando la crees
     console.log("Navegando a buscar cuidadores...");
     // router.push('/usuarios/cuidadores');
-  }, [router]);
+  }, []);
 
   const goToRequests = useCallback(() => {
     console.log("Navegando a solicitudes...");
     // router.push('/usuarios/solicitudes');
-  }, [router]);
+  }, []);
 
   const goToProfile = useCallback(() => {
     router.push('/usuarios/profile');
