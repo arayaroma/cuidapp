@@ -1,10 +1,23 @@
-import NextAuth, { User } from "next-auth";
+import NextAuth, { User, Session } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import { prisma } from "@/lib/prisma";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import { NextAuthOptions } from "next-auth";
+
+type NextAuthOptions = {
+  providers: ReturnType<typeof Credentials>[];
+  callbacks: {
+    jwt: (params: { token: JWT; user?: User }) => Promise<JWT>;
+    session: (params: { session: Session; token: JWT }) => Promise<Session>;
+  };
+  pages: {
+    signIn: string;
+  };
+  session: {
+    strategy: string;
+  };
+};
 
 const loginSchema = z.object({
   email: z.email(),
@@ -143,14 +156,15 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (token as any).role = (user as any).role;
       }
       return token;
     },
-    async session({ session, token }: { session: any; token: JWT }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (token && session.user) {
-        session.user.id = (token as any).sub!;
-        session.user.role = (token as any).role as string;
+        session.user.id = (token as JWT & { sub?: string }).sub!;
+        session.user.role = token.role;
       }
       return session;
     },
@@ -160,4 +174,5 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-export default NextAuth(authOptions);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default (NextAuth as any)(authOptions);
