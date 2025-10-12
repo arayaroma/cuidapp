@@ -1,18 +1,19 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useCallback } from "react";
+import { signOut, useSession } from "next-auth/react";
 
 export function useAuth() {
-  const router = useRouter();
+  const { data: session, status } = useSession();
 
-  const logout = useCallback(() => {
-    // Aquí puedes agregar lógica adicional como limpiar localStorage, cookies, etc.
-    // Por ejemplo: localStorage.removeItem('token');
-    router.push('/login');
-  }, [router]);
+  const logout = async () => {
+    await signOut({ callbackUrl: '/login' });
+  };
 
   return {
     logout,
+    session,
+    status,
+    user: session?.user,
+    isAuthenticated: !!session,
   };
 }

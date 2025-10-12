@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 export interface LoginFormData {
   email: string;
@@ -18,32 +19,68 @@ export function useLoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [error, setError] = useState<string>('');
 
   const toggleMode = () => {
     setIsRegistering(!isRegistering);
+    setError(''); // Limpiar error al cambiar de modo
   };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(''); // Limpiar error anterior
     
-    // Aquí puedes agregar la lógica de autenticación
-    console.log({
-      userType,
-      email,
-      password,
-      name: isRegistering ? name : undefined,
-      action: isRegistering ? 'register' : 'login'
-    });
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        name: isRegistering ? name : undefined,
+        userType,
+        action: isRegistering ? "register" : "login",
+        redirect: false,
+      });
 
-    // Redirección según el tipo de usuario
-    if (userType === 'caregiver') {
-      router.push('/asistentes');
-    } else {
-      router.push('/usuarios');
+      if (result?.error) {
+        console.error("Authentication error:", result.error);
+        
+        // Manejar errores específicos basados en el mensaje de error
+        if (result.error.includes("Usuario no encontrado")) {
+          setError("Usuario no encontrado. ¿Ya te registraste?");
+        } else if (result.error.includes("Contraseña incorrecta")) {
+          setError("Contraseña incorrecta. Verifica tu contraseña.");
+        } else if (result.error.includes("Ya existe un usuario")) {
+          setError("Ya existe un usuario con este correo electrónico.");
+        } else if (result.error.includes("Datos de registro inválidos")) {
+          setError("Datos de registro inválidos. Completa todos los campos correctamente.");
+        } else if (result.error.includes("Email o contraseña inválidos")) {
+          setError("Email o contraseña inválidos.");
+        } else {
+          setError("Error de autenticación. Inténtalo nuevamente.");
+        }
+        return;
+      }
+
+      if (result?.ok) {
+        // Limpiar campos y error
+        setEmail('');
+        setPassword('');
+        setName('');
+        setError('');
+        
+        // Redirect based on user type
+        if (userType === 'caregiver') {
+          router.push('/asistentes');
+        } else {
+          router.push('/usuarios');
+        }
+      }
+    } catch (error) {
+      console.error("Sign in error:", error);
+      setError("Error de conexión. Verifica tu conexión a internet e intenta nuevamente.");
     }
   };
 
@@ -60,6 +97,7 @@ export function useLoginForm() {
     email,
     password,
     name,
+    error,
     
     // Setters
     setUserType,
