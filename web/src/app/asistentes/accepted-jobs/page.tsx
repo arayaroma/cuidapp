@@ -1,20 +1,26 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { CareRequest } from "@/types/request";
+import { MyRequest, CareRequest } from "@/types/request";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { mockAcceptedJobs } from "@/data/mockRequests";
 import { RequestCard } from "@/components/asistentes/RequestCard";
 import { CheckCircle2, Search, ArrowLeft } from "lucide-react";
 
 export default function TrabajosAceptadosPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [acceptedJobs] = useState(mockAcceptedJobs);
+  const [acceptedJobs, setAcceptedJobs] = useState<MyRequest[]>([]);
+
+  useEffect(() => {
+    fetch('/api/asistentes/accepted-jobs')
+      .then(res => res.json())
+      .then(setAcceptedJobs)
+      .catch(console.error);
+  }, []);
 
   const handleViewDetails = (request: CareRequest) => {
     router.push(`/asistentes/request-details/${request.id}`);

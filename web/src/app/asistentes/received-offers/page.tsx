@@ -1,26 +1,32 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { RequestCard } from "@/components/asistentes/RequestCard";
-import { CareRequest } from "@/types/request";
+import { MyRequest } from "@/types/request";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { mockMyOffers } from "@/data/mockRequests";
 import { Inbox, Search, ArrowLeft } from "lucide-react";
 
 export default function OfertasRecibidasPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [myOffers] = useState(mockMyOffers);
+  const [myOffers, setMyOffers] = useState<MyRequest[]>([]);
 
-  const handleViewDetails = (request: CareRequest) => {
+  useEffect(() => {
+    fetch('/api/asistentes/offers')
+      .then(res => res.json())
+      .then(setMyOffers)
+      .catch(console.error);
+  }, []);
+
+  const handleViewDetails = (request: MyRequest) => {
     router.push(`/asistentes/request-details/${request.id}`);
   };
 
-  const handleWithdraw = (request: CareRequest) => {
+  const handleWithdraw = (request: MyRequest) => {
     console.log("Retirando aplicación:", request.id);
     // Lógica para retirar
   };

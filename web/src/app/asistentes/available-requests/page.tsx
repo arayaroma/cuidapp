@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { RequestCard } from "@/components/asistentes/RequestCard";
 import { CareRequest } from "@/types/request";
@@ -8,13 +8,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { mockAvailableRequests } from "@/data/mockRequests";
-import { Briefcase, Search, ArrowLeft } from "lucide-react";
+import { Briefcase, Search, ArrowLeft, FileX } from "lucide-react";
 
 export default function SolicitudesDisponiblesPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [availableRequests] = useState(mockAvailableRequests);
+  const [availableRequests, setAvailableRequests] = useState<CareRequest[]>([]);
+
+  useEffect(() => {
+    fetch('/api/requests/available')
+      .then(res => res.json())
+      .then(setAvailableRequests)
+      .catch(console.error);
+  }, []);
 
   const handleViewDetails = (request: CareRequest) => {
     router.push(`/asistentes/request-details/${request.id}`);
@@ -87,8 +93,11 @@ export default function SolicitudesDisponiblesPage() {
 
         {/* Results */}
         {filteredAvailable.length === 0 ? (
-          <Card className="p-8 text-center">
-            <p className="text-muted-foreground">No se encontraron solicitudes disponibles</p>
+          <Card className="p-12 text-center">
+            <div className="flex flex-col items-center gap-4">
+              <FileX className="w-20 h-20 text-muted-foreground/90" />
+              <p className="text-lg text-muted-foreground">No se encontraron solicitudes disponibles</p>
+            </div>
           </Card>
         ) : (
           <div className="space-y-4">

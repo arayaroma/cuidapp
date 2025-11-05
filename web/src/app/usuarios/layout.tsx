@@ -3,9 +3,8 @@
 import { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { AppNavBar, NavBarMenuItem } from "@/components/shared/AppNavBar";
-import { User, Settings, LogOut } from "lucide-react";
-import { userNavSections } from "@/config/userNavConfig";
+import { AppNavBar } from "@/components/shared/AppNavBar";
+import { colors } from "@/config/colors";
 
 interface UserLayoutProps {
   children: ReactNode;
@@ -19,7 +18,10 @@ export default function UserLayout({ children }: UserLayoutProps) {
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cyan-500"></div>
+        <div 
+          className="animate-spin rounded-full h-32 w-32 border-b-2"
+          style={{ borderColor: colors.primary[500] }}
+        ></div>
       </div>
     );
   }
@@ -30,37 +32,12 @@ export default function UserLayout({ children }: UserLayoutProps) {
     return null;
   }
 
-  const menuItems: NavBarMenuItem[] = [
-    {
-      icon: User,
-      label: "Ver Perfil",
-      onClick: () => router.push("/usuarios/profile"),
-    },
-    {
-      icon: Settings,
-      label: "Configuración",
-      onClick: () => router.push("/usuarios/settings"),
-    },
-    {
-      icon: LogOut,
-      label: "Cerrar Sesión",
-      onClick: () => handleLogout(),
-      variant: "destructive",
-    },
-  ];
-
-  const handleLogout = async () => {
-    await signOut({ callbackUrl: "/login" });
-  };
-
   return (
     <div className="min-h-screen">
       <AppNavBar
-        userName={session.user.name || 'Usuario'}
-        menuItems={menuItems}
-        navSections={userNavSections}
-        onLogout={handleLogout}
-        avatarGradient="from-blue-500 to-cyan-500"
+        userName={session?.user?.name || "Usuario"}
+        userEmail={session?.user?.email || ""}
+        onProfileClick={() => router.push("/usuarios/profile")}
       />
       {children}
     </div>

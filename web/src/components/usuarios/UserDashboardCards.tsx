@@ -2,6 +2,7 @@
 
 import { Search, FileText, History, Clock } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
+import { colors } from "@/config/colors";
 
 interface UserDashboardCardsProps {
   onSearchCaregivers?: () => void;
@@ -22,41 +23,41 @@ export function UserDashboardCards({
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       <DashboardCard
         icon={Search}
-        iconColor="cyan-500"
+        iconColor={colors.primary[500]}
         title="Buscar Cuidadores"
         description="Explora perfiles de cuidadores profesionales disponibles en tu área."
         buttonText="Ver Cuidadores"
-        buttonGradient={{ from: "cyan-500", to: "blue-500" }}
+        buttonGradient={colors.gradients.trust}
         onClick={onSearchCaregivers}
       />
 
       <DashboardCard
         icon={FileText}
-        iconColor="cyan-500"
+        iconColor={colors.secondary[500]}
         title="Mis Solicitudes"
         description="Gestiona tus solicitudes activas y revisa quiénes se han postulado."
         buttonText="Ver Solicitudes"
-        buttonGradient={{ from: "cyan-500", to: "blue-500" }}
+        buttonGradient={colors.gradients.primary}
         onClick={onViewRequests}
       />
 
       <DashboardCard
         icon={Clock}
-        iconColor="amber-500"
+        iconColor={colors.accent[500]}
         title="En Proceso"
-        description={`Tienes ${inProgressCount} servicios activos en progreso que requieren tu atención.`}
+        description={`Tienes ${inProgressCount} servicio${inProgressCount !== 1 ? 's' : ''} activo${inProgressCount !== 1 ? 's' : ''} en progreso que requiere${inProgressCount !== 1 ? 'n' : ''} tu atención.`}
         buttonText="Ver Servicios"
-        buttonGradient={{ from: "amber-500", to: "orange-500" }}
+        buttonGradient={colors.gradients.warm}
         onClick={onViewInProgress}
       />
 
       <DashboardCard
         icon={History}
-        iconColor="blue-500"
+        iconColor={colors.primary[600]}
         title="Historial"
         description="Revisa el historial de tus servicios completados."
         buttonText="Ver Historial"
-        buttonGradient={{ from: "blue-500", to: "blue-600" }}
+        buttonGradient={colors.gradients.secondary}
         onClick={onViewHistory}
       />
     </div>

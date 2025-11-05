@@ -1,8 +1,9 @@
 "use client";
 
+import { User, LogOut } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LucideIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,98 +11,98 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { NavigationDrawer, NavSection } from "@/components/shared/NavigationDrawer";
-
-export interface NavBarMenuItem {
-  icon: LucideIcon;
-  label: string;
-  onClick: () => void;
-  variant?: "default" | "destructive";
-}
+import { useRouter } from "next/navigation";
+import { colors } from "@/config/colors";
 
 interface AppNavBarProps {
+  title?: string;
   userName?: string;
-  menuItems?: NavBarMenuItem[];
+  userEmail?: string;
   avatarGradient?: string;
-  onLogout?: () => void;
-  navSections?: NavSection[];
+  onProfileClick?: () => void;
 }
 
 export function AppNavBar({
+  title = "CuidApp",
   userName,
-  menuItems,
-  avatarGradient = "from-cyan-500 to-blue-500",
-  onLogout,
-  navSections = [],
+  userEmail,
+  avatarGradient,
+  onProfileClick,
 }: AppNavBarProps) {
-  const avatar = userName
-    ?.split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase() || "U";
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  const displayName = userName || session?.user?.name || "Usuario";
+  const displayEmail = userEmail || session?.user?.email;
+  const userInitial = displayName.charAt(0).toUpperCase();
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/login" });
+  };
+
+  const handleProfileClick = () => {
+    if (onProfileClick) {
+      onProfileClick();
+    } else {
+      router.push("/usuarios/profile");
+    }
+  };
 
   return (
-    <header className="bg-white border-b px-4 py-3 sticky top-0 z-50 shadow-sm">
-      <div className="container max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Navigation Drawer */}
-          <div className="flex items-center gap-3">
-            {navSections.length > 0 && (
-              <NavigationDrawer
-                userName={userName || "Usuario"}
-                avatarGradient={avatarGradient}
-                sections={navSections}
-                onLogout={onLogout}
-              />
-            )}
-            {/* Logo */}
-            <h1 className="text-xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
-              CuidApp
-            </h1>
-          </div>
-          
-          <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-2">
-                <Avatar className="w-8 h-8">
-                  <AvatarFallback className={`bg-gradient-to-br ${avatarGradient} text-white text-sm`}>
-                    {avatar}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="hidden sm:inline text-sm font-medium">
-                  {userName}
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <div className="px-2 py-1.5">
-                <p className="text-sm font-medium">{userName}</p>
-              </div>
-              <DropdownMenuSeparator />
-              
-              {menuItems?.map((item, index) => {
-                const isLastItem = index === menuItems.length - 1;
-                const isDestructive = item.variant === "destructive";
-                
-                return (
-                  <div key={index}>
-                    {isLastItem && menuItems.length > 1 && <DropdownMenuSeparator />}
-                    <DropdownMenuItem 
-                      onClick={item.onClick}
-                      className={isDestructive ? "text-red-600" : ""}
+    <div 
+      className="text-white shadow-lg backdrop-blur-sm"
+      style={{ background: colors.gradients.trust }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+
+          <div className="flex items-center gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="relative h-10 rounded-full hover:bg-white/10 transition-all"
+                >
+                  <Avatar className="h-10 w-10 ring-2 ring-white/20">
+                    <AvatarFallback
+                      className="text-white font-semibold"
+                      style={{ 
+                        background: avatarGradient || colors.gradients.trust 
+                      }}
                     >
-                      <item.icon className="w-4 h-4 mr-2" />
-                      {item.label}
-                    </DropdownMenuItem>
+                      {userInitial}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="px-2 py-1.5">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {displayName}
+                    </p>
+                    {displayEmail && (
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {displayEmail}
+                      </p>
+                    )}
                   </div>
-                );
-              })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleProfileClick}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Mi Perfil</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Cerrar Sesión</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
-      </div>
-    </header>
+    </div>
   );
 }

@@ -5,6 +5,7 @@ import { User } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { UserDashboardCards } from "@/components/usuarios/UserDashboardCards";
+import { colors } from "@/config/colors";
 
 export default function UsersDashboardPage() {
   const router = useRouter();
@@ -26,13 +27,12 @@ export default function UsersDashboardPage() {
   };
 
   return (
-    <DashboardLayout backgroundColor="from-cyan-50 via-blue-50 to-sky-100">
+    <DashboardLayout>
       <DashboardHeader
         icon={User}
         title="Panel de Usuario"
         subtitle="Encuentra el cuidador perfecto para ti"
-        gradientFrom="cyan-500"
-        gradientTo="blue-600"
+        gradient={colors.gradients.trust}
       />
       <UserDashboardCards
         onSearchCaregivers={handleSearchCaregivers}

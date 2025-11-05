@@ -1,33 +1,43 @@
 "use client";
 
 import { LucideIcon } from "lucide-react";
+import { colors } from "@/config/colors";
 
 interface DashboardHeaderProps {
   icon: LucideIcon;
   title: string;
   subtitle: string;
-  gradientFrom?: string;
-  gradientTo?: string;
+  gradient?: string;
 }
 
 export function DashboardHeader({
   icon: Icon,
   title,
   subtitle,
-  gradientFrom = "blue-500",
-  gradientTo = "cyan-500",
+  gradient = colors.gradients.trust,
 }: DashboardHeaderProps) {
   return (
-    <div className="flex items-center justify-between mb-8">
-      <div className="flex items-center gap-4">
-        <div className={`w-12 h-12 bg-gradient-to-br from-${gradientFrom} to-${gradientTo} rounded-full flex items-center justify-center`}>
-          <Icon className="w-6 h-6 text-white" />
+    <div className="flex items-center justify-between mb-10">
+      <div className="flex items-center gap-5">
+        <div 
+          className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20"
+          style={{ background: gradient }}
+        >
+          <Icon className="w-10 h-10 text-white" />
         </div>
         <div>
-          <h1 className={`text-3xl font-bold bg-gradient-to-r from-${gradientFrom.replace('500', '600')} to-${gradientTo.replace('500', '600')} bg-clip-text text-transparent`}>
+          <h1 
+            className="text-5xl font-bold mb-2 tracking-tight"
+            style={{ 
+              background: gradient,
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
             {title}
           </h1>
-          <p className="text-muted-foreground">{subtitle}</p>
+          <p className="text-gray-500 text-lg font-medium">{subtitle}</p>
         </div>
       </div>
     </div>
