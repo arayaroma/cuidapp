@@ -7,12 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ApplicationModal } from "@/components/shared/ApplicationModal";
 import { WithdrawConfirmationModal } from "@/components/shared/WithdrawConfirmationModal";
-import { 
-  ArrowLeft, 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  DollarSign,
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  MapPin,
+  Banknote,
   User,
   Baby,
   Heart,
@@ -22,13 +22,13 @@ import {
   Users,
   Star,
   Shield,
-  Award
+  Award,
 } from "lucide-react";
 import { CareRequest, CareType } from "@/types/request";
 
 interface RequestDetailsProps {
   request: CareRequest;
-  userType: 'assistant' | 'user';
+  userType: "assistant" | "user";
   onBack: () => void;
   onApply?: (requestId: string, message: string) => void;
   onWithdraw?: (requestId: string) => void;
@@ -39,36 +39,36 @@ const careTypeIcons = {
   children: Baby,
   elderly: Heart,
   disability: Accessibility,
-  hospital: User
+  hospital: User,
 };
 
 const careTypeBadges: Record<CareType, string> = {
-  children: 'bg-blue-100 text-blue-800 border-blue-200',
-  elderly: 'bg-orange-100 text-orange-800 border-orange-200',
-  disability: 'bg-cyan-100 text-cyan-800 border-cyan-200',
-  hospital: 'bg-green-100 text-green-800 border-green-200',
+  children: "bg-blue-100 text-blue-800 border-blue-200",
+  elderly: "bg-orange-100 text-orange-800 border-orange-200",
+  disability: "bg-cyan-100 text-cyan-800 border-cyan-200",
+  hospital: "bg-green-100 text-green-800 border-green-200",
 };
 
 const careTypeLabels: Record<CareType, string> = {
-  children: 'Cuidado Infantil',
-  elderly: 'Adulto Mayor',
-  disability: 'Discapacidad',
-  hospital: 'Hospitalario',
+  children: "Cuidado Infantil",
+  elderly: "Adulto Mayor",
+  disability: "Discapacidad",
+  hospital: "Hospitalario",
 };
 
 const urgencyColors = {
-  low: 'bg-green-100 text-green-800 border-green-200',
-  medium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  high: 'bg-red-100 text-red-800 border-red-200'
+  low: "bg-green-100 text-green-800 border-green-200",
+  medium: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  high: "bg-red-100 text-red-800 border-red-200",
 };
 
-export function RequestDetails({ 
-  request, 
-  userType, 
-  onBack, 
-  onApply, 
+export function RequestDetails({
+  request,
+  userType,
+  onBack,
+  onApply,
   onWithdraw,
-  hasApplied: initialHasApplied = false 
+  hasApplied: initialHasApplied = false,
 }: RequestDetailsProps) {
   const [isApplying, setIsApplying] = useState(false);
   const [hasApplied, setHasApplied] = useState(initialHasApplied);
@@ -97,9 +97,9 @@ export function RequestDetails({
       {/* Header */}
       <div className="bg-white border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onBack}
             className="hover:bg-sky-100"
           >
@@ -127,20 +127,32 @@ export function RequestDetails({
               <div className="flex-1">
                 <h2 className="text-2xl font-bold mb-2">{request.title}</h2>
                 <div className="flex flex-wrap items-center gap-2 mb-3">
-                  <Badge className={`${careTypeBadges[request.careType]} border`}>
+                  <Badge
+                    className={`${careTypeBadges[request.careType]} border`}
+                  >
                     {careTypeLabels[request.careType]}
                   </Badge>
                   <Badge className={`${urgencyColors[request.urgency]} border`}>
-                    {request.urgency === 'low' ? 'Normal' : request.urgency === 'medium' ? 'Urgente' : 'Muy Urgente'}
+                    {request.urgency === "low"
+                      ? "Normal"
+                      : request.urgency === "medium"
+                      ? "Urgente"
+                      : "Muy Urgente"}
                   </Badge>
-                  {request.status === 'active' && (
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  {request.status === "active" && (
+                    <Badge
+                      variant="outline"
+                      className="bg-green-50 text-green-700 border-green-200"
+                    >
                       <div className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse" />
                       Activa
                     </Badge>
                   )}
                   {hasApplied && (
-                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                    <Badge
+                      variant="outline"
+                      className="bg-blue-50 text-blue-700 border-blue-200"
+                    >
                       <CheckCircle className="w-3 h-3 mr-1" />
                       Ya Postulado
                     </Badge>
@@ -153,53 +165,72 @@ export function RequestDetails({
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Users className="w-4 h-4 text-blue-500" />
-                    <span>{request.applicants} postulado{request.applicants !== 1 ? 's' : ''}</span>
+                    <span>
+                      {request.applicants} postulado
+                      {request.applicants !== 1 ? "s" : ""}
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
-            
+
             {/* Compensation Grid */}
             <div className="grid grid-cols-2 gap-4 mb-6">
-                            {/* Tarifa destacada */}
+              {/* Tarifa por hora */}
               <div className="text-center p-4 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl border-2 border-cyan-100">
                 <div className="flex items-center justify-center gap-2 mb-1">
-                  <DollarSign className="w-5 h-5 text-cyan-600" />
-                  <div className="text-2xl font-bold text-cyan-700">${request.hourlyRate}</div>
+                  <Banknote className="w-5 h-5 text-cyan-600" />
+                  <div className="text-2xl font-bold text-cyan-700">
+                    ₡{request.hourlyRate.toLocaleString()}
+                  </div>
                 </div>
-                <div className="text-sm text-cyan-600 font-medium">por hora</div>
+                <div className="text-sm text-cyan-600 font-medium">
+                  por hora
+                </div>
               </div>
+
+              {/* Estimado diario */}
               <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-sky-50 rounded-xl border-2 border-blue-100">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <DollarSign className="w-5 h-5 text-blue-600" />
-                  <div className="text-2xl font-bold text-blue-700">${estimatedDaily}</div>
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <Banknote className="w-5 h-5 text-blue-600" />
+                  <div className="text-2xl font-bold text-blue-700">
+                    ₡{estimatedDaily.toLocaleString()}
+                  </div>
                 </div>
-                <div className="text-sm text-blue-600 font-medium">estimado/día</div>
+                <div className="text-sm text-blue-600 font-medium">
+                  estimado/día
+                </div>
               </div>
             </div>
 
             {/* Action Buttons for Assistant */}
-            {userType === 'assistant' && !hasApplied && request.status === 'active' && (
-              <Button 
-                className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white shadow-lg"
-                size="lg"
-                onClick={() => setIsApplying(true)}
-              >
-                <CheckCircle className="w-5 h-5 mr-2" />
-                Postularme a esta Solicitud
-              </Button>
-            )}
+            {userType === "assistant" &&
+              !hasApplied &&
+              request.status === "active" && (
+                <Button
+                  className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white shadow-lg"
+                  size="lg"
+                  onClick={() => setIsApplying(true)}
+                >
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  Postularme a esta Solicitud
+                </Button>
+              )}
 
-            {hasApplied && userType === 'assistant' && (
+            {hasApplied && userType === "assistant" && (
               <div className="space-y-3">
                 <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-2 border-green-200">
                   <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0" />
                   <div className="flex-1">
-                    <p className="font-semibold text-green-800">¡Postulación Enviada!</p>
-                    <p className="text-sm text-green-700">La familia revisará tu perfil pronto</p>
+                    <p className="font-semibold text-green-800">
+                      ¡Postulación Enviada!
+                    </p>
+                    <p className="text-sm text-green-700">
+                      La familia revisará tu perfil pronto
+                    </p>
                   </div>
                 </div>
-                <Button 
+                <Button
                   variant="outline"
                   className="w-full border-red-200 text-red-600 hover:bg-red-50"
                   onClick={() => setIsWithdrawing(true)}
@@ -220,11 +251,14 @@ export function RequestDetails({
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            <p className="text-sm leading-relaxed text-gray-700">{request.description}</p>
+            <p className="text-sm leading-relaxed text-gray-700">
+              {request.description}
+            </p>
             {request.personAge && (
               <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
                 <p className="text-sm font-medium text-blue-900">
-                  👤 Edad de la persona a cuidar: <span className="font-bold">{request.personAge} años</span>
+                  👤 Edad de la persona a cuidar:{" "}
+                  <span className="font-bold">{request.personAge} años</span>
                 </p>
               </div>
             )}
@@ -247,23 +281,25 @@ export function RequestDetails({
               <div className="flex-1">
                 <p className="font-semibold text-gray-900">Fecha de inicio</p>
                 <p className="text-sm text-gray-600 mt-1">
-                  {request.startDate.toLocaleDateString('es-ES', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
+                  {request.startDate.toLocaleDateString("es-ES", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
                   })}
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-start gap-4 p-3 bg-gray-50 rounded-lg">
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                 <Clock className="w-5 h-5 text-blue-600" />
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-gray-900">
-                  {request.isRecurring ? '🔁 Horario recurrente' : '📅 Una sola vez'}
+                  {request.isRecurring
+                    ? "🔁 Horario recurrente"
+                    : "📅 Una sola vez"}
                 </p>
                 <p className="text-sm text-gray-600 mt-1">{request.schedule}</p>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -286,9 +322,9 @@ export function RequestDetails({
             <CardContent className="pt-6">
               <div className="flex flex-wrap gap-2">
                 {request.requirements.map((req, index) => (
-                  <Badge 
-                    key={index} 
-                    variant="secondary" 
+                  <Badge
+                    key={index}
+                    variant="secondary"
                     className="text-sm py-1.5 px-3 bg-cyan-100 text-cyan-800 hover:bg-cyan-200"
                   >
                     <Shield className="w-3 h-3 mr-1" />
@@ -312,17 +348,26 @@ export function RequestDetails({
             <div className="flex items-center gap-4">
               <Avatar className="w-14 h-14 border-2 border-sky-200 shadow-md">
                 <AvatarFallback className="bg-gradient-to-br from-sky-400 to-cyan-400 text-white font-semibold text-lg">
-                  {request.createdBy.split(' ').map(n => n[0]).join('')}
+                  {request.createdBy
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <p className="font-semibold text-lg text-gray-900">{request.createdBy}</p>
+                <p className="font-semibold text-lg text-gray-900">
+                  {request.createdBy}
+                </p>
                 <div className="flex items-center gap-2 mt-1">
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                    <span className="text-sm font-medium text-gray-700">4.8</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      4.8
+                    </span>
                   </div>
-                  <span className="text-sm text-muted-foreground">• Miembro desde 2024</span>
+                  <span className="text-sm text-muted-foreground">
+                    • Miembro desde 2024
+                  </span>
                 </div>
               </div>
             </div>
@@ -330,7 +375,7 @@ export function RequestDetails({
         </Card>
 
         {/* Urgent Alert */}
-        {request.urgency === 'high' && (
+        {request.urgency === "high" && (
           <Card className="border-2 border-red-200 bg-gradient-to-r from-red-50 to-orange-50 shadow-lg">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
@@ -338,10 +383,13 @@ export function RequestDetails({
                   <AlertCircle className="w-6 h-6 text-red-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-bold text-red-800 text-lg">⚡ Solicitud Urgente</p>
+                  <p className="font-bold text-red-800 text-lg">
+                    ⚡ Solicitud Urgente
+                  </p>
                   <p className="text-sm text-red-700 mt-1">
-                    Esta familia necesita ayuda <span className="font-semibold">inmediata</span>. 
-                    Responde pronto si estás disponible.
+                    Esta familia necesita ayuda{" "}
+                    <span className="font-semibold">inmediata</span>. Responde
+                    pronto si estás disponible.
                   </p>
                 </div>
               </div>

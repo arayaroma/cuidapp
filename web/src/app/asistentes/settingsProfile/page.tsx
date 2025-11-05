@@ -15,7 +15,8 @@ import {
   Save, 
   User, 
   MapPin, 
-  DollarSign, 
+  DollarSign,
+  Banknote,
   Clock, 
   Calendar,
   Award,
@@ -252,8 +253,8 @@ export default function EditAssistantProfilePage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="hourlyRate">
-                  <DollarSign className="w-4 h-4 inline mr-1" />
-                  Tarifa por Hora (USD)
+                  <Banknote className="w-4 h-4 inline mr-1" />
+                  Tarifa por Hora (₡)
                 </Label>
                 <Input
                   id="hourlyRate"

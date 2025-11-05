@@ -1,6 +1,15 @@
 "use client";
 
-import { Star, MapPin, Clock, DollarSign, Shield, Award, Car, Heart } from "lucide-react";
+import {
+  Star,
+  MapPin,
+  Clock,
+  Banknote,
+  Shield,
+  Award,
+  Car,
+  Heart,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,7 +23,10 @@ interface AssistantCardProps {
   onViewProfile: (id: string) => void;
 }
 
-export function AssistantCard({ assistant, onViewProfile }: AssistantCardProps) {
+export function AssistantCard({
+  assistant,
+  onViewProfile,
+}: AssistantCardProps) {
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -29,21 +41,33 @@ export function AssistantCard({ assistant, onViewProfile }: AssistantCardProps) 
       <CardContent className="p-5 flex flex-col h-full">
         {/* Header con Avatar y Verified */}
         <div className="flex items-start gap-3 mb-3">
-          <Avatar className="w-16 h-16 border-2" style={{ borderColor: colors.primary[200] }}>
+          <Avatar
+            className="w-16 h-16 border-2"
+            style={{ borderColor: colors.primary[200] }}
+          >
             <AvatarImage src={assistant.photoUrl} alt={assistant.name} />
-            <AvatarFallback style={{ backgroundColor: colors.primary[100], color: colors.primary[700] }}>
+            <AvatarFallback
+              style={{
+                backgroundColor: colors.primary[100],
+                color: colors.primary[700],
+              }}
+            >
               {getInitials(assistant.name)}
             </AvatarFallback>
           </Avatar>
 
           <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-lg truncate mb-1">{assistant.name}</h3>
-            
+            <h3 className="font-bold text-lg truncate mb-1">
+              {assistant.name}
+            </h3>
+
             {/* Rating */}
             {assistant.rating && (
               <div className="flex items-center gap-1 mb-1">
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span className="font-semibold text-sm">{assistant.rating.toFixed(1)}</span>
+                <span className="font-semibold text-sm">
+                  {assistant.rating.toFixed(1)}
+                </span>
                 <span className="text-xs text-muted-foreground">
                   ({assistant.ratingCount || 0})
                 </span>
@@ -78,7 +102,8 @@ export function AssistantCard({ assistant, onViewProfile }: AssistantCardProps) 
         {assistant.specialties && assistant.specialties.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-3">
             {assistant.specialties.slice(0, 3).map((specialty) => {
-              const colors = careTypeColors[specialty as keyof typeof careTypeColors];
+              const colors =
+                careTypeColors[specialty as keyof typeof careTypeColors];
               return (
                 <Badge
                   key={specialty}
@@ -106,25 +131,40 @@ export function AssistantCard({ assistant, onViewProfile }: AssistantCardProps) 
         <div className="space-y-2 mb-3 text-sm flex-1">
           {/* Experience */}
           <div className="flex items-center gap-2">
-            <Award className="w-4 h-4 flex-shrink-0" style={{ color: colors.accent[600] }} />
+            <Award
+              className="w-4 h-4 flex-shrink-0"
+              style={{ color: colors.accent[600] }}
+            />
             <span className="text-muted-foreground">
-              {assistant.yearsExperience} año{assistant.yearsExperience !== 1 ? "s" : ""} de experiencia
+              {assistant.yearsExperience} año
+              {assistant.yearsExperience !== 1 ? "s" : ""} de experiencia
             </span>
           </div>
 
           {/* Location */}
           {assistant.location && (
             <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: colors.primary[600] }} />
-              <span className="text-muted-foreground truncate">{assistant.location}</span>
+              <MapPin
+                className="w-4 h-4 flex-shrink-0"
+                style={{ color: colors.primary[600] }}
+              />
+              <span className="text-muted-foreground truncate">
+                {assistant.location}
+              </span>
             </div>
           )}
 
           {/* Hourly Rate */}
           {assistant.hourlyRate && (
             <div className="flex items-center gap-2">
-              <DollarSign className="w-4 h-4 flex-shrink-0" style={{ color: colors.success[600] }} />
-              <span className="font-semibold" style={{ color: colors.success[700] }}>
+              <Banknote
+                className="w-4 h-4 flex-shrink-0"
+                style={{ color: colors.success[600] }}
+              />
+              <span
+                className="font-semibold"
+                style={{ color: colors.success[700] }}
+              >
                 ₡{assistant.hourlyRate.toLocaleString()}/hora
               </span>
             </div>
@@ -157,7 +197,7 @@ export function AssistantCard({ assistant, onViewProfile }: AssistantCardProps) 
         <Button
           className="w-full font-semibold"
           onClick={() => onViewProfile(assistant.id)}
-          style={{ background: colors.gradients.primary, color: 'white' }}
+          style={{ background: colors.gradients.primary, color: "white" }}
         >
           Ver Perfil Completo
         </Button>

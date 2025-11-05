@@ -15,6 +15,7 @@ import {
   MapPin,
   Clock,
   DollarSign,
+  Banknote,
   Mail,
   Phone,
   Award,
@@ -224,13 +225,13 @@ export default function AssistantProfilePage() {
                 <div className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-lg p-4 mb-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <DollarSign className="w-5 h-5" />
+                      <Banknote className="w-5 h-5" />
                       <span className="text-sm font-medium">
                         Tarifa por hora
                       </span>
                     </div>
                     <div className="text-3xl font-bold text-sky-600">
-                      ${assistant.hourlyRate ?? "—"}
+                      ₡{assistant.hourlyRate?.toLocaleString() ?? "—"}
                     </div>
                   </div>
                 </div>

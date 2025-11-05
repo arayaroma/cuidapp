@@ -12,6 +12,7 @@ import {
   Clock,
   Calendar,
   DollarSign,
+  Banknote,
   Loader2,
   FileText,
   Trash2,
@@ -387,7 +388,7 @@ export default function MisSolicitudesPage() {
 
                       {request.hourlyRate && (
                         <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 flex-shrink-0" style={{ color: colors.success[600] }} />
+                          <Banknote className="w-4 h-4 flex-shrink-0" style={{ color: colors.success[600] }} />
                           <span className="font-semibold" style={{ color: colors.success[700] }}>
                             ₡{request.hourlyRate.toLocaleString()}/hora
                           </span>
