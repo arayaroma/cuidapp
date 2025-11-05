@@ -12,6 +12,7 @@ import {
   Edit,
   CheckCircle
 } from "lucide-react";
+import { colors } from "@/config/colors";
 
 export interface MyUserProfileData {
   name: string;
@@ -44,29 +45,41 @@ export function MyProfileHeader({ data, onEdit }: MyProfileHeaderProps) {
   };
 
   return (
-    <Card>
+    <Card className="border-neutral-200 shadow-sm">
       <CardContent className="p-6">
-        <div className="flex items-start gap-4">
-          <Avatar className="w-20 h-20">
-            <AvatarFallback className="text-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+        <div className="flex items-start gap-6">
+          <div 
+            className="relative"
+          >
+            <Avatar className="w-24 h-24 border-4" style={{ borderColor: colors.primary[100] }}>
+              <AvatarFallback 
+                className="text-2xl font-semibold text-white"
+                style={{ background: colors.gradients.primary }}
+              >
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            {data.verified && (
+              <div 
+                className="absolute -bottom-1 -right-1 p-1.5 rounded-full border-2 border-white"
+                style={{ backgroundColor: colors.success[500] }}
+              >
+                <CheckCircle className="w-4 h-4 text-white" />
+              </div>
+            )}
+          </div>
           
           <div className="flex-1">
-            <div className="flex items-start justify-between mb-3">
+            <div className="flex items-start justify-between mb-4">
               <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <h2 className="text-2xl font-bold">{data.name}</h2>
-                  {data.verified && (
-                    <Badge variant="secondary" className="bg-blue-50 text-blue-700">
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      Verificado
-                    </Badge>
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5" />
+                <h2 className="text-3xl font-bold mb-1" style={{ color: colors.neutral[900] }}>
+                  {data.name}
+                </h2>
+                <p 
+                  className="text-sm flex items-center gap-1.5"
+                  style={{ color: colors.neutral[600] }}
+                >
+                  <Calendar className="w-4 h-4" />
                   Miembro desde {formatDate(data.memberSince)}
                 </p>
               </div>
@@ -74,25 +87,61 @@ export function MyProfileHeader({ data, onEdit }: MyProfileHeaderProps) {
                 onClick={onEdit}
                 variant="outline"
                 size="sm"
-                className="gap-2"
+                className="gap-2 border-2"
+                style={{ 
+                  borderColor: colors.primary[300],
+                  color: colors.primary[700],
+                }}
               >
                 <Edit className="w-4 h-4" />
                 Editar Perfil
               </Button>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <Mail className="w-4 h-4 text-muted-foreground" />
-                <span>{data.email}</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div 
+                className="flex items-center gap-2.5 p-3 rounded-lg"
+                style={{ backgroundColor: colors.neutral[50] }}
+              >
+                <div 
+                  className="p-2 rounded-lg"
+                  style={{ backgroundColor: colors.primary[100] }}
+                >
+                  <Mail className="w-4 h-4" style={{ color: colors.primary[600] }} />
+                </div>
+                <span className="text-sm" style={{ color: colors.neutral[700] }}>
+                  {data.email}
+                </span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Phone className="w-4 h-4 text-muted-foreground" />
-                <span>{data.phone}</span>
+              
+              <div 
+                className="flex items-center gap-2.5 p-3 rounded-lg"
+                style={{ backgroundColor: colors.neutral[50] }}
+              >
+                <div 
+                  className="p-2 rounded-lg"
+                  style={{ backgroundColor: colors.secondary[100] }}
+                >
+                  <Phone className="w-4 h-4" style={{ color: colors.secondary[600] }} />
+                </div>
+                <span className="text-sm" style={{ color: colors.neutral[700] }}>
+                  {data.phone}
+                </span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <MapPin className="w-4 h-4 text-muted-foreground" />
-                <span>{data.location}</span>
+              
+              <div 
+                className="flex items-center gap-2.5 p-3 rounded-lg"
+                style={{ backgroundColor: colors.neutral[50] }}
+              >
+                <div 
+                  className="p-2 rounded-lg"
+                  style={{ backgroundColor: colors.accent[100] }}
+                >
+                  <MapPin className="w-4 h-4" style={{ color: colors.accent[600] }} />
+                </div>
+                <span className="text-sm" style={{ color: colors.neutral[700] }}>
+                  {data.location}
+                </span>
               </div>
             </div>
           </div>
