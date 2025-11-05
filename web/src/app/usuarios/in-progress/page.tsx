@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,98 +11,109 @@ import {
   ArrowLeft, 
   Clock, 
   Calendar, 
-  MapPin, 
   Star,
   CheckCircle,
-  MessageSquare
+  MessageSquare,
+  Loader2
 } from "lucide-react";
+import { colors, careTypeColors } from "@/config/colors";
 
-// Mock data para servicios en proceso
-const mockInProgressServices = [
-  {
-    id: "serv-001",
-    title: "Cuidado de Adulto Mayor",
-    caregiver: {
-      name: "María González",
-      avatar: "",
-      rating: 4.9,
-    },
-    category: "Adultos Mayores",
-    status: "En Progreso",
-    startDate: "01/10/2025",
-    endDate: "31/10/2025",
-    progress: 60,
-    daysCompleted: 18,
-    totalDays: 30,
-    location: "San José, Costa Rica",
-    nextSession: "12/10/2025 - 9:00 AM",
-    hourlyRate: "₡8,500",
-    canComplete: false,
-  },
-  {
-    id: "serv-002",
-    title: "Cuidado Infantil",
-    caregiver: {
-      name: "Ana Rodríguez",
-      avatar: "",
-      rating: 5.0,
-    },
-    category: "Niños",
-    status: "En Progreso",
-    startDate: "05/10/2025",
-    endDate: "12/10/2025",
-    progress: 85,
-    daysCompleted: 6,
-    totalDays: 7,
-    location: "Heredia, Costa Rica",
-    nextSession: "11/10/2025 - 2:00 PM",
-    hourlyRate: "₡7,000",
-    canComplete: true,
-  },
-  {
-    id: "serv-003",
-    title: "Cuidado Post-Operatorio",
-    caregiver: {
-      name: "Carmen Jiménez",
-      avatar: "",
-      rating: 4.8,
-    },
-    category: "Cuidado Especial",
-    status: "En Progreso",
-    startDate: "08/10/2025",
-    endDate: "22/10/2025",
-    progress: 20,
-    daysCompleted: 3,
-    totalDays: 14,
-    location: "Alajuela, Costa Rica",
-    nextSession: "11/10/2025 - 10:00 AM",
-    hourlyRate: "₡10,000",
-    canComplete: false,
-  },
-];
+interface Service {
+  id: string;
+  title: string;
+  caregiver: {
+    id: string;
+    name: string;
+    avatar: string | null;
+    rating: number;
+  };
+  category: string;
+  status: string;
+  startDate: Date;
+  endDate: Date | null;
+  progress: number;
+  daysCompleted: number;
+  totalDays: number;
+  nextSession: string;
+  hourlyRate: number;
+  canComplete: boolean;
+}
 
 export default function InProgressServicesPage() {
   const router = useRouter();
-  const [services] = useState(mockInProgressServices);
+  const [services, setServices] = useState<Service[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchServices() {
+      try {
+        setIsLoading(true);
+        const response = await fetch("/api/users/in-progress");
+        if (response.ok) {
+          const data = await response.json();
+          setServices(data);
+        }
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchServices();
+  }, []);
 
   const handleCompleteService = (serviceId: string) => {
     router.push(`/usuarios/in-progress/${serviceId}/review`);
   };
 
   const handleViewDetails = (serviceId: string) => {
-    // Navegar a detalles del servicio
     console.log("Ver detalles:", serviceId);
   };
 
   const handleContactCaregiver = (caregiverId: string) => {
-    // Abrir chat o contacto
     console.log("Contactar cuidador:", caregiverId);
   };
 
+  const getCareTypeInfo = (category: string) => {
+    const categoryMap: Record<string, { label: string; colors: any }> = {
+      elderly: { label: "Adultos Mayores", colors: careTypeColors.elderly },
+      children: { label: "Niños", colors: careTypeColors.children },
+      disability: { label: "Discapacidad", colors: careTypeColors.disability },
+      hospital: { label: "Hospitalario", colors: careTypeColors.hospital },
+      companion: { label: "Compañía", colors: careTypeColors.companion },
+      "special-needs": { label: "Cuidado Especial", colors: careTypeColors["special-needs"] },
+    };
+    return categoryMap[category] || { label: category, colors: careTypeColors.companion };
+  };
+
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString("es-CR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: colors.background.secondary }}>
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" style={{ color: colors.primary[500] }} />
+          <p style={{ color: colors.neutral[600] }}>Cargando servicios...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const avgRating = services.length > 0 
+    ? (services.reduce((sum, s) => sum + s.caregiver.rating, 0) / services.length).toFixed(1)
+    : "0.0";
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-cyan-50 pb-10">
+    <div className="min-h-screen pb-10" style={{ background: colors.background.secondary }}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-8 px-4 shadow-lg">
+      <div className="text-white py-8 px-4 shadow-lg" style={{ background: colors.gradients.warm }}>
         <div className="max-w-7xl mx-auto">
           <Button
             variant="ghost"
@@ -113,7 +124,7 @@ export default function InProgressServicesPage() {
             Volver al Dashboard
           </Button>
           <h1 className="text-3xl font-bold">Servicios en Proceso</h1>
-          <p className="text-amber-100 mt-2">
+          <p className="mt-2" style={{ color: colors.accent[100] }}>
             Gestiona y da seguimiento a tus servicios activos
           </p>
         </div>
@@ -123,32 +134,40 @@ export default function InProgressServicesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Summary */}
         <div className="grid gap-4 md:grid-cols-3 mb-8">
-          <Card>
+          <Card className="border-neutral-200 shadow-sm">
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-amber-600">{services.length}</p>
-                <p className="text-sm text-muted-foreground">Servicios Activos</p>
+                <p className="text-3xl font-bold" style={{ color: colors.accent[600] }}>
+                  {services.length}
+                </p>
+                <p className="text-sm" style={{ color: colors.neutral[600] }}>
+                  Servicios Activos
+                </p>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-neutral-200 shadow-sm">
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-orange-600">
+                <p className="text-3xl font-bold" style={{ color: colors.success[600] }}>
                   {services.filter(s => s.canComplete).length}
                 </p>
-                <p className="text-sm text-muted-foreground">Listos para Completar</p>
+                <p className="text-sm" style={{ color: colors.neutral[600] }}>
+                  Listos para Completar
+                </p>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-neutral-200 shadow-sm">
             <CardContent className="pt-6">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1">
                   <Star className="w-6 h-6 fill-yellow-400 text-yellow-400" />
-                  <p className="text-3xl font-bold">4.9</p>
+                  <p className="text-3xl font-bold">{avgRating}</p>
                 </div>
-                <p className="text-sm text-muted-foreground">Calificación Promedio</p>
+                <p className="text-sm" style={{ color: colors.neutral[600] }}>
+                  Calificación Promedio
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -156,110 +175,142 @@ export default function InProgressServicesPage() {
 
         {/* Services List */}
         {services.length === 0 ? (
-          <Card className="p-8 text-center">
-            <Clock className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No tienes servicios en progreso</p>
+          <Card className="p-12 text-center border-neutral-200 shadow-sm">
+            <Clock className="w-16 h-16 mx-auto mb-4" style={{ color: colors.neutral[400] }} />
+            <p style={{ color: colors.neutral[600] }}>No tienes servicios en progreso</p>
           </Card>
         ) : (
           <div className="space-y-6">
-            {services.map((service) => (
-              <Card key={service.id} className="hover:shadow-xl transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-4 flex-1">
-                      <Avatar className="w-16 h-16">
-                        {service.caregiver.avatar && (
-                          <AvatarImage src={service.caregiver.avatar} />
-                        )}
-                        <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-500 text-white text-lg">
-                          {service.caregiver.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <CardTitle className="text-xl">{service.title}</CardTitle>
-                          <Badge className="bg-amber-100 text-amber-800">
-                            <Clock className="w-3 h-3 mr-1" />
-                            {service.status}
-                          </Badge>
-                          {service.canComplete && (
-                            <Badge className="bg-green-100 text-green-800">
-                              <CheckCircle className="w-3 h-3 mr-1" />
-                              Listo para completar
-                            </Badge>
+            {services.map((service) => {
+              const categoryInfo = getCareTypeInfo(service.category);
+              
+              return (
+                <Card key={service.id} className="hover:shadow-xl transition-shadow border-neutral-200">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-4 flex-1">
+                        <Avatar className="w-16 h-16 border-4" style={{ borderColor: colors.accent[100] }}>
+                          {service.caregiver.avatar && (
+                            <AvatarImage src={service.caregiver.avatar} />
                           )}
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Cuidador: {service.caregiver.name}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                            <span className="text-sm font-semibold">
-                              {service.caregiver.rating}
-                            </span>
+                          <AvatarFallback 
+                            className="text-white text-lg"
+                            style={{ background: colors.gradients.warm }}
+                          >
+                            {service.caregiver.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <CardTitle className="text-xl" style={{ color: colors.neutral[900] }}>
+                              {service.title}
+                            </CardTitle>
+                            <Badge 
+                              className="border"
+                              style={{
+                                backgroundColor: colors.warning[50],
+                                color: colors.warning[700],
+                                borderColor: colors.warning[200],
+                              }}
+                            >
+                              <Clock className="w-3 h-3 mr-1" />
+                              {service.status}
+                            </Badge>
+                            {service.canComplete && (
+                              <Badge 
+                                className="border"
+                                style={{
+                                  backgroundColor: colors.success[50],
+                                  color: colors.success[700],
+                                  borderColor: colors.success[200],
+                                }}
+                              >
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                Listo para completar
+                              </Badge>
+                            )}
                           </div>
-                          <Badge className="bg-sky-100 text-sky-800">
-                            {service.category}
-                          </Badge>
+                          <p className="text-sm" style={{ color: colors.neutral[600] }}>
+                            Cuidador: {service.caregiver.name}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1">
+                              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                              <span className="text-sm font-semibold">
+                                {service.caregiver.rating.toFixed(1)}
+                              </span>
+                            </div>
+                            <Badge 
+                              variant="outline"
+                              style={{
+                                backgroundColor: categoryInfo.colors.bg,
+                                color: categoryInfo.colors.text,
+                                borderColor: categoryInfo.colors.border,
+                              }}
+                            >
+                              {categoryInfo.label}
+                            </Badge>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* Progress Bar */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Progreso del servicio</span>
-                        <span className="font-semibold text-amber-600">
-                          {service.daysCompleted}/{service.totalDays} días ({service.progress}%)
-                        </span>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {/* Progress Bar */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span style={{ color: colors.neutral[600] }}>Progreso del servicio</span>
+                          <span className="font-semibold" style={{ color: colors.accent[600] }}>
+                            {service.daysCompleted}/{service.totalDays} días ({service.progress}%)
+                          </span>
+                        </div>
+                        <Progress value={service.progress} className="h-3" />
                       </div>
-                      <Progress value={service.progress} className="h-3" />
-                    </div>
 
-                    {/* Service Details */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm pt-2">
-                      <div>
-                        <p className="text-muted-foreground flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          Inicio
-                        </p>
-                        <p className="font-semibold">{service.startDate}</p>
+                      {/* Service Details */}
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm pt-2">
+                        <div>
+                          <p className="flex items-center gap-1" style={{ color: colors.neutral[600] }}>
+                            <Calendar className="w-4 h-4" />
+                            Inicio
+                          </p>
+                          <p className="font-semibold" style={{ color: colors.neutral[900] }}>
+                            {formatDate(service.startDate)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="flex items-center gap-1" style={{ color: colors.neutral[600] }}>
+                            <Calendar className="w-4 h-4" />
+                            Fin estimado
+                          </p>
+                          <p className="font-semibold" style={{ color: colors.neutral[900] }}>
+                            {service.endDate ? formatDate(service.endDate) : "N/A"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="flex items-center gap-1" style={{ color: colors.neutral[600] }}>
+                            <Clock className="w-4 h-4" />
+                            Próxima sesión
+                          </p>
+                          <p className="font-semibold" style={{ color: colors.neutral[900] }}>
+                            {service.nextSession}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-muted-foreground flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          Fin estimado
-                        </p>
-                        <p className="font-semibold">{service.endDate}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          Próxima sesión
-                        </p>
-                        <p className="font-semibold">{service.nextSession}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground flex items-center gap-1">
-                          <MapPin className="w-4 h-4" />
-                          Ubicación
-                        </p>
-                        <p className="font-semibold">{service.location}</p>
-                      </div>
-                    </div>
 
                     {/* Actions */}
-                    <div className="flex gap-2 pt-4 border-t">
+                    <div className="flex gap-2 pt-4 border-t border-neutral-200">
                       <Button
                         variant="outline"
                         className="flex-1"
+                        style={{
+                          borderColor: colors.primary[300],
+                          color: colors.primary[700],
+                        }}
                         onClick={() => handleViewDetails(service.id)}
                       >
                         Ver Detalles
@@ -267,25 +318,31 @@ export default function InProgressServicesPage() {
                       <Button
                         variant="outline"
                         className="flex-1"
-                        onClick={() => handleContactCaregiver(service.caregiver.name)}
+                        style={{
+                          borderColor: colors.secondary[300],
+                          color: colors.secondary[700],
+                        }}
+                        onClick={() => handleContactCaregiver(service.caregiver.id)}
                       >
                         <MessageSquare className="w-4 h-4 mr-2" />
                         Contactar
                       </Button>
                       {service.canComplete && (
                         <Button
-                          className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold shadow-md"
+                          className="flex-1 text-white font-semibold shadow-md"
+                          style={{ background: colors.gradients.secondary }}
                           onClick={() => handleCompleteService(service.id)}
                         >
                           <CheckCircle className="w-4 h-4 mr-2" />
-                          Completar Servicio
+                          Completar
                         </Button>
                       )}
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
