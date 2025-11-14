@@ -69,7 +69,11 @@ export async function GET(req: NextRequest) {
       requirements: request.requirements,
       urgency: request.urgency,
       createdBy: request.user.full_name,
-      applicants: request.applications.length,
+      applicants: request.applications.map((app) => ({
+        id: app.user_assistant_application.user.assistant.id,
+        fullName: app.user_assistant_application.user.assistant.full_name,
+        photoUrl: app.user_assistant_application.user.assistant.photo_url,
+      })),
       status: request.status,
       createdAt: request.created_at,
     }));
@@ -112,7 +116,7 @@ export async function POST(req: NextRequest) {
         weekdays: body.weekdays || [],
         request_date: new Date(body.requestDate),
         request_time: body.requestTime,
-        status: "active",
+        status: "NOT_STARTED",
       },
     });
 

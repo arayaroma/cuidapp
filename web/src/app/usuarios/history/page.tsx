@@ -10,6 +10,65 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search, ArrowLeft, Star, CheckCircle2, Loader2, FileText } from "lucide-react";
 import { colors, careTypeColors } from "@/config/colors";
 
+const mockHistory: HistoryItem[] = [
+  {
+    id: "1",
+    title: "Cuidado para mi madre de 78 años",
+    caregiver: {
+      id: "1",
+      name: "María González",
+      avatar: null,
+      rating: 4.8,
+    },
+    category: "elderly",
+    startDate: new Date("2025-09-01"),
+    endDate: new Date("2025-09-30"),
+    duration: "30 días",
+    totalCost: 8400,
+    status: "Completado",
+    myRating: 5,
+    caregiverRating: 4.8,
+  },
+  {
+    id: "2",
+    title: "Cuidado nocturno para bebé",
+    caregiver: {
+      id: "2",
+      name: "Ana Rodríguez",
+      avatar: null,
+      rating: 4.9,
+    },
+    category: "children",
+    startDate: new Date("2025-08-15"),
+    endDate: new Date("2025-08-20"),
+    duration: "5 días",
+    totalCost: 1200,
+    status: "Completado",
+    myRating: 5,
+    caregiverRating: 4.9,
+  },
+];
+
+const getCareTypeInfo = (category: string) => {
+  const careTypes = {
+    elderly: { label: "Adultos Mayores", colors: careTypeColors.elderly },
+    children: { label: "Niños", colors: careTypeColors.children },
+    disability: { label: "Discapacidad", colors: careTypeColors.disability },
+    hospital: { label: "Cuidado Hospitalario", colors: careTypeColors.hospital },
+    companion: { label: "Acompañamiento", colors: careTypeColors.companion },
+    "special-needs": { label: "Necesidades Especiales", colors: careTypeColors["special-needs"] },
+  };
+  return careTypes[category as keyof typeof careTypes] || careTypes.companion;
+};
+
+const formatDate = (date: Date | string) => {
+  return new Date(date).toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
 interface HistoryItem {
   id: string;
   title: string;

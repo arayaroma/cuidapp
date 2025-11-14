@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Briefcase, Search, ArrowLeft, FileX } from "lucide-react";
+import Swal from 'sweetalert2'
+import { colors } from "@/config/colors";
 
 export default function SolicitudesDisponiblesPage() {
   const router = useRouter();
@@ -18,22 +20,60 @@ export default function SolicitudesDisponiblesPage() {
   useEffect(() => {
     fetch('/api/requests/available')
       .then(res => res.json())
-      .then(setAvailableRequests)
-      .catch(console.error);
+      .then(data => {
+        if (Array.isArray(data)) {
+          setAvailableRequests(data);
+        } else {
+          console.error("Invalid API response: expected an array", data);
+          setAvailableRequests([]);
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching available requests:", error);
+        setAvailableRequests([]);
+      });
   }, []);
 
   const handleViewDetails = (request: CareRequest) => {
-    router.push(`/asistentes/request-details/${request.id}`);
+    router.push(`/asistentes/appointmentsDetails?id=${request.id}`);
   };
 
-  const handleApply = (requestId: string, message: string) => {
-    console.log("Aplicando a solicitud:", requestId, "con mensaje:", message);
-    // Lógica para postularse
+  const handleApply = async (requestId: string, message: string) => {
+    try {
+      const response = await fetch("/api/requests/apply", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          requestId,
+          message,
+        }),
+      });
+
+        if (response.ok) {
+        // Refresh the available requests to show updated status
+        fetch('/api/requests/available')
+          .then(res => res.json())
+          .then(data => {
+            if (Array.isArray(data)) {
+              setAvailableRequests(data);
+            }
+          })
+          .catch(console.error);
+        Swal.fire({ icon: 'success', title: 'Postulación enviada', text: '¡Postulación enviada exitosamente!', timer: 1400, showConfirmButton: false })
+      } else {
+        const error = await response.json();
+        Swal.fire({ icon: 'error', title: 'Error', text: error?.error || 'Error al enviar la postulación' })
+      }
+    } catch (error) {
+      console.error("Error applying to request:", error);
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Error al enviar la postulación' })
+    }
   };
 
   const handleApplyClick = (request: CareRequest) => {
-    // Aquí podrías abrir un modal para ingresar el mensaje
-    handleApply(request.id, "Mensaje de aplicación por defecto");
+    // This won't be called directly, the modal will handle it
   };  // Filtrar solicitudes disponibles
   const filteredAvailable = useMemo(() => {
     return availableRequests.filter((request) =>
@@ -44,9 +84,9 @@ export default function SolicitudesDisponiblesPage() {
   }, [availableRequests, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50 pb-10">
+    <div className="min-h-screen pb-10" style={{ background: colors.background.secondary }}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-8">
+      <div className="text-white py-8" style={{ background: colors.gradients.primary }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Button
             variant="ghost"
@@ -60,7 +100,7 @@ export default function SolicitudesDisponiblesPage() {
             <Briefcase className="w-8 h-8" />
             <div>
               <h1 className="text-3xl font-bold">Solicitudes Disponibles</h1>
-              <p className="text-cyan-100 mt-2">
+              <p className="mt-2" style={{ color: colors.accent[100] }}>
                 Explora y postúlate a oportunidades de trabajo
               </p>
             </div>

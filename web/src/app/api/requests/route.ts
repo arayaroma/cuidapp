@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
         weekdays: weekdays || [],
         request_date: new Date(requestDate),
         request_time: requestTime,
-        status: 'active',
+        status: 'NOT_STARTED',
       },
       include: {
         user: {

@@ -3,12 +3,13 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { RequestCard } from "@/components/asistentes/RequestCard";
-import { MyRequest } from "@/types/request";
+import { MyRequest, CareRequest } from "@/types/request";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Inbox, Search, ArrowLeft } from "lucide-react";
+import { colors } from "@/config/colors";
 
 export default function OfertasRecibidasPage() {
   const router = useRouter();
@@ -16,14 +17,14 @@ export default function OfertasRecibidasPage() {
   const [myOffers, setMyOffers] = useState<MyRequest[]>([]);
 
   useEffect(() => {
-    fetch('/api/asistentes/offers')
+    fetch('/api/assistants/offers')
       .then(res => res.json())
       .then(setMyOffers)
       .catch(console.error);
   }, []);
 
-  const handleViewDetails = (request: MyRequest) => {
-    router.push(`/asistentes/request-details/${request.id}`);
+  const handleViewDetails = (request: CareRequest) => {
+    router.push(`/asistentes/appointmentsDetails?id=${request.id}`);
   };
 
   const handleWithdraw = (request: MyRequest) => {
@@ -41,9 +42,9 @@ export default function OfertasRecibidasPage() {
   }, [myOffers, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50 pb-10">
+    <div className="min-h-screen pb-10" style={{ background: colors.background.secondary }}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-8">
+      <div className="text-white py-8" style={{ background: colors.gradients.primary }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Button
             variant="ghost"

@@ -23,6 +23,7 @@ import {
   Plus,
 } from "lucide-react";
 import { CareRequest } from "@/types/request";
+import { useAuth } from '@/hooks/useAuth';
 import { confirmAlert, successAlert, errorAlert } from "@/lib/alerts";
 import { colors, careTypeColors, urgencyColors, statusColors } from "@/config/colors";
 
@@ -33,17 +34,25 @@ export default function MisSolicitudesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
 
+  const { user, status } = useAuth();
+
+  
+
   useEffect(() => {
+  // Wait for session/user to be available
+  if (status === 'loading') return;
+  const userId = (user as any)?.id;
+    if (!userId) {
+      setUserRequests([]);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
-    fetch("/api/requests/available")
+    fetch(`/api/requests?userId=${userId}`)
       .then((res) => res.json())
       .then((data: CareRequest[]) => {
-        console.log("📅 Solicitudes cargadas:", data);
-        data.forEach(req => {
-          if (req.isRecurring) {
-            console.log(`${req.title} - isRecurring: ${req.isRecurring}, weekdays:`, req.weekdays);
-          }
-        });
+        // Keep status as returned by server (DB codes). getStatusInfo will translate to Spanish labels.
         setUserRequests(data);
         setIsLoading(false);
       })
@@ -52,11 +61,29 @@ export default function MisSolicitudesPage() {
         errorAlert.loading("las solicitudes");
         setIsLoading(false);
       });
-  }, []);
+  }, [user, status]);
 
   const filteredRequests = useMemo(() => {
     if (!userRequests) return [];
     const q = searchQuery.toLowerCase();
+    const getStatusKey = (status?: string) => {
+      if (!status) return 'active';
+      const s = status.toString().toUpperCase();
+      switch (s) {
+        case 'NOT_STARTED':
+          return 'active';
+        case 'IN_PROGRESS':
+          return 'in-progress';
+        case 'COMPLETED':
+          return 'completed';
+        case 'PAUSED':
+          return 'paused';
+        case 'CANCELLED':
+          return 'cancelled';
+        default:
+          return status.toString();
+      }
+    };
 
     let filtered = userRequests.filter(
       (request: CareRequest) =>
@@ -66,7 +93,7 @@ export default function MisSolicitudesPage() {
     );
 
     if (selectedFilter !== "all") {
-      filtered = filtered.filter((req) => req.status === selectedFilter);
+      filtered = filtered.filter((req) => getStatusKey(req.status) === selectedFilter);
     }
 
     return filtered;
@@ -119,17 +146,27 @@ export default function MisSolicitudesPage() {
   };
 
   const getStatusInfo = (status: string) => {
+    const s = status ? status.toString() : '';
+    // Accept DB codes (e.g. NOT_STARTED, IN_PROGRESS, COMPLETED) and UI keys
+    const key = s.toUpperCase();
+    if (key === 'NOT_STARTED' || key === 'ACTIVE') return { label: 'Activa', colors: statusColors.active };
+    if (key === 'IN_PROGRESS') return { label: 'En Progreso', colors: statusColors['in-progress'] };
+    if (key === 'COMPLETED') return { label: 'Completada', colors: statusColors.completed };
+    if (key === 'PAUSED') return { label: 'Pausada', colors: statusColors.paused };
+    if (key === 'CANCELLED') return { label: 'Cancelada', colors: statusColors.cancelled };
+
+    // Fallback for already normalized keys
     const statusMap: Record<string, { label: string; colors: any }> = {
-      active: { label: "Activa", colors: statusColors.active },
-      "in-progress": { label: "En Progreso", colors: statusColors["in-progress"] },
-      completed: { label: "Completada", colors: statusColors.completed },
-      paused: { label: "Pausada", colors: statusColors.paused },
-      cancelled: { label: "Cancelada", colors: statusColors.cancelled },
+      active: { label: 'Activa', colors: statusColors.active },
+      'in-progress': { label: 'En Progreso', colors: statusColors['in-progress'] },
+      completed: { label: 'Completada', colors: statusColors.completed },
+      paused: { label: 'Pausada', colors: statusColors.paused },
+      cancelled: { label: 'Cancelada', colors: statusColors.cancelled },
     };
-    return statusMap[status] || { label: status, colors: statusColors.active };
+    return statusMap[s] || { label: s || 'Activa', colors: statusColors.active };
   };
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: Date | string) => {
     return new Date(date).toLocaleDateString("es-CR", {
       day: "numeric",
       month: "short",
@@ -146,13 +183,13 @@ export default function MisSolicitudesPage() {
     },
     {
       label: "Activas",
-      count: userRequests.filter((r) => r.status === "active").length,
+      count: userRequests.filter((r) => r.status === "NOT_STARTED").length,
       color: statusColors.active.color,
       bg: statusColors.active.bg,
     },
     {
       label: "Completadas",
-      count: userRequests.filter((r) => r.status === "completed").length,
+      count: userRequests.filter((r) => r.status === "COMPLETED").length,
       color: statusColors.completed.color,
       bg: statusColors.completed.bg,
     },

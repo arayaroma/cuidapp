@@ -1,8 +1,48 @@
 import { withAuth } from "next-auth/middleware"
+import { NextResponse } from "next/server"
 
 export default withAuth(
   function middleware(req) {
-    // Add custom middleware logic here if needed
+    const token = req.nextauth.token
+    const path = req.nextUrl.pathname
+    
+    // Get user role from token
+    const userRole = token?.role as string | undefined
+    
+    console.log("Middleware - Path:", path, "Role:", userRole, "Token:", !!token);
+    
+    // If no token, let it through (will be handled by authorized callback)
+    if (!token) {
+      return NextResponse.next();
+    }
+    
+    // Role-based access control
+    if (userRole === 'assistant') {
+      // Assistants can only access /asistentes routes
+      if (path.startsWith('/usuarios')) {
+        console.log("Redirecting assistant from /usuarios to /asistentes/dashboard");
+        return NextResponse.redirect(new URL('/asistentes/dashboard', req.url))
+      }
+      // Redirect root to assistant dashboard
+      if (path === '/') {
+        console.log("Redirecting assistant from / to /asistentes/dashboard");
+        return NextResponse.redirect(new URL('/asistentes/dashboard', req.url))
+      }
+    } else if (userRole === 'user') {
+      // Users can only access /usuarios routes
+      if (path.startsWith('/asistentes')) {
+        console.log("Redirecting user from /asistentes to /usuarios/dashboard");
+        return NextResponse.redirect(new URL('/usuarios/dashboard', req.url))
+      }
+      // Redirect root to user dashboard
+      if (path === '/') {
+        console.log("Redirecting user from / to /usuarios/dashboard");
+        return NextResponse.redirect(new URL('/usuarios/dashboard', req.url))
+      }
+    }
+    
+    // Allow the request to continue
+    return NextResponse.next()
   },
   {
     callbacks: {

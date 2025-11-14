@@ -1,7 +1,8 @@
 "use client";
 
-import { Briefcase, Inbox, CheckCircle2, Clock } from "lucide-react";
+import { Briefcase, CheckCircle2, Clock } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
+import { colors } from "@/config/colors";
 
 interface AssistantDashboardCardsProps {
   onViewAvailable?: () => void;
@@ -32,19 +33,11 @@ export function AssistantDashboardCards({
         title="Solicitudes Disponibles"
         description={`Encuentra y postula a ${availableCount} solicitudes de cuidado disponibles en tu área.`}
         buttonText="Ver Solicitudes"
-        buttonGradient={{ from: "cyan-500", to: "blue-500" }}
+        buttonGradient={colors.gradients.primary}
         onClick={onViewAvailable}
       />
 
-      <DashboardCard
-        icon={Inbox}
-        iconColor="blue-500"
-        title="Ofertas Recibidas"
-        description={`Tienes ${offersCount} ofertas directas de usuarios que te han seleccionado.`}
-        buttonText="Ver Ofertas"
-        buttonGradient={{ from: "blue-500", to: "cyan-500" }}
-        onClick={onViewOffers}
-      />
+      {/* Ofertas Recibidas removed from assistant dashboard per UX request */}
 
       <DashboardCard
         icon={Clock}
@@ -52,17 +45,17 @@ export function AssistantDashboardCards({
         title="En Proceso"
         description={`Tienes ${inProgressCount} servicios activos en progreso que debes completar.`}
         buttonText="Ver Servicios"
-        buttonGradient={{ from: "amber-500", to: "orange-500" }}
+        buttonGradient={colors.gradients.warm}
         onClick={onViewInProgress}
       />
 
       <DashboardCard
         icon={CheckCircle2}
         iconColor="green-500"
-        title="Trabajos Aceptados"
-        description={`Gestiona tus ${acceptedCount} trabajos activos y próximas citas programadas.`}
+        title="Trabajos Finalizados"
+        description={`Revisa tus ${acceptedCount} trabajos finalizados y el historial de servicios.`}
         buttonText="Ver Trabajos"
-        buttonGradient={{ from: "green-500", to: "emerald-500" }}
+        buttonGradient={colors.gradients.secondary}
         onClick={onViewAccepted}
       />
     </div>
