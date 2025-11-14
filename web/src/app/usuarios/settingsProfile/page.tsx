@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { ImageUpload } from "@/components/shared/ImageUpload";
+import { ImageUpload } from "@/components/shared";
 import { 
   ArrowLeft, 
   Save, 
@@ -260,7 +260,7 @@ export default function UserSettingsProfilePage() {
               </Label>
               <ImageUpload
                 currentImage={formData.photoUrl}
-                onImageChange={(url) => setFormData(prev => ({ ...prev, photoUrl: url }))}
+                onImageChange={(url: string) => setFormData(prev => ({ ...prev, photoUrl: url }))}
                 bucket="avatars"
               />
             </div>

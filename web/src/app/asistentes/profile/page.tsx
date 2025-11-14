@@ -159,12 +159,12 @@ export default function AssistantProfilePage() {
   const ratingCount = profileData.ratingCount || 0;
 
   return (
-    <DashboardLayout backgroundClass="from-purple-50 via-pink-50 to-rose-50">
+    <DashboardLayout>
       <div className="space-y-6">
         {/* Header Premium con gradiente y estadísticas */}
         <Card className="overflow-hidden border-0 shadow-xl">
-          {/* Gradiente superior cyan/azul */}
-          <div className="h-40 bg-gradient-to-r from-cyan-500 via-blue-500 to-blue-600 relative">
+          {/* Gradiente superior - Tema Cyan/Blue igual que usuarios */}
+          <div className="h-40 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 relative">
             <div className="absolute inset-0 bg-black/10" />
           </div>
           
@@ -175,11 +175,11 @@ export default function AssistantProfilePage() {
                 <Avatar className="w-32 h-32 border-4 border-background shadow-2xl">
                   <AvatarImage src={profileData.photoUrl || undefined} alt={profileData.fullName} />
                   <AvatarFallback className="text-3xl font-bold bg-gradient-to-br from-cyan-500 to-blue-600 text-white">
-                    {profileData.fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                    {profileData.fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 {/* Indicador de disponibilidad */}
-                <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-background flex items-center justify-center">
+                <div className="absolute bottom-2 right-2 w-6 h-6 bg-blue-500 rounded-full border-4 border-background flex items-center justify-center">
                   <CheckCircle className="w-4 h-4 text-white" />
                 </div>
               </div>
@@ -189,7 +189,7 @@ export default function AssistantProfilePage() {
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                   <div className="space-y-3">
                     <div>
-                      <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                      <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-white">
                         {profileData.fullName}
                       </h1>
                       <div className="flex items-center gap-3 mt-2">
@@ -226,8 +226,11 @@ export default function AssistantProfilePage() {
                     )}
                   </div>
 
-                  <Button onClick={handleEditProfile} className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-lg">
-                    <Edit className="w-4 h-4 mr-2" />
+                  <Button
+                    onClick={handleEditProfile}
+                    className="bg-white text-blue-600 hover:bg-blue-50 border border-blue-600 shadow-lg"
+                  >
+                    <Edit className="w-4 h-4 mr-2 text-blue-600" />
                     Editar Perfil
                   </Button>
                 </div>
@@ -236,9 +239,9 @@ export default function AssistantProfilePage() {
 
                 {/* Estadísticas clave */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
-                    <div className="p-2 rounded-full bg-green-500/10">
-                      <Briefcase className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-green-950/20 dark:to-emerald-950/20">
+                    <div className="p-2 rounded-full bg-blue-500/10">
+                      <Briefcase className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Experiencia</p>
@@ -246,17 +249,17 @@ export default function AssistantProfilePage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20">
-                    <div className="p-2 rounded-full bg-blue-500/10">
-                      <DollarSign className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-emerald-950/20 dark:to-green-950/20">
+                    <div className="p-2 rounded-full bg-cyan-500/10">
+                      <DollarSign className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Tarifa/hora</p>
-                      <p className="text-sm font-bold">${profileData.assistant?.hourlyRate || 0}</p>
+                      <p className="text-sm font-bold">₡{profileData.assistant?.hourlyRate?.toLocaleString() || 'N/A'}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20">
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-green-950/20 dark:to-emerald-950/20">
                     <div className="p-2 rounded-full bg-blue-500/10">
                       <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     </div>
@@ -266,13 +269,13 @@ export default function AssistantProfilePage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
-                    <div className="p-2 rounded-full bg-amber-500/10">
-                      <TrendingUp className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-emerald-950/20 dark:to-green-950/20">
+                    <div className="p-2 rounded-full bg-cyan-500/10">
+                      <Star className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Calificación</p>
-                      <p className="text-sm font-bold">{rating > 0 ? `${rating.toFixed(1)}/5.0` : 'N/A'}</p>
+                      <p className="text-sm font-bold">{rating > 0 ? `${rating.toFixed(1)}/5.0 ⭐` : 'N/A'}</p>
                     </div>
                   </div>
                 </div>
@@ -291,8 +294,8 @@ export default function AssistantProfilePage() {
 
                   {profileData.phoneNumber && (
                     <div className="flex items-center gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-950/30">
-                      <div className="p-2 rounded-full bg-green-500/10">
-                        <Phone className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      <div className="p-2 rounded-full bg-blue-500/10">
+                        <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs text-muted-foreground">Teléfono</p>
@@ -356,11 +359,11 @@ export default function AssistantProfilePage() {
             )}
 
             {/* Estadísticas de rendimiento */}
-            <Card className="border-l-4 border-l-green-500">
+            <Card className="border-l-4 border-l-blue-500">
               <CardHeader className="bg-gradient-to-r from-green-50 to-transparent dark:from-green-950/20">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <div className="p-2 rounded-lg bg-green-500/10">
-                    <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  <div className="p-2 rounded-lg bg-blue-500/10">
+                    <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   Desempeño Profesional
                 </CardTitle>
@@ -370,7 +373,7 @@ export default function AssistantProfilePage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">Calificación General</span>
-                      <span className="text-2xl font-bold text-green-600">{rating.toFixed(1)}</span>
+                      <span className="text-2xl font-bold text-blue-600">{rating.toFixed(1)}</span>
                     </div>
                     <Progress value={(rating / 5) * 100} className="h-3" />
                     <p className="text-xs text-muted-foreground">Basado en {ratingCount} reseñas de clientes</p>
@@ -383,7 +386,7 @@ export default function AssistantProfilePage() {
                     <p className="text-sm text-muted-foreground mt-1">Años de Experiencia</p>
                   </div>
                   <div className="text-center p-4 rounded-lg bg-muted/50">
-                    <p className="text-3xl font-bold text-green-600">{ratingCount}</p>
+                    <p className="text-3xl font-bold text-blue-600">{ratingCount}</p>
                     <p className="text-sm text-muted-foreground mt-1">Clientes Atendidos</p>
                   </div>
                 </div>
@@ -444,7 +447,7 @@ export default function AssistantProfilePage() {
 
             {/* Idiomas */}
             {profileData.assistant?.languages && profileData.assistant.languages.length > 0 && (
-              <Card className="border-l-4 border-l-amber-500">
+              <Card className="border-l-4 border-l-cyan-500">
                 <CardHeader className="bg-gradient-to-r from-amber-50 to-transparent dark:from-amber-950/20">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <div className="p-2 rounded-lg bg-amber-500/10">
@@ -468,11 +471,11 @@ export default function AssistantProfilePage() {
 
           {/* Tab: Horario */}
           <TabsContent value="schedule" className="mt-6">
-            <Card className="border-l-4 border-l-green-500">
+            <Card className="border-l-4 border-l-blue-500">
               <CardHeader className="bg-gradient-to-r from-green-50 to-transparent dark:from-green-950/20">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <div className="p-2 rounded-lg bg-green-500/10">
-                    <Clock className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  <div className="p-2 rounded-lg bg-blue-500/10">
+                    <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   Disponibilidad
                 </CardTitle>
@@ -520,9 +523,9 @@ export default function AssistantProfilePage() {
                 )}
 
                 {/* Estado de disponibilidad */}
-                <div className="p-4 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200 dark:border-green-800">
+                <div className="p-4 rounded-lg bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200 dark:border-green-800">
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                    <CheckCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                     <div>
                       <p className="font-semibold text-green-900 dark:text-green-100">
                         Actualmente Disponible
@@ -601,8 +604,8 @@ export default function AssistantProfilePage() {
                           </div>
                         )}
                         {profileData.location.province && (
-                          <div className="p-4 rounded-lg bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-100 dark:border-green-900">
-                            <p className="text-xs font-medium text-green-600 dark:text-green-400 mb-1">Provincia</p>
+                          <div className="p-4 rounded-lg bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-100 dark:border-green-900">
+                            <p className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">Provincia</p>
                             <p className="text-base font-bold text-green-900 dark:text-green-100">{profileData.location.province}</p>
                           </div>
                         )}
