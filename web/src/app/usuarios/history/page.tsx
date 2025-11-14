@@ -60,16 +60,27 @@ export default function HistorialPage() {
     fetch('/api/users/history')
       .then(res => res.json())
       .then(data => {
-        setHistory(data);
+        console.log("📋 Historial cargado:", data);
+        // Asegurarnos de que data sea un array
+        if (Array.isArray(data)) {
+          setHistory(data);
+        } else {
+          console.error("La respuesta no es un array:", data);
+          setHistory([]);
+        }
         setIsLoading(false);
       })
       .catch(error => {
         console.error("Error fetching history:", error);
+        setHistory([]);
         setIsLoading(false);
       });
   }, []);
 
   const filteredHistory = useMemo(() => {
+    // Validar que history sea un array
+    if (!Array.isArray(history)) return [];
+    
     return history.filter((item) =>
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.caregiver.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -30,11 +30,8 @@ export async function GET(req: NextRequest) {
                 user: {
                   include: {
                     assistant: {
-                      select: {
-                        id: true,
-                        full_name: true,
-                        photo_url: true,
-                        rating: true,
+                      include: {
+                        assistant: true, // El User que es assistant
                       },
                     },
                   },
@@ -52,7 +49,12 @@ export async function GET(req: NextRequest) {
     // Format history
     const formattedHistory = completedRequests.map((request) => {
       const acceptedApplication = request.applications[0];
-      const assistantUser = acceptedApplication?.user_assistant_application?.user?.assistant;
+      const usersAssistantRelation = acceptedApplication?.user_assistant_application?.user;
+      const assistantUser = usersAssistantRelation?.assistant; // El User que es el asistente
+      const assistantData = assistantUser?.assistant; // Los datos del Assistant
+      
+      console.log("🔍 Debug - Assistant ID:", assistantData?.id);
+      console.log("🔍 Debug - Assistant User:", assistantUser?.full_name);
       
       const startDate = new Date(request.request_date);
       const endDate = new Date(request.updated_at); // Use updated_at as completion date
@@ -72,11 +74,11 @@ export async function GET(req: NextRequest) {
         id: request.id,
         requestId: request.id,
         title: request.title,
-        caregiver: assistantUser ? {
-          id: assistantUser.id,
-          name: assistantUser.full_name,
+        caregiver: assistantUser && assistantData ? {
+          id: assistantData.id, // ← ID del Assistant
+          name: assistantUser.full_name, // ← Datos del User que es asistente
           avatar: assistantUser.photo_url,
-          rating: assistantUser.rating || 0,
+          rating: assistantData.rating || 0,
         } : {
           id: "unknown",
           name: "Cuidador asignado",
@@ -90,16 +92,14 @@ export async function GET(req: NextRequest) {
         totalCost: totalCost,
         status: "Completado",
         myRating: 0, // TODO: Get from service_ratings table
-        caregiverRating: assistantUser?.rating || 0,
+        caregiverRating: assistantData?.rating || 0,
       };
     });
 
     return NextResponse.json(formattedHistory);
   } catch (error) {
     console.error("Error fetching history:", error);
-    return NextResponse.json(
-      { error: "Error al cargar el historial" },
-      { status: 500 }
-    );
+    // Devolver un array vacío en caso de error para evitar problemas en el frontend
+    return NextResponse.json([]);
   }
 }

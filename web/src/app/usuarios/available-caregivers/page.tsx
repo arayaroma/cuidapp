@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -29,9 +29,13 @@ import { colors } from "@/config/colors";
 
 export default function CuidadoresDisponiblesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const assistantId = searchParams.get('assistantId');
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [highlightedAssistant, setHighlightedAssistant] = useState<string | null>(assistantId);
 
   // Filtros
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>("all");
@@ -51,6 +55,16 @@ export default function CuidadoresDisponiblesPage() {
         // Asegurarnos de que data es un array
         if (Array.isArray(data)) {
           setAssistants(data);
+          
+          // Si hay un assistantId específico, scrollear a ese asistente
+          if (assistantId) {
+            setTimeout(() => {
+              const element = document.getElementById(`assistant-${assistantId}`);
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }, 500);
+          }
         } else {
           console.error("La respuesta no es un array:", data);
           setAssistants([]);
@@ -62,7 +76,7 @@ export default function CuidadoresDisponiblesPage() {
         setAssistants([]);
         setIsLoading(false);
       });
-  }, []);
+  }, [assistantId]);
 
   const filteredAssistants = useMemo(() => {
     // Validar que assistants sea un array
@@ -364,13 +378,18 @@ export default function CuidadoresDisponiblesPage() {
           /* Assistants Grid */
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredAssistants.map((assistant) => (
-              <AssistantCard
+              <div
                 key={assistant.id}
-                assistant={assistant}
-                onViewProfile={(id) =>
-                  router.push(`/usuarios/available-caregivers/${id}`)
-                }
-              />
+                id={`assistant-${assistant.id}`}
+                className={highlightedAssistant === assistant.id ? "ring-2 ring-sky-500 rounded-lg" : ""}
+              >
+                <AssistantCard
+                  assistant={assistant}
+                  onViewProfile={(id) =>
+                    router.push(`/usuarios/available-caregivers/${id}`)
+                  }
+                />
+              </div>
             ))}
           </div>
         )}

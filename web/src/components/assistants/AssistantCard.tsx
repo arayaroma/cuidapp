@@ -102,20 +102,20 @@ export function AssistantCard({
         {assistant.specialties && assistant.specialties.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-3">
             {assistant.specialties.slice(0, 3).map((specialty) => {
-              const colors =
-                careTypeColors[specialty as keyof typeof careTypeColors];
+              const specialtyColors =
+                careTypeColors[specialty as keyof typeof careTypeColors] || careTypeColors.companion;
               return (
                 <Badge
                   key={specialty}
                   variant="outline"
                   className="text-xs"
                   style={{
-                    backgroundColor: colors.bg,
-                    color: colors.text,
-                    borderColor: colors.border,
+                    backgroundColor: specialtyColors.bg,
+                    color: specialtyColors.text,
+                    borderColor: specialtyColors.border,
                   }}
                 >
-                  {specialtyLabels[specialty as keyof typeof specialtyLabels]}
+                  {specialtyLabels[specialty as keyof typeof specialtyLabels] || specialty}
                 </Badge>
               );
             })}
