@@ -1,25 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { colors } from "@/config/colors";
 import { AssistantDashboardCards } from "@/components/asistentes/AssistantDashboardCards";
-import { mockAvailableRequests, mockMyOffers, mockAcceptedJobs } from "@/data/mockRequests";
 import { Briefcase } from "lucide-react";
+
+interface DashboardStats {
+  availableRequests: number;
+  pendingOffers: number;
+  inProgress: number;
+  acceptedJobs: number;
+}
 
 export default function AssistantsDashboardPage() {
   const router = useRouter();
-  const [availableRequests] = useState(mockAvailableRequests);
-  const [myOffers] = useState(mockMyOffers);
-  const [acceptedJobs] = useState(mockAcceptedJobs);
+  const [stats, setStats] = useState<DashboardStats>({
+    availableRequests: 0,
+    pendingOffers: 0,
+    inProgress: 0,
+    acceptedJobs: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch("/api/assistants/dashboard");
+        if (response.ok) {
+          const data = await response.json();
+          setStats(data);
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   const handleViewAvailable = () => {
     router.push("/asistentes/available-requests");
-  };
-
-  const handleViewOffers = () => {
-    router.push("/asistentes/received-offers");
   };
 
   const handleViewInProgress = () => {
@@ -30,24 +55,35 @@ export default function AssistantsDashboardPage() {
     router.push("/asistentes/accepted-jobs");
   };
 
+  if (loading) {
+    return (
+      <DashboardLayout backgroundStyle={{ background: colors.background.secondary }}>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: colors.primary[500] }}></div>
+            <p className="mt-4 text-gray-600">Cargando estadísticas...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
-    <DashboardLayout backgroundColor="from-cyan-50 via-blue-50 to-sky-50">
+    <DashboardLayout backgroundStyle={{ background: colors.background.secondary }}>
       <DashboardHeader
         icon={Briefcase}
         title="Panel de Asistente"
         subtitle="Gestiona tus solicitudes y oportunidades de trabajo"
-        gradientFrom="cyan-500"
-        gradientTo="blue-500"
+        gradient={colors.gradients.primary}
       />
       <AssistantDashboardCards
         onViewAvailable={handleViewAvailable}
-        onViewOffers={handleViewOffers}
         onViewInProgress={handleViewInProgress}
         onViewAccepted={handleViewAccepted}
-        availableCount={availableRequests.length}
-        offersCount={myOffers.length}
-        inProgressCount={2}
-        acceptedCount={acceptedJobs.length}
+        availableCount={stats.availableRequests}
+        
+        inProgressCount={stats.inProgress}
+        acceptedCount={stats.acceptedJobs}
       />
     </DashboardLayout>
   );

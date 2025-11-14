@@ -5,20 +5,6 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
-type NextAuthOptions = {
-  providers: ReturnType<typeof Credentials>[];
-  callbacks: {
-    jwt: (params: { token: JWT; user?: User }) => Promise<JWT>;
-    session: (params: { session: Session; token: JWT }) => Promise<Session>;
-  };
-  pages: {
-    signIn: string;
-  };
-  session: {
-    strategy: string;
-  };
-};
-
 const loginSchema = z.object({
   email: z.email(),
   password: z.string().min(1),
@@ -31,8 +17,8 @@ const registerSchema = z.object({
   userType: z.enum(["caregiver", "client"]),
 });
 
-export const authOptions: NextAuthOptions = {
-  session: { strategy: "jwt" },
+export const authOptions = {
+  session: { strategy: "jwt" as const },
   providers: [
     Credentials({
       name: "credentials",
@@ -44,74 +30,95 @@ export const authOptions: NextAuthOptions = {
         action: { label: "Action", type: "text" },
       },
       async authorize(credentials) {
-        console.log("Authorize called with:", credentials);
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
-
-        const { email, password, name, userType, action } = credentials;
-
-        if (action === "register") {
-          // Registration logic
-          const validatedFields = registerSchema.safeParse({
-            email,
-            password,
-            name,
-            userType,
-          });
-
-          if (!validatedFields.success) {
-            throw new Error("Datos de registro inválidos. Verifica que todos los campos estén completos.");
-          }
-
-          const {
-            email: validatedEmail,
-            password: validatedPassword,
-            name: validatedName,
-            userType: validatedUserType,
-          } = validatedFields.data;
-
-          // Check if user already exists
-          const existingUser = await prisma.user.findUnique({
-            where: { email: validatedEmail },
-          });
-
-          if (existingUser) {
-            throw new Error("Ya existe un usuario con este correo electrónico.");
-          }
-
-          // Hash password
-          const hashedPassword = await bcrypt.hash(validatedPassword, 10);
-
-          // Get role based on user type
-          const role = await prisma.role.findFirst({
-            where: {
-              code: validatedUserType === "caregiver" ? "ASSISTANT" : "USER",
-            },
-          });
-
-          if (!role) {
+        try {
+          console.log("Authorize called with:", credentials);
+          if (!credentials?.email || !credentials?.password) {
+            console.log("Missing email or password");
             return null;
           }
 
-          // Create user
-          const user = await prisma.user.create({
-            data: {
-              email: validatedEmail,
-              password: hashedPassword,
-              full_name: validatedName,
-              username: validatedEmail.split("@")[0], // Simple username generation
-              role_id: role.id,
-            },
-          });
+          const { email, password, name, userType, action } = credentials;
 
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.full_name,
-            role: role.code,
-          };
-        } else {
+          if (action === "register") {
+            console.log("Registration flow started");
+            // Registration logic
+            const validatedFields = registerSchema.safeParse({
+              email,
+              password,
+              name,
+              userType,
+            });
+
+            console.log("Validation result:", validatedFields);
+
+            if (!validatedFields.success) {
+              console.log("Validation errors:", validatedFields.error);
+              throw new Error("Datos de registro inválidos. Verifica que todos los campos estén completos.");
+            }
+
+            const {
+              email: validatedEmail,
+              password: validatedPassword,
+              name: validatedName,
+              userType: validatedUserType,
+            } = validatedFields.data;
+
+            // Check if user already exists
+            const existingUser = await prisma.user.findUnique({
+              where: { email: validatedEmail },
+            });
+
+            console.log("Existing user check:", existingUser);
+
+            if (existingUser) {
+              throw new Error("Ya existe un usuario con este correo electrónico.");
+            }
+
+            // Hash password
+            const hashedPassword = await bcrypt.hash(validatedPassword, 10);
+            console.log("Password hashed successfully");
+
+            // Get role based on user type
+            const role = await prisma.role.findFirst({
+              where: {
+                code: validatedUserType === "caregiver" ? "ASSISTANT" : "USER",
+              },
+            });
+
+            console.log("Role found:", role);
+
+            if (!role) {
+              console.log("Role not found in database");
+              throw new Error("Role no encontrado en la base de datos.");
+            }
+
+            // Create user
+            console.log("Creating user with data:", {
+              email: validatedEmail,
+              full_name: validatedName,
+              username: validatedEmail.split("@")[0],
+              role_id: role.id,
+            });
+
+            const user = await prisma.user.create({
+              data: {
+                email: validatedEmail,
+                password: hashedPassword,
+                full_name: validatedName,
+                username: validatedEmail.split("@")[0],
+                role_id: role.id,
+              },
+            });
+
+            console.log("User created successfully:", user);
+
+            return {
+              id: user.id,
+              email: user.email,
+              name: user.full_name,
+              role: role.code,
+            };
+          } else {
           // Login logic
           const validatedFields = loginSchema.safeParse({
             email,
@@ -150,6 +157,10 @@ export const authOptions: NextAuthOptions = {
             role: user.role.code,
           };
         }
+      } catch (error) {
+        console.error("Error in authorize function:", error);
+        throw error;
+      }
       },
     }),
   ],
@@ -157,7 +168,10 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (token as any).role = (user as any).role;
+        const roleCode = (user as any).role;
+        // Normalize role to lowercase: ASSISTANT -> assistant, USER -> user
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (token as any).role = roleCode === 'ASSISTANT' ? 'assistant' : 'user';
       }
       return token;
     },

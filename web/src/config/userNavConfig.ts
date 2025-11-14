@@ -9,6 +9,7 @@ import {
   HelpCircle,
   FileText,
   History,
+  Inbox,
 } from "lucide-react";
 import { NavSection } from "@/components/shared/NavigationDrawer";
 
@@ -31,6 +32,12 @@ export const userNavSections: NavSection[] = [
         label: "Mis Solicitudes",
         href: "/usuarios/my-requests",
         badge: 2,
+      },
+      {
+        icon: Inbox,
+        label: "Ofertas Recibidas",
+        href: "/usuarios/received-offers",
+        badge: 0,
       },
       {
         icon: History,

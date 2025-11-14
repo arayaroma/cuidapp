@@ -2,8 +2,8 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { RequestDetails } from "@/components/asistentes/RequestDetails";
+import { colors } from "@/config/colors";
 import { Card } from "@/components/ui/card";
-import { mockAvailableRequests } from "@/data/mockRequests";
 import { useEffect, useState } from "react";
 import { CareRequest } from "@/types/request";
 
@@ -17,12 +17,26 @@ export default function AppointmentDetailsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Buscar la solicitud en los datos mock
-    const foundRequest = mockAvailableRequests.find(req => req.id === requestId);
-    if (foundRequest) {
-      setRequest(foundRequest);
-    }
-    setLoading(false);
+    const fetchRequest = async () => {
+      if (!requestId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/requests/${requestId}`);
+        if (response.ok) {
+          const requestData = await response.json();
+          setRequest(requestData);
+        }
+      } catch (error) {
+        console.error("Error fetching request:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRequest();
   }, [requestId]);
 
   const handleBack = () => {
@@ -51,9 +65,9 @@ export default function AppointmentDetailsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: colors.background.secondary }}>
         <Card className="p-8">
-          <div className="w-16 h-16 border-4 border-cyan-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-16 h-16 border-4 border-cyan-600 border-t-transparent rounded-full animate-spin mx-auto" style={{ borderColor: colors.primary[600] }} />
           <p className="text-center mt-4 text-muted-foreground">Cargando detalles...</p>
         </Card>
       </div>
@@ -62,7 +76,7 @@ export default function AppointmentDetailsPage() {
 
   if (!request) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: colors.background.secondary }}>
         <Card className="p-8">
           <p className="text-center text-muted-foreground">No se encontró la solicitud</p>
         </Card>

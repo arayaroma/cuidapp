@@ -35,7 +35,7 @@ interface RequestDetailsProps {
   hasApplied?: boolean;
 }
 
-const careTypeIcons = {
+const careTypeIcons: Record<string, React.ElementType> = {
   children: Baby,
   elderly: Heart,
   disability: Accessibility,
@@ -89,7 +89,10 @@ export function RequestDetails({
     }
   };
 
-  const CareTypeIcon = careTypeIcons[request.careType];
+  // Provide a safe fallback in case the careType value is unexpected or
+  // the icon mapping is missing. Rendering an undefined component causes
+  // the "Element type is invalid" React error.
+  const CareTypeIcon = careTypeIcons[request.careType] || Heart;
   const estimatedDaily = request.hourlyRate * request.totalHours;
 
   return (
@@ -139,7 +142,7 @@ export function RequestDetails({
                       ? "Urgente"
                       : "Muy Urgente"}
                   </Badge>
-                  {request.status === "active" && (
+                  {request.status === "NOT_STARTED" && (
                     <Badge
                       variant="outline"
                       className="bg-green-50 text-green-700 border-green-200"
@@ -206,7 +209,7 @@ export function RequestDetails({
             {/* Action Buttons for Assistant */}
             {userType === "assistant" &&
               !hasApplied &&
-              request.status === "active" && (
+              request.status === "NOT_STARTED" && (
                 <Button
                   className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white shadow-lg"
                   size="lg"
@@ -281,7 +284,7 @@ export function RequestDetails({
               <div className="flex-1">
                 <p className="font-semibold text-gray-900">Fecha de inicio</p>
                 <p className="text-sm text-gray-600 mt-1">
-                  {request.startDate.toLocaleDateString("es-ES", {
+                  {new Date(request.startDate).toLocaleDateString("es-ES", {
                     weekday: "long",
                     year: "numeric",
                     month: "long",

@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import { colors } from "@/config/colors";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,63 +14,190 @@ import {
   Clock, 
   Calendar, 
   MapPin, 
-  MessageSquare
+  MessageSquare,
+  CheckCircle,
+  XCircle
 } from "lucide-react";
 
-// Mock data para servicios en proceso (desde la perspectiva del asistente)
-const mockInProgressJobs = [
-  {
-    id: "job-001",
-    title: "Cuidado de Adulto Mayor",
-    client: {
-      name: "Carlos Méndez",
-      avatar: "",
-      phone: "+506 8888-9999",
-    },
-    category: "Adultos Mayores",
-    status: "En Progreso",
-    startDate: "01/10/2025",
-    endDate: "31/10/2025",
-    progress: 60,
-    daysCompleted: 18,
-    totalDays: 30,
-    location: "San José, Costa Rica",
-    nextSession: "12/10/2025 - 9:00 AM",
-    hourlyRate: "₡8,500",
-    totalEarned: "₡1,224,000",
-  },
-  {
-    id: "job-002",
-    title: "Cuidado Post-Operatorio",
-    client: {
-      name: "Laura Vargas",
-      avatar: "",
-      phone: "+506 7777-6666",
-    },
-    category: "Cuidado Especial",
-    status: "En Progreso",
-    startDate: "08/10/2025",
-    endDate: "22/10/2025",
-    progress: 20,
-    daysCompleted: 3,
-    totalDays: 14,
-    location: "Alajuela, Costa Rica",
-    nextSession: "11/10/2025 - 10:00 AM",
-    hourlyRate: "₡10,000",
-    totalEarned: "₡240,000",
-  },
-];
+interface InProgressJob {
+  id: string;
+  title: string;
+  client: {
+    name: string;
+    avatar: string;
+    phone: string;
+  };
+  category: string;
+  status: string;
+  startDate: string;
+  endDate: string;
+  progress: number;
+  daysCompleted: number;
+  totalDays: number;
+  location: string;
+  nextSession: string;
+  hourlyRate: string;
+  totalEarned: string;
+  description: string;
+  requirements: string[];
+  urgency: string;
+}
 
 export default function AssistantInProgressPage() {
   const router = useRouter();
-  const [jobs] = useState(mockInProgressJobs);
+  const [jobs, setJobs] = useState<InProgressJob[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchInProgressJobs = async () => {
+      try {
+        const response = await fetch("/api/assistants/in-progress");
+        if (response.ok) {
+          const data = await response.json();
+          setJobs(data);
+        }
+      } catch (error) {
+        console.error("Error fetching in-progress jobs:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInProgressJobs();
+  }, []);
 
   const handleViewDetails = (jobId: string) => {
-    console.log("Ver detalles:", jobId);
+    const job = jobs.find(j => j.id === jobId);
+    if (job) {
+      Swal.fire({
+        title: '📋 Detalles del Trabajo',
+        html: `
+          <div style="text-align: left; padding: 10px;">
+            <p><strong>Título:</strong> ${job.title}</p>
+            <p><strong>Cliente:</strong> ${job.client.name}</p>
+            <p><strong>Progreso:</strong> ${job.progress}%</p>
+            <p><strong>Ubicación:</strong> ${job.location}</p>
+            <p><strong>Próxima sesión:</strong> ${job.nextSession}</p>
+          </div>
+        `,
+        icon: 'info',
+        confirmButtonColor: '#f59e0b',
+      });
+    }
   };
 
-  const handleContactClient = (clientId: string) => {
-    console.log("Contactar cliente:", clientId);
+  const handleContactClient = (jobId: string) => {
+    const job = jobs.find(j => j.id === jobId);
+    if (job) {
+      Swal.fire({
+        title: `📞 Contactar a ${job.client.name}`,
+        text: '¿Deseas contactar al cliente?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Contactar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#f59e0b',
+      });
+    }
+  };
+
+  const handleCompleteJob = async (jobId: string) => {
+    const job = jobs.find(j => j.id === jobId);
+    if (!job) return;
+
+    const result = await Swal.fire({
+      title: '¿Finalizar trabajo?',
+      html: `
+        <div style="text-align: left; padding: 10px;">
+          <p>¿Estás seguro de que deseas marcar este trabajo como completado?</p>
+          <br/>
+          <p><strong>Trabajo:</strong> ${job.title}</p>
+          <p><strong>Cliente:</strong> ${job.client.name}</p>
+        </div>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, finalizar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch("/api/assistants/in-progress", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ requestId: jobId, status: "COMPLETED" }),
+        });
+
+        if (response.ok) {
+          // Redirect assistant to review page to rate the client
+          router.push(`/asistentes/in-progress/${jobId}/review`);
+        } else {
+          throw new Error('Error al finalizar');
+        }
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo finalizar el trabajo.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+        });
+      }
+    }
+  };
+
+  const handleCancelJob = async (jobId: string) => {
+    const job = jobs.find(j => j.id === jobId);
+    if (!job) return;
+
+    const result = await Swal.fire({
+      title: '¿Cancelar trabajo?',
+      html: `
+        <div style="text-align: left; padding: 10px;">
+          <p>¿Estás seguro de que deseas cancelar este trabajo?</p>
+          <br/>
+          <p><strong>Trabajo:</strong> ${job.title}</p>
+          <p style="color: #ef4444; font-size: 14px;">⚠️ Esta acción no se puede deshacer.</p>
+        </div>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cancelar',
+      cancelButtonText: 'No',
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch("/api/assistants/in-progress", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ requestId: jobId, status: "CANCELLED" }),
+        });
+
+        if (response.ok) {
+          setJobs(prev => prev.filter(j => j.id !== jobId));
+          Swal.fire({
+            title: 'Trabajo cancelado',
+            text: 'El trabajo ha sido cancelado.',
+            icon: 'info',
+            confirmButtonColor: '#f59e0b',
+          });
+        } else {
+          throw new Error('Error al cancelar');
+        }
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo cancelar el trabajo.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+        });
+      }
+    }
   };
 
   const totalEarned = jobs.reduce((sum, job) => {
@@ -76,10 +205,23 @@ export default function AssistantInProgressPage() {
     return sum + amount;
   }, 0);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen pb-10" style={{ background: colors.background.secondary }}>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: colors.primary[500] }}></div>
+            <p className="mt-4 text-gray-600">Cargando trabajos en progreso...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-cyan-50 pb-10">
+    <div className="min-h-screen pb-10" style={{ background: colors.background.secondary }}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-8 px-4 shadow-lg">
+      <div className="text-white py-8 px-4 shadow-lg" style={{ background: colors.gradients.primary }}>
         <div className="max-w-7xl mx-auto">
           <Button
             variant="ghost"
@@ -90,7 +232,7 @@ export default function AssistantInProgressPage() {
             Volver al Dashboard
           </Button>
           <h1 className="text-3xl font-bold">Trabajos en Proceso</h1>
-          <p className="text-amber-100 mt-2">
+          <p className="mt-2" style={{ color: colors.accent[100] }}>
             Gestiona tus trabajos activos y próximas sesiones
           </p>
         </div>
@@ -147,7 +289,7 @@ export default function AssistantInProgressPage() {
                         {job.client.avatar && (
                           <AvatarImage src={job.client.avatar} />
                         )}
-                        <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-500 text-white text-lg">
+                        <AvatarFallback className="text-white text-lg" style={{ background: colors.gradients.primary }}>
                           {job.client.name
                             .split(" ")
                             .map((n) => n[0])
@@ -236,21 +378,41 @@ export default function AssistantInProgressPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-2 pt-2 border-t">
-                      <Button
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => handleViewDetails(job.id)}
-                      >
-                        Ver Detalles
-                      </Button>
-                      <Button
-                        className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold shadow-md"
-                        onClick={() => handleContactClient(job.client.name)}
-                      >
-                        <MessageSquare className="w-4 h-4 mr-2" />
-                        Contactar Cliente
-                      </Button>
+                    <div className="space-y-2 pt-2 border-t">
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => handleViewDetails(job.id)}
+                        >
+                          Ver Detalles
+                        </Button>
+                        <Button
+                          className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold shadow-md"
+                          onClick={() => handleContactClient(job.client.name)}
+                        >
+                          <MessageSquare className="w-4 h-4 mr-2" />
+                          Contactar Cliente
+                        </Button>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          className="flex-1 border-green-500 text-green-600 hover:bg-green-50"
+                          onClick={() => handleCompleteJob(job.id)}
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Finalizar Trabajo
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="flex-1 border-red-500 text-red-600 hover:bg-red-50"
+                          onClick={() => handleCancelJob(job.id)}
+                        >
+                          <XCircle className="w-4 h-4 mr-2" />
+                          Cancelar Trabajo
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>

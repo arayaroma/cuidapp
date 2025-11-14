@@ -30,7 +30,32 @@ export async function GET(
       )
     }
 
-    return NextResponse.json(request)
+    // Transform database format to frontend format
+    const transformedRequest = {
+      id: request.id,
+      title: request.title,
+      careType: request.care_type,
+      personAge: request.person_age,
+      description: request.description,
+      location: request.user.location?.district || 'Ubicación no especificada',
+      startDate: request.request_date,
+      isRecurring: request.is_recurring,
+      weekdays: request.weekdays,
+      schedule: request.request_time,
+      hourlyRate: request.hourly_rate || 0,
+      totalHours: request.total_hours || 0,
+      requirements: request.requirements,
+      urgency: request.urgency,
+      createdBy: request.user.full_name,
+      createdById: request.user.id,
+      createdByAvatar: request.user.photo_url || null,
+      createdByRating: request.user.rating || 0,
+      createdByRatingCount: request.user.rating_count || 0,
+      applicants: request.applications.length,
+      status: request.status,
+    }
+
+    return NextResponse.json(transformedRequest)
   } catch (error) {
     console.error('Error fetching request:', error)
     return NextResponse.json(

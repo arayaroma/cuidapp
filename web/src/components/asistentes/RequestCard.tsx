@@ -54,9 +54,14 @@ const urgencyLabels = {
 
 export function RequestCard({ request, onViewDetails, onApply, actionButton }: RequestCardProps) {
   const [isApplying, setIsApplying] = useState(false);
-  const CareTypeIcon = careTypeIcons[request.careType];
+  const CareTypeIcon = careTypeIcons[request.careType] || Heart;
 
   const handleActionClick = () => {
+    // Si ya se postuló, no hacer nada
+    if (request.hasApplied) {
+      return;
+    }
+    
     // Si el botón dice "Postularme" y hay callback onApply, abrir modal
     if (actionButton?.label === "Postularme" && onApply) {
       setIsApplying(true);
@@ -73,7 +78,7 @@ export function RequestCard({ request, onViewDetails, onApply, actionButton }: R
   };
 
   return (
-    <Card className="p-4 hover:shadow-md transition-shadow">
+    <Card className={`p-4 hover:shadow-md transition-shadow ${request.hasApplied ? 'bg-green-50 border-green-200' : ''}`}>
       <div className="flex items-start gap-4">
         <div className="w-12 h-12 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
           <CareTypeIcon className="w-6 h-6 text-cyan-600" />
@@ -82,9 +87,16 @@ export function RequestCard({ request, onViewDetails, onApply, actionButton }: R
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
             <h4 className="font-medium text-sm sm:text-base line-clamp-1">{request.title}</h4>
-            <Badge className={urgencyColors[request.urgency]} variant="secondary">
-              {urgencyLabels[request.urgency]}
-            </Badge>
+            <div className="flex gap-1">
+              {request.hasApplied && (
+                <Badge className="bg-green-100 text-green-800 border-green-200" variant="secondary">
+                  Ya postulado
+                </Badge>
+              )}
+              <Badge className={urgencyColors[request.urgency]} variant="secondary">
+                {urgencyLabels[request.urgency]}
+              </Badge>
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 mb-2 text-xs sm:text-sm">
@@ -95,7 +107,7 @@ export function RequestCard({ request, onViewDetails, onApply, actionButton }: R
             <div className="flex items-center gap-1">
               <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <span className="text-muted-foreground">
-                {request.startDate.toLocaleDateString("es-ES", {
+                {new Date(request.startDate).toLocaleDateString("es-ES", {
                   day: "numeric",
                   month: "short",
                 })}
@@ -118,28 +130,59 @@ export function RequestCard({ request, onViewDetails, onApply, actionButton }: R
               <Badge className={careTypeColors[request.careType]} variant="secondary">
                 {careTypeLabels[request.careType]}
               </Badge>
-              <span className="font-semibold text-cyan-600">${request.hourlyRate}/hora</span>
+              <span className="font-semibold text-cyan-600">₡{request.hourlyRate.toLocaleString()}/hora</span>
               <span className="text-xs text-muted-foreground">({request.totalHours}h)</span>
             </div>
             <div className="flex gap-2">
-              {actionButton && (
+              {request.hasApplied ? (
                 <Button
                   size="sm"
-                  variant={actionButton.variant || "default"}
-                  onClick={handleActionClick}
+                  variant="outline"
+                  className="whitespace-nowrap bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                  disabled
+                >
+                  ✓ Postulado
+                </Button>
+              ) : (
+                actionButton ? (
+                  // If an actionButton is provided, render it. The internal handler
+                  // will call the provided onClick with the request. This avoids
+                  // duplicating a "Ver Detalles" button when the action itself is
+                  // the details action.
+                  <Button
+                    size="sm"
+                    variant={actionButton.variant || "default"}
+                    onClick={handleActionClick}
+                    className="whitespace-nowrap"
+                  >
+                    {actionButton.label}
+                  </Button>
+                ) : (
+                  // Fallback action when no actionButton is provided
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={() => onApply && onApply(request.id, "")}
+                    className="whitespace-nowrap"
+                  >
+                    Postularme
+                  </Button>
+                )
+              )}
+
+              {/* Only render a separate "Ver Detalles" button when the actionButton
+                  is not already the details action. This prevents duplicate buttons
+                  in pages that pass an actionButton with label "Ver Detalles". */}
+              {!(actionButton && actionButton.label && actionButton.label.toLowerCase() === "ver detalles") && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onViewDetails(request)}
                   className="whitespace-nowrap"
                 >
-                  {actionButton.label}
+                  Ver Detalles
                 </Button>
               )}
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => onViewDetails(request)}
-                className="whitespace-nowrap"
-              >
-                Ver Detalles
-              </Button>
             </div>
           </div>
         </div>

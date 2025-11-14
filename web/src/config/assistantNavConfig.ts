@@ -25,15 +25,10 @@ export const assistantNavSections: NavSection[] = [
         label: "Solicitudes Disponibles",
         href: "/asistentes/available-requests",
       },
-      {
-        icon: Inbox,
-        label: "Ofertas Recibidas",
-        href: "/asistentes/received-offers",
-        badge: 3,
-      },
+      
       {
         icon: CheckCircle2,
-        label: "Trabajos Aceptados",
+        label: "Trabajos Finalizados",
         href: "/asistentes/accepted-jobs",
       },
       {
