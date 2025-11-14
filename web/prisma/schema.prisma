@@ -44,12 +44,13 @@ model Role {
 }
 
 model Disability {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String?
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  users       User[]
+  id                String           @id @default(cuid())
+  name              String           @unique
+  description       String?
+  created_at        DateTime         @default(now())
+  updated_at        DateTime         @updatedAt
+  users             User[]
+  user_disabilities UserDisability[]
 
   @@map("disabilities")
   @@schema("cuidapp")
@@ -80,6 +81,7 @@ model User {
   role             Role             @relation(fields: [role_id], references: [id])
   assistant_of     UsersAssistant[] @relation("AssistantOf")
   users_assistants UsersAssistant[] @relation("UserAssistants")
+  user_disabilities UserDisability[]
 
   @@map("users")
   @@schema("cuidapp")
@@ -197,18 +199,30 @@ model UserRequests {
   @@schema("cuidapp")
 }
 
-model ServiceRating {
-  id           String   @id @default(cuid())
-  request_id   String
-  rater_id     String
-  rated_id     String
-  rating       Int
-  comment      String?
+model service_ratings {
+  id              String   @id
+  request_id      String
+  rater_id        String
+  rated_id        String
+  rating          Int
+  comment         String?
   would_recommend Boolean?
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  created_at      DateTime @default(now())
+  updated_at      DateTime
 
-  @@map("service_ratings")
+  @@schema("cuidapp")
+}
+
+model UserDisability {
+  id            String     @id @default(cuid())
+  user_id       String
+  disability_id String
+  created_at    DateTime   @default(now())
+  user          User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  disability    Disability @relation(fields: [disability_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, disability_id])
+  @@map("user_disabilities")
   @@schema("cuidapp")
 }
 

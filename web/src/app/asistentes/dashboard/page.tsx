@@ -13,6 +13,7 @@ interface DashboardStats {
   pendingOffers: number;
   inProgress: number;
   acceptedJobs: number;
+  completedJobs: number;
 }
 
 export default function AssistantsDashboardPage() {
@@ -22,6 +23,7 @@ export default function AssistantsDashboardPage() {
     pendingOffers: 0,
     inProgress: 0,
     acceptedJobs: 0,
+    completedJobs: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -55,6 +57,10 @@ export default function AssistantsDashboardPage() {
     router.push("/asistentes/accepted-jobs");
   };
 
+  const handleViewHistory = () => {
+    router.push("/asistentes/history");
+  };
+
   if (loading) {
     return (
       <DashboardLayout backgroundStyle={{ background: colors.background.secondary }}>
@@ -80,10 +86,11 @@ export default function AssistantsDashboardPage() {
         onViewAvailable={handleViewAvailable}
         onViewInProgress={handleViewInProgress}
         onViewAccepted={handleViewAccepted}
+        onViewHistory={handleViewHistory}
         availableCount={stats.availableRequests}
-        
         inProgressCount={stats.inProgress}
         acceptedCount={stats.acceptedJobs}
+        historyCount={stats.completedJobs}
       />
     </DashboardLayout>
   );

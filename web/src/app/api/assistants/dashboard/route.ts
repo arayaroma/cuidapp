@@ -46,7 +46,7 @@ export async function GET() {
       },
     });
 
-    // Get accepted jobs count (accepted applications where request is not yet in progress)
+    // Get accepted jobs count (accepted applications where request is not yet in progress or completed)
     const acceptedJobsCount = await prisma.applicationRequest.count({
       where: {
         status: "ACCEPTED",
@@ -57,8 +57,23 @@ export async function GET() {
         },
         user_request: {
           status: {
-            not: "IN_PROGRESS",
+            notIn: ["IN_PROGRESS", "COMPLETED"],
           },
+        },
+      },
+    });
+
+    // Get completed jobs count (accepted applications where request is completed)
+    const completedJobsCount = await prisma.applicationRequest.count({
+      where: {
+        status: "ACCEPTED",
+        user_assistant_application: {
+          user: {
+            assistant_id: userId,
+          },
+        },
+        user_request: {
+          status: "COMPLETED",
         },
       },
     });
@@ -68,6 +83,7 @@ export async function GET() {
       pendingOffers: pendingOffersCount,
       inProgress: inProgressCount,
       acceptedJobs: acceptedJobsCount,
+      completedJobs: completedJobsCount,
     });
   } catch (error) {
     console.error("Error fetching assistant dashboard stats:", error);

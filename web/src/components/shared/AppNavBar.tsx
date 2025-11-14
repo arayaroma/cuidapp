@@ -16,6 +16,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { colors } from "@/config/colors";
 import { useEffect, useState } from "react";
 import { Session } from "next-auth";
+import { NavBarMenuItem } from "../asistentes/AssistantNavBar";
 
 interface ExtendedUser {
   id: string;
@@ -35,6 +36,9 @@ interface AppNavBarProps {
   avatarGradient?: string;
   onProfileClick?: () => void;
   userRole?: "user" | "assistant";
+  menuItems?: NavBarMenuItem[];
+  navSections?: any[];
+  onLogout?: () => void;
 }
 
 export function AppNavBar({
