@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUserId } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest, context: any) {
+  // Next's RouteHandler types can vary between Next versions (params may be a Promise)
+  // Accept an untyped context and resolve params safely to avoid type incompatibilities.
+  const { params } = context || {};
+  const resolvedParams = params && typeof params.then === "function" ? await params : params;
+  const requestId = resolvedParams?.id as string | undefined;
   try {
     const userId = await getCurrentUserId();
 
@@ -16,7 +18,9 @@ export async function GET(
       );
     }
 
-    const requestId = params.id;
+    if (!requestId) {
+      return NextResponse.json({ error: "ID de petición inválido" }, { status: 400 });
+    }
 
     // Get the specific completed request
     const request = await prisma.userRequests.findFirst({
