@@ -312,7 +312,7 @@ export default function EditAssistantProfilePage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header with Gradient - Tema Verde/Emerald */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 p-8 text-white shadow-lg">
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 p-4 sm:p-6 md:p-8 text-white shadow-lg">
           <div className="absolute inset-0 bg-black/5"></div>
           <div className="relative z-10">
             <Button 
@@ -325,7 +325,7 @@ export default function EditAssistantProfilePage() {
             </Button>
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-4xl font-bold mb-2">Editar Perfil Profesional</h1>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Editar Perfil Profesional</h1>
                 <p className="text-green-100 text-lg">
                   Actualiza tu información y amplía tus características profesionales
                 </p>
@@ -341,17 +341,16 @@ export default function EditAssistantProfilePage() {
         </div>
 
         {/* Action Buttons */}
-                {/* Action Buttons */}
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={handleCancel} size="lg">
+        <div className="flex flex-col sm:flex-row justify-end gap-2">
+          <Button variant="outline" onClick={handleCancel} size="default" className="w-full sm:w-auto">
             <X className="w-4 h-4 mr-2" />
             Cancelar
           </Button>
           <Button 
             onClick={handleSave} 
             disabled={saving}
-            size="lg"
-            className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-emerald-600 hover:to-green-600 text-white"
+            size="default"
+            className="w-full sm:w-auto bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
           >
             <Save className="w-4 h-4 mr-2" />
             {saving ? "Guardando..." : "Guardar Cambios"}
@@ -366,7 +365,7 @@ export default function EditAssistantProfilePage() {
                 <User className="w-6 h-6 text-cyan-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h2 className="text-xl">Información Personal</h2>
+                <h2 className="text-lg sm:text-xl">Información Personal</h2>
                 <p className="text-sm text-muted-foreground font-normal">Datos básicos de tu cuenta</p>
               </div>
             </CardTitle>
@@ -385,7 +384,7 @@ export default function EditAssistantProfilePage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-base flex items-center gap-2">
+              <Label htmlFor="fullName" className="text-sm sm:text-base flex items-center gap-2">
                 <User className="w-4 h-4 text-cyan-600" />
                 Nombre Completo
               </Label>
@@ -395,13 +394,13 @@ export default function EditAssistantProfilePage() {
                 value={formData.fullName}
                 onChange={handleInputChange}
                 placeholder="Juan Pérez González"
-                className="h-11"
+                className="h-10 sm:h-11"
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-base flex items-center gap-2">
+                <Label htmlFor="email" className="text-sm sm:text-base flex items-center gap-2">
                   <Mail className="w-4 h-4 text-cyan-600" />
                   Correo Electrónico
                 </Label>
@@ -417,7 +416,7 @@ export default function EditAssistantProfilePage() {
                 <p className="text-xs text-muted-foreground">El correo no puede ser modificado</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phoneNumber" className="text-base flex items-center gap-2">
+                <Label htmlFor="phoneNumber" className="text-sm sm:text-base flex items-center gap-2">
                   <Phone className="w-4 h-4 text-cyan-600" />
                   Teléfono
                 </Label>
@@ -427,14 +426,14 @@ export default function EditAssistantProfilePage() {
                   value={formData.phoneNumber}
                   onChange={handleInputChange}
                   placeholder="+506 0000-0000"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
             </div>
 
             {/* Bio Section */}
             <div className="space-y-2 pt-4 border-t-2 border-cyan-100 dark:border-cyan-900">
-              <Label htmlFor="bio" className="text-base flex items-center gap-2">
+              <Label htmlFor="bio" className="text-sm sm:text-base flex items-center gap-2">
                 <Briefcase className="w-4 h-4 text-cyan-600" />
                 Biografía Profesional
               </Label>
@@ -444,7 +443,7 @@ export default function EditAssistantProfilePage() {
                 value={formData.bio}
                 onChange={handleInputChange}
                 placeholder="Cuéntanos sobre tu experiencia, habilidades y enfoque de cuidado..."
-                rows={4}
+                rows={3}
                 className="resize-none"
               />
               <p className="text-xs text-muted-foreground">
@@ -462,16 +461,16 @@ export default function EditAssistantProfilePage() {
                 <MapPin className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <h2 className="text-xl">Ubicación</h2>
+                <h2 className="text-lg sm:text-xl">Ubicación</h2>
                 <p className="text-sm text-muted-foreground font-normal">Dirección de operación</p>
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6 pt-6">
             {/* Geographic Location */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label htmlFor="province" className="text-base flex items-center gap-2">
+                <Label htmlFor="province" className="text-sm sm:text-base flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
                   Provincia
                 </Label>
@@ -481,11 +480,11 @@ export default function EditAssistantProfilePage() {
                   value={formData.province} 
                   onChange={handleInputChange} 
                   placeholder="San José"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="canton" className="text-base flex items-center gap-2">
+                <Label htmlFor="canton" className="text-sm sm:text-base flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
                   Cantón
                 </Label>
@@ -495,11 +494,11 @@ export default function EditAssistantProfilePage() {
                   value={formData.canton} 
                   onChange={handleInputChange} 
                   placeholder="Escazú"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="district" className="text-base flex items-center gap-2">
+                <Label htmlFor="district" className="text-sm sm:text-base flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-lime-500"></div>
                   Distrito
                 </Label>
@@ -509,7 +508,7 @@ export default function EditAssistantProfilePage() {
                   value={formData.district} 
                   onChange={handleInputChange} 
                   placeholder="San Rafael"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
             </div>
@@ -524,7 +523,7 @@ export default function EditAssistantProfilePage() {
                   value={formData.addressLine1} 
                   onChange={handleInputChange} 
                   placeholder="Calle principal, número de casa"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
 
@@ -538,15 +537,15 @@ export default function EditAssistantProfilePage() {
                   value={formData.addressLine2} 
                   onChange={handleInputChange} 
                   placeholder="Apartamento, unidad, edificio"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
             </div>
 
             {/* Country and Postal Code */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label htmlFor="country" className="text-base flex items-center gap-2">
+                <Label htmlFor="country" className="text-sm sm:text-base flex items-center gap-2">
                   <Globe className="w-4 h-4 text-green-600" />
                   País
                 </Label>
@@ -556,7 +555,7 @@ export default function EditAssistantProfilePage() {
                   value={formData.country} 
                   onChange={handleInputChange} 
                   placeholder="Costa Rica"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
               <div className="space-y-2">
@@ -567,7 +566,7 @@ export default function EditAssistantProfilePage() {
                   value={formData.postalCode} 
                   onChange={handleInputChange} 
                   placeholder="10101"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
             </div>
@@ -582,15 +581,15 @@ export default function EditAssistantProfilePage() {
                 <Briefcase className="w-6 h-6 text-cyan-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h2 className="text-xl">Información Profesional</h2>
+                <h2 className="text-lg sm:text-xl">Información Profesional</h2>
                 <p className="text-sm text-muted-foreground font-normal">Experiencia y tarifas</p>
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6 pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label htmlFor="yearsExperience" className="text-base flex items-center gap-2">
+                <Label htmlFor="yearsExperience" className="text-sm sm:text-base flex items-center gap-2">
                   <Award className="w-4 h-4 text-cyan-600" />
                   Años de Experiencia
                 </Label>
@@ -601,11 +600,11 @@ export default function EditAssistantProfilePage() {
                   value={formData.yearsExperience}
                   onChange={handleInputChange}
                   placeholder="5"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="hourlyRate" className="text-base flex items-center gap-2">
+                <Label htmlFor="hourlyRate" className="text-sm sm:text-base flex items-center gap-2">
                   <DollarSign className="w-4 h-4 text-cyan-600" />
                   Tarifa por Hora (CRC)
                 </Label>
@@ -616,14 +615,14 @@ export default function EditAssistantProfilePage() {
                   value={formData.hourlyRate}
                   onChange={handleInputChange}
                   placeholder="8500"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label htmlFor="maxDistanceKm" className="text-base flex items-center gap-2">
+                <Label htmlFor="maxDistanceKm" className="text-sm sm:text-base flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-cyan-600" />
                   Distancia Máxima (km)
                 </Label>
@@ -634,7 +633,7 @@ export default function EditAssistantProfilePage() {
                   value={formData.maxDistanceKm}
                   onChange={handleInputChange}
                   placeholder="10"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
             </div>
@@ -671,13 +670,13 @@ export default function EditAssistantProfilePage() {
                 <FileCheck className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <h2 className="text-xl">Cualificaciones y Verificaciones</h2>
+                <h2 className="text-lg sm:text-xl">Cualificaciones y Verificaciones</h2>
                 <p className="text-sm text-muted-foreground font-normal">Certificaciones y documentos</p>
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6 pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               {/* Background Check */}
               <div className="flex items-center justify-between p-4 border-2 border-green-200 dark:border-green-800 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-green-950/30 dark:to-emerald-950/30">
                 <div className="flex items-center gap-3">
@@ -743,7 +742,7 @@ export default function EditAssistantProfilePage() {
                 <Award className="w-6 h-6 text-cyan-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h2 className="text-xl">Especialidades</h2>
+                <h2 className="text-lg sm:text-xl">Especialidades</h2>
                 <p className="text-sm text-muted-foreground font-normal">Áreas de experiencia</p>
               </div>
             </CardTitle>
@@ -771,9 +770,9 @@ export default function EditAssistantProfilePage() {
                 onChange={(e) => setNewSpecialty(e.target.value)}
                 placeholder="Agregar especialidad (ej: Cuidado de adultos mayores)"
                 onKeyPress={(e) => e.key === 'Enter' && handleAddSpecialty()}
-                className="h-11"
+                className="h-10 sm:h-11"
               />
-              <Button onClick={handleAddSpecialty} variant="outline" size="lg">
+              <Button onClick={handleAddSpecialty} variant="outline" size="default" className="w-full sm:w-auto">
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
@@ -788,7 +787,7 @@ export default function EditAssistantProfilePage() {
                 <Award className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <h2 className="text-xl">Certificaciones</h2>
+                <h2 className="text-lg sm:text-xl">Certificaciones</h2>
                 <p className="text-sm text-muted-foreground font-normal">Formación y capacitación</p>
               </div>
             </CardTitle>
@@ -816,9 +815,9 @@ export default function EditAssistantProfilePage() {
                 onChange={(e) => setNewCertification(e.target.value)}
                 placeholder="Agregar certificación (ej: Enfermería Básica)"
                 onKeyPress={(e) => e.key === 'Enter' && handleAddCertification()}
-                className="h-11"
+                className="h-10 sm:h-11"
               />
-              <Button onClick={handleAddCertification} variant="outline" size="lg">
+              <Button onClick={handleAddCertification} variant="outline" size="default" className="w-full sm:w-auto">
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
@@ -833,7 +832,7 @@ export default function EditAssistantProfilePage() {
                 <Globe className="w-6 h-6 text-cyan-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h2 className="text-xl">Idiomas</h2>
+                <h2 className="text-lg sm:text-xl">Idiomas</h2>
                 <p className="text-sm text-muted-foreground font-normal">Idiomas que hablas</p>
               </div>
             </CardTitle>
@@ -861,9 +860,9 @@ export default function EditAssistantProfilePage() {
                 onChange={(e) => setNewLanguage(e.target.value)}
                 placeholder="Agregar idioma (ej: Español, Inglés)"
                 onKeyPress={(e) => e.key === 'Enter' && handleAddLanguage()}
-                className="h-11"
+                className="h-10 sm:h-11"
               />
-              <Button onClick={handleAddLanguage} variant="outline" size="lg">
+              <Button onClick={handleAddLanguage} variant="outline" size="default" className="w-full sm:w-auto">
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
@@ -878,7 +877,7 @@ export default function EditAssistantProfilePage() {
                 <Users className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <h2 className="text-xl">Grupos de Edad Preferidos</h2>
+                <h2 className="text-lg sm:text-xl">Grupos de Edad Preferidos</h2>
                 <p className="text-sm text-muted-foreground font-normal">Edades con las que prefieres trabajar</p>
               </div>
             </CardTitle>
@@ -906,9 +905,9 @@ export default function EditAssistantProfilePage() {
                 onChange={(e) => setNewAgeGroup(e.target.value)}
                 placeholder="Agregar grupo de edad (ej: Adultos mayores, Niños)"
                 onKeyPress={(e) => e.key === 'Enter' && handleAddAgeGroup()}
-                className="h-11"
+                className="h-10 sm:h-11"
               />
-              <Button onClick={handleAddAgeGroup} variant="outline" size="lg">
+              <Button onClick={handleAddAgeGroup} variant="outline" size="default" className="w-full sm:w-auto">
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
@@ -923,14 +922,14 @@ export default function EditAssistantProfilePage() {
                 <Clock className="w-6 h-6 text-cyan-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h2 className="text-xl">Horario de Disponibilidad</h2>
+                <h2 className="text-lg sm:text-xl">Horario de Disponibilidad</h2>
                 <p className="text-sm text-muted-foreground font-normal">Días y horas disponibles</p>
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6 pt-6">
             <div className="space-y-2">
-              <Label htmlFor="availabilitySchedule" className="text-base flex items-center gap-2">
+              <Label htmlFor="availabilitySchedule" className="text-sm sm:text-base flex items-center gap-2">
                 <Clock className="w-4 h-4 text-cyan-600" />
                 Horas Preferidas
               </Label>
@@ -939,7 +938,7 @@ export default function EditAssistantProfilePage() {
                 value={formData.availabilitySchedule}
                 onChange={(e) => setFormData(prev => ({ ...prev, availabilitySchedule: e.target.value }))}
                 placeholder="8:00 AM - 6:00 PM"
-                className="h-11"
+                className="h-10 sm:h-11"
               />
             </div>
 
@@ -950,7 +949,7 @@ export default function EditAssistantProfilePage() {
                   <Calendar className="w-5 h-5 text-cyan-600 dark:text-emerald-400" />
                 </div>
                 <div className="flex-1">
-                  <Label className="text-lg font-semibold">
+                  <Label className="text-base sm:text-lg font-semibold">
                     Días Disponibles
                   </Label>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -1017,19 +1016,19 @@ export default function EditAssistantProfilePage() {
 
         {/* Bottom Action Buttons */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pb-8 pt-4">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
             Los cambios se aplicarán inmediatamente al guardar
           </p>
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={handleCancel} size="lg" className="min-w-[120px]">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+            <Button variant="outline" onClick={handleCancel} size="default" className="w-full sm:w-auto sm:min-w-[120px]">
               <X className="w-4 h-4 mr-2" />
               Cancelar
             </Button>
             <Button 
               onClick={handleSave} 
               disabled={saving}
-              size="lg"
-              className="min-w-[160px] bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-emerald-600 hover:to-green-600 text-white shadow-lg"
+              size="default"
+              className="w-full sm:w-auto sm:min-w-[160px] bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg"
             >
               <Save className="w-4 h-4 mr-2" />
               {saving ? "Guardando..." : "Guardar Cambios"}

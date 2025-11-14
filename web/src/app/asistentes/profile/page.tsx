@@ -164,15 +164,15 @@ export default function AssistantProfilePage() {
         {/* Header Premium con gradiente y estadísticas */}
         <Card className="overflow-hidden border-0 shadow-xl">
           {/* Gradiente superior - Tema Cyan/Blue igual que usuarios */}
-          <div className="h-40 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 relative">
+          <div className="h-32 sm:h-40 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 relative">
             <div className="absolute inset-0 bg-black/10" />
           </div>
           
-          <CardContent className="relative px-6 pb-6">
+          <CardContent className="relative px-4 pb-4 sm:px-6 sm:pb-6">
             {/* Avatar flotante con indicador de disponibilidad */}
             <div className="flex flex-col md:flex-row gap-6 -mt-20 relative z-10">
               <div className="relative">
-                <Avatar className="w-32 h-32 border-4 border-background shadow-2xl">
+                <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-background shadow-2xl">
                   <AvatarImage src={profileData.photoUrl || undefined} alt={profileData.fullName} />
                   <AvatarFallback className="text-3xl font-bold bg-gradient-to-br from-cyan-500 to-blue-600 text-white">
                     {profileData.fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
@@ -189,7 +189,7 @@ export default function AssistantProfilePage() {
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                   <div className="space-y-3">
                     <div>
-                      <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-white">
+                      <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
                         {profileData.fullName}
                       </h1>
                       <div className="flex items-center gap-3 mt-2">
@@ -238,8 +238,8 @@ export default function AssistantProfilePage() {
                 <Separator />
 
                 {/* Estadísticas clave */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-green-950/20 dark:to-emerald-950/20">
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+                  <div className="flex items-center gap-3 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-green-950/20 dark:to-emerald-950/20">
                     <div className="p-2 rounded-full bg-blue-500/10">
                       <Briefcase className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     </div>
@@ -249,7 +249,7 @@ export default function AssistantProfilePage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-emerald-950/20 dark:to-green-950/20">
+                  <div className="flex items-center gap-3 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-emerald-950/20 dark:to-green-950/20">
                     <div className="p-2 rounded-full bg-cyan-500/10">
                       <DollarSign className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
                     </div>
@@ -259,7 +259,7 @@ export default function AssistantProfilePage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-green-950/20 dark:to-emerald-950/20">
+                  <div className="flex items-center gap-3 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-green-950/20 dark:to-emerald-950/20">
                     <div className="p-2 rounded-full bg-blue-500/10">
                       <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     </div>
@@ -269,7 +269,7 @@ export default function AssistantProfilePage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-emerald-950/20 dark:to-green-950/20">
+                  <div className="flex items-center gap-3 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-emerald-950/20 dark:to-green-950/20">
                     <div className="p-2 rounded-full bg-cyan-500/10">
                       <Star className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
                     </div>
@@ -282,7 +282,7 @@ export default function AssistantProfilePage() {
 
                 {/* Información de contacto rápida */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30">
+                  <div className="flex items-center gap-3 p-2 sm:p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30">
                     <div className="p-2 rounded-full bg-blue-500/10">
                       <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     </div>
@@ -293,7 +293,7 @@ export default function AssistantProfilePage() {
                   </div>
 
                   {profileData.phoneNumber && (
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-950/30">
+                    <div className="flex items-center gap-3 p-2 sm:p-3 rounded-lg bg-green-50 dark:bg-green-950/30">
                       <div className="p-2 rounded-full bg-blue-500/10">
                         <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       </div>
@@ -304,7 +304,7 @@ export default function AssistantProfilePage() {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-cyan-50 dark:bg-cyan-950/30">
+                  <div className="flex items-center gap-3 p-2 sm:p-3 rounded-lg bg-cyan-50 dark:bg-cyan-950/30">
                     <div className="p-2 rounded-full bg-cyan-500/10">
                       <MapPin className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
                     </div>
@@ -320,22 +320,22 @@ export default function AssistantProfilePage() {
         </Card>
         {/* Tabs con información profesional */}
         <Tabs defaultValue="about" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-muted/50 p-1">
-            <TabsTrigger value="about" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
-              <Briefcase className="w-4 h-4 mr-2" />
-              Sobre Mí
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-muted/50 p-1 gap-1">
+            <TabsTrigger value="about" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 text-xs sm:text-sm">
+              <Briefcase className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="truncate">Sobre Mí</span>
             </TabsTrigger>
-            <TabsTrigger value="skills" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
-              <Award className="w-4 h-4 mr-2" />
-              Habilidades
+            <TabsTrigger value="skills" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 text-xs sm:text-sm">
+              <Award className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="truncate">Habilidades</span>
             </TabsTrigger>
-            <TabsTrigger value="schedule" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
-              <Calendar className="w-4 h-4 mr-2" />
-              Horario
+            <TabsTrigger value="schedule" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 text-xs sm:text-sm">
+              <Calendar className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="truncate">Horario</span>
             </TabsTrigger>
-            <TabsTrigger value="location" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">
-              <MapPin className="w-4 h-4 mr-2" />
-              Ubicación
+            <TabsTrigger value="location" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 text-xs sm:text-sm">
+              <MapPin className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="truncate">Ubicación</span>
             </TabsTrigger>
           </TabsList>
 
@@ -368,7 +368,7 @@ export default function AssistantProfilePage() {
                   Desempeño Profesional
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-6 space-y-6">
+              <CardContent className="pt-4 sm:pt-6 space-y-4 sm:space-y-6">
                 {rating > 0 && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -480,7 +480,7 @@ export default function AssistantProfilePage() {
                   Disponibilidad
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-6 space-y-6">
+              <CardContent className="pt-4 sm:pt-6 space-y-4 sm:space-y-6">
                 {/* Días disponibles */}
                 {profileData.assistant?.availableWeekdays && profileData.assistant.availableWeekdays.length > 0 && (
                   <div>
@@ -493,7 +493,7 @@ export default function AssistantProfilePage() {
                         return (
                           <div
                             key={index}
-                            className={`text-center p-3 rounded-lg font-semibold ${
+                            className={`text-center p-2 sm:p-3 rounded-lg font-semibold ${
                               isAvailable
                                 ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 border-2 border-green-500'
                                 : 'bg-muted text-muted-foreground'
@@ -590,7 +590,7 @@ export default function AssistantProfilePage() {
                         <MapPin className="w-4 h-4" />
                         UBICACIÓN GEOGRÁFICA
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                         {profileData.location.district && (
                           <div className="p-4 rounded-lg bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border border-blue-100 dark:border-blue-900">
                             <p className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">Distrito</p>
@@ -624,7 +624,7 @@ export default function AssistantProfilePage() {
                               </div>
                               <div>
                                 <p className="text-sm font-medium text-blue-600 dark:text-blue-400">País</p>
-                                <p className="text-lg font-bold text-blue-900 dark:text-blue-100">{profileData.location.country}</p>
+                                <p className="text-base sm:text-lg font-bold text-blue-900 dark:text-blue-100">{profileData.location.country}</p>
                               </div>
                             </div>
                           )}
@@ -635,7 +635,7 @@ export default function AssistantProfilePage() {
                               </div>
                               <div>
                                 <p className="text-sm font-medium text-amber-600 dark:text-amber-400">Código Postal</p>
-                                <p className="text-lg font-bold text-amber-900 dark:text-amber-100">{profileData.location.postalCode}</p>
+                                <p className="text-base sm:text-lg font-bold text-amber-900 dark:text-amber-100">{profileData.location.postalCode}</p>
                               </div>
                             </div>
                           )}

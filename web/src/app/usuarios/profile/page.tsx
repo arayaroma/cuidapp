@@ -96,7 +96,7 @@ export default function UserProfilePage() {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <p className="text-lg text-neutral-600">No se pudo cargar el perfil</p>
+          <p className="text-base sm:text-lg text-neutral-600">No se pudo cargar el perfil</p>
           <Button onClick={fetchProfile} className="mt-4">Reintentar</Button>
         </div>
       </DashboardLayout>
@@ -120,20 +120,20 @@ export default function UserProfilePage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header con Avatar y Nombre */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 p-8 shadow-lg">
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 p-4 sm:p-6 md:p-8 shadow-lg">
           <div className="absolute inset-0 bg-black/5"></div>
-          <div className="relative flex items-center space-x-6">
-            <Avatar className="h-24 w-24 border-4 border-white shadow-xl">
+          <div className="relative flex flex-col sm:flex-row items-center sm:space-x-6 space-y-3 sm:space-y-4 sm:space-y-0">
+            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-white shadow-xl">
               <AvatarImage src={profileData.photoUrl || undefined} alt={profileData.name} />
-              <AvatarFallback className="bg-white text-blue]\-600 text-2xl font-bold">
+              <AvatarFallback className="bg-white text-blue]\-600 text-lg sm:text-xl sm:text-2xl font-bold">
                 {profileData.name.split(' ').map(n => n[0]).join('').toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold text-white">{profileData.name}</h1>
+            <div className="flex-1 text-center sm:text-left">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-2 sm:gap-3 mb-2">
+                <h1 className="text-2xl sm:text-2xl sm:text-3xl font-bold text-neutral-100">{profileData.name}</h1>
                 {profileData.verified && (
                   <Badge className="bg-white/20 hover:bg-white/30 border-white/40 text-white">
                     <CheckCircle className="w-3 h-3 mr-1" />
@@ -141,7 +141,7 @@ export default function UserProfilePage() {
                   </Badge>
                 )}
               </div>
-              <p className="text-blue-100 text-sm">
+              <p className="text-blue-100 text-xs sm:text-sm">
                 Miembro desde {new Date(profileData.memberSince).toLocaleDateString('es-ES', {
                   year: 'numeric',
                   month: 'long',
@@ -162,33 +162,33 @@ export default function UserProfilePage() {
 
         {/* Tabs con Información */}
         <Tabs defaultValue="info" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-muted/50 p-1 h-auto">
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 bg-muted/50 p-1 h-auto gap-1">
             <TabsTrigger 
               value="info" 
               className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:shadow-md transition-all"
             >
               <UserIcon className="w-4 h-4 mr-2" />
-              Información Personal
+              <span className="truncate">Información Personal</span>
             </TabsTrigger>
             <TabsTrigger 
               value="location" 
               className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:shadow-md transition-all"
             >
               <MapPin className="w-4 h-4 mr-2" />
-              Ubicación
+              <span className="truncate">Ubicación</span>
             </TabsTrigger>
             <TabsTrigger 
               value="appointments" 
               className="data-[state=active]:bg-white dark:data-[state=active]:bg-neutral-800 data-[state=active]:shadow-md transition-all"
             >
               <Calendar className="w-4 h-4 mr-2" />
-              Citas
+              <span className="truncate">Citas</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Información Personal */}
           <TabsContent value="info" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:gap-6">
               {/* Contacto */}
               <Card className="border-l-4 border-l-cyan-500">
                 <CardHeader>
@@ -197,7 +197,7 @@ export default function UserProfilePage() {
                     Información de Contacto
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3 sm:space-y-4">
                   <div className="flex items-start gap-3">
                     <Mail className="w-4 h-4 text-neutral-500 mt-1" />
                     <div>
@@ -236,7 +236,7 @@ export default function UserProfilePage() {
                     Necesidades de Cuidado
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3 sm:space-y-4">
                   {profileData.disability && (
                     <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
                       <p className="text-sm text-neutral-500 mb-1">Discapacidad</p>
@@ -283,7 +283,7 @@ export default function UserProfilePage() {
               </CardHeader>
               <CardContent>
                 {profileData.location ? (
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {profileData.location.addressLine1 && (
                       <div className="flex items-start gap-3">
                         <Home className="w-4 h-4 text-neutral-500 mt-1" />
@@ -308,7 +308,7 @@ export default function UserProfilePage() {
                     
                     <Separator />
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 sm:gap-4">
                       {profileData.location.district && (
                         <div className="flex items-start gap-2">
                           <Navigation className="w-4 h-4 text-neutral-500 mt-1" />
@@ -358,7 +358,7 @@ export default function UserProfilePage() {
                       </>
                     )}
 
-                    <div className="mt-6 p-4 bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-950/20 dark:to-blue-950/20 rounded-lg border border-cyan-200 dark:border-cyan-800">
+                    <div className="mt-6 p-3 sm:p-4 bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-950/20 dark:to-blue-950/20 rounded-lg border border-cyan-200 dark:border-cyan-800">
                       <p className="text-sm font-medium text-cyan-900 dark:text-cyan-100 mb-1">
                         Dirección Completa
                       </p>
@@ -368,7 +368,7 @@ export default function UserProfilePage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-neutral-500">
+                  <div className="text-center py-6 sm:py-8 text-neutral-500">
                     <MapPin className="w-12 h-12 mx-auto mb-3 opacity-30" />
                     <p>No se ha especificado una ubicación</p>
                     <Button onClick={handleEditProfile} variant="outline" className="mt-4">
@@ -391,11 +391,11 @@ export default function UserProfilePage() {
               </CardHeader>
               <CardContent>
                 {upcomingAppointments.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {upcomingAppointments.map((appointment) => (
                       <div
                         key={appointment.id}
-                        className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 rounded-lg border border-blue-200 dark:border-blue-800"
+                        className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 rounded-lg border border-blue-200 dark:border-blue-800"
                       >
                         <div className="flex items-center space-x-4">
                           <div className="flex flex-col items-center justify-center bg-blue-600 text-white rounded-lg p-3 min-w-[60px]">
@@ -426,7 +426,7 @@ export default function UserProfilePage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-neutral-500">
+                  <div className="text-center py-6 sm:py-8 text-neutral-500">
                     <Calendar className="w-12 h-12 mx-auto mb-3 opacity-30" />
                     <p>No tienes citas próximas</p>
                   </div>

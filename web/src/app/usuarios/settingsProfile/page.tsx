@@ -194,7 +194,7 @@ export default function UserSettingsProfilePage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header with Gradient */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 p-8 text-white shadow-lg">
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 p-4 sm:p-6 md:p-8 text-white shadow-lg">
           <div className="absolute inset-0 bg-black/5"></div>
           <div className="relative z-10">
             <Button 
@@ -207,8 +207,8 @@ export default function UserSettingsProfilePage() {
             </Button>
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-4xl font-bold mb-2">Editar Perfil</h1>
-                <p className="text-blue-100 text-lg">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Editar Perfil</h1>
+                <p className="text-blue-100 text-sm sm:text-base md:text-lg">
                   Actualiza tu información personal y preferencias
                 </p>
               </div>
@@ -223,16 +223,17 @@ export default function UserSettingsProfilePage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={handleCancel} size="lg">
+                {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row justify-end gap-2">
+          <Button variant="outline" onClick={handleCancel} size="default" className="w-full sm:w-auto">
             <X className="w-4 h-4 mr-2" />
             Cancelar
           </Button>
           <Button 
             onClick={handleSave} 
             disabled={saving}
-            size="lg"
-            className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
+            size="default"
+            className="w-full sm:w-auto bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
           >
             <Save className="w-4 h-4 mr-2" />
             {saving ? "Guardando..." : "Guardar Cambios"}
@@ -247,7 +248,7 @@ export default function UserSettingsProfilePage() {
                 <User className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
               </div>
               <div>
-                <h2 className="text-xl">Información Personal</h2>
+                <h2 className="text-lg sm:text-xl">Información Personal</h2>
                 <p className="text-sm text-muted-foreground font-normal">Datos básicos de tu cuenta</p>
               </div>
             </CardTitle>
@@ -266,7 +267,7 @@ export default function UserSettingsProfilePage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-base flex items-center gap-2">
+              <Label htmlFor="fullName" className="text-sm sm:text-base flex items-center gap-2">
                 <User className="w-4 h-4 text-cyan-600" />
                 Nombre Completo
               </Label>
@@ -276,13 +277,13 @@ export default function UserSettingsProfilePage() {
                 value={formData.fullName}
                 onChange={handleInputChange}
                 placeholder="Juan Pérez González"
-                className="h-11"
+                className="h-10 sm:h-11"
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-base flex items-center gap-2">
+                <Label htmlFor="email" className="text-sm sm:text-base flex items-center gap-2">
                   <Mail className="w-4 h-4 text-cyan-600" />
                   Correo Electrónico
                 </Label>
@@ -298,7 +299,7 @@ export default function UserSettingsProfilePage() {
                 <p className="text-xs text-muted-foreground">El correo no puede ser modificado</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phoneNumber" className="text-base flex items-center gap-2">
+                <Label htmlFor="phoneNumber" className="text-sm sm:text-base flex items-center gap-2">
                   <Phone className="w-4 h-4 text-cyan-600" />
                   Teléfono
                 </Label>
@@ -308,7 +309,7 @@ export default function UserSettingsProfilePage() {
                   value={formData.phoneNumber}
                   onChange={handleInputChange}
                   placeholder="+506 0000-0000"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
             </div>
@@ -320,7 +321,7 @@ export default function UserSettingsProfilePage() {
                   <AlertCircle className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
                 </div>
                 <div className="flex-1">
-                  <Label className="text-lg font-semibold">
+                  <Label className="text-base sm:text-lg font-semibold">
                     Condiciones de Discapacidad
                   </Label>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -439,16 +440,16 @@ export default function UserSettingsProfilePage() {
                 <MapPin className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <h2 className="text-xl">Ubicación</h2>
+                <h2 className="text-lg sm:text-xl">Ubicación</h2>
                 <p className="text-sm text-muted-foreground font-normal">Dirección de residencia</p>
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6 pt-6">
             {/* Geographic Location */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label htmlFor="province" className="text-base flex items-center gap-2">
+                <Label htmlFor="province" className="text-sm sm:text-base flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                   Provincia
                 </Label>
@@ -458,11 +459,11 @@ export default function UserSettingsProfilePage() {
                   value={formData.province} 
                   onChange={handleInputChange} 
                   placeholder="San José"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="canton" className="text-base flex items-center gap-2">
+                <Label htmlFor="canton" className="text-sm sm:text-base flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-cyan-500"></div>
                   Cantón
                 </Label>
@@ -472,11 +473,11 @@ export default function UserSettingsProfilePage() {
                   value={formData.canton} 
                   onChange={handleInputChange} 
                   placeholder="Escazú"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="district" className="text-base flex items-center gap-2">
+                <Label htmlFor="district" className="text-sm sm:text-base flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
                   Distrito
                 </Label>
@@ -486,7 +487,7 @@ export default function UserSettingsProfilePage() {
                   value={formData.district} 
                   onChange={handleInputChange} 
                   placeholder="San Rafael"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
             </div>
@@ -501,7 +502,7 @@ export default function UserSettingsProfilePage() {
                   value={formData.addressLine1} 
                   onChange={handleInputChange} 
                   placeholder="Calle principal, número de casa"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
 
@@ -515,15 +516,15 @@ export default function UserSettingsProfilePage() {
                   value={formData.addressLine2} 
                   onChange={handleInputChange} 
                   placeholder="Apartamento, unidad, edificio"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
             </div>
 
             {/* Country and Postal Code */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label htmlFor="country" className="text-base flex items-center gap-2">
+                <Label htmlFor="country" className="text-sm sm:text-base flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-blue-600" />
                   País
                 </Label>
@@ -533,7 +534,7 @@ export default function UserSettingsProfilePage() {
                   value={formData.country} 
                   onChange={handleInputChange} 
                   placeholder="Costa Rica"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
               <div className="space-y-2">
@@ -544,7 +545,7 @@ export default function UserSettingsProfilePage() {
                   value={formData.postalCode} 
                   onChange={handleInputChange} 
                   placeholder="10101"
-                  className="h-11"
+                  className="h-10 sm:h-11"
                 />
               </div>
             </div>
@@ -559,14 +560,14 @@ export default function UserSettingsProfilePage() {
                 <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <h2 className="text-xl">Contacto de Emergencia</h2>
+                <h2 className="text-lg sm:text-xl">Contacto de Emergencia</h2>
                 <p className="text-sm text-muted-foreground font-normal">Persona a contactar en caso de emergencia</p>
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="space-y-2">
-              <Label htmlFor="emergencyNumber" className="text-base flex items-center gap-2">
+              <Label htmlFor="emergencyNumber" className="text-sm sm:text-base flex items-center gap-2">
                 <Phone className="w-4 h-4 text-red-600" />
                 Teléfono de Emergencia
               </Label>
@@ -576,7 +577,7 @@ export default function UserSettingsProfilePage() {
                 value={formData.emergencyNumber} 
                 onChange={handleInputChange} 
                 placeholder="+506 0000-0000"
-                className="h-11"
+                className="h-10 sm:h-11"
               />
               <p className="text-xs text-muted-foreground">
                 Este número será contactado en situaciones de emergencia
@@ -593,7 +594,7 @@ export default function UserSettingsProfilePage() {
                 <Heart className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
               </div>
               <div>
-                <h2 className="text-xl">Información Adicional</h2>
+                <h2 className="text-lg sm:text-xl">Información Adicional</h2>
                 <p className="text-sm text-muted-foreground font-normal">Notas y detalles especiales</p>
               </div>
             </CardTitle>
@@ -607,7 +608,7 @@ export default function UserSettingsProfilePage() {
                 value={formData.notes} 
                 onChange={handleInputChange} 
                 placeholder="Información adicional, preferencias de cuidado, alergias, medicamentos, etc..."
-                rows={5}
+                rows={4}
                 className="resize-none"
               />
               <p className="text-xs text-muted-foreground">
@@ -619,19 +620,19 @@ export default function UserSettingsProfilePage() {
 
         {/* Bottom Action Buttons */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pb-8 pt-4">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
             Los cambios se aplicarán inmediatamente al guardar
           </p>
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={handleCancel} size="lg" className="min-w-[120px]">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+            <Button variant="outline" onClick={handleCancel} size="default" className="w-full sm:w-auto sm:min-w-[120px]">
               <X className="w-4 h-4 mr-2" />
               Cancelar
             </Button>
             <Button 
               onClick={handleSave} 
               disabled={saving}
-              size="lg"
-              className="min-w-[160px] bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg"
+              size="default"
+              className="w-full sm:w-auto sm:min-w-[160px] bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg"
             >
               <Save className="w-4 h-4 mr-2" />
               {saving ? "Guardando..." : "Guardar Cambios"}
