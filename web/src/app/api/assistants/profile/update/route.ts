@@ -23,6 +23,7 @@ export async function PUT(req: NextRequest) {
       data: {
         full_name: body.fullName.trim(),
         phone_number: body.phone?.trim() || null,
+        photo_url: body.photoUrl?.trim() || null,
       },
     });
 

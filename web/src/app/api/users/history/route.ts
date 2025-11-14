@@ -13,33 +13,30 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Get completed services for this user
-    const completedServices = await prisma.usersAssistant.findMany({
+    // Get completed requests for this user
+    const completedRequests = await prisma.userRequests.findMany({
       where: {
         user_id: userId,
-        end_date: {
-          lt: new Date(), // Services that have ended
-        },
+        status: "COMPLETED",
       },
       include: {
-        assistant: {
-          select: {
-            id: true,
-            full_name: true,
-            photo_url: true,
-            rating: true,
+        applications: {
+          where: {
+            status: "ACCEPTED",
           },
-        },
-        user_assistant_applications: {
           include: {
-            requests: {
+            user_assistant_application: {
               include: {
-                user_request: {
-                  select: {
-                    title: true,
-                    care_type: true,
-                    hourly_rate: true,
-                    total_hours: true,
+                user: {
+                  include: {
+                    assistant: {
+                      select: {
+                        id: true,
+                        full_name: true,
+                        photo_url: true,
+                        rating: true,
+                      },
+                    },
                   },
                 },
               },
@@ -48,15 +45,17 @@ export async function GET(req: NextRequest) {
         },
       },
       orderBy: {
-        end_date: 'desc',
+        updated_at: 'desc',
       },
     });
 
     // Format history
-    const formattedHistory = completedServices.map((service) => {
-      const request = service.user_assistant_applications[0]?.requests[0]?.user_request;
-      const startDate = new Date(service.start_date);
-      const endDate = service.end_date ? new Date(service.end_date) : new Date();
+    const formattedHistory = completedRequests.map((request) => {
+      const acceptedApplication = request.applications[0];
+      const assistantUser = acceptedApplication?.user_assistant_application?.user?.assistant;
+      
+      const startDate = new Date(request.request_date);
+      const endDate = new Date(request.updated_at); // Use updated_at as completion date
       
       // Calculate duration
       const durationDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -65,27 +64,33 @@ export async function GET(req: NextRequest) {
         : `${durationDays} día${durationDays !== 1 ? 's' : ''}`;
 
       // Calculate total cost
-      const hourlyRate = request?.hourly_rate || 0;
-      const totalHours = request?.total_hours || durationDays * 8; // Assume 8 hours per day
+      const hourlyRate = request.hourly_rate || 0;
+      const totalHours = request.total_hours || durationDays * 8; // Assume 8 hours per day
       const totalCost = hourlyRate * totalHours;
 
       return {
-        id: service.id,
-        title: request?.title || "Servicio de cuidado",
-        caregiver: {
-          id: service.assistant.id,
-          name: service.assistant.full_name,
-          avatar: service.assistant.photo_url,
-          rating: service.assistant.rating || 0,
+        id: request.id,
+        requestId: request.id,
+        title: request.title,
+        caregiver: assistantUser ? {
+          id: assistantUser.id,
+          name: assistantUser.full_name,
+          avatar: assistantUser.photo_url,
+          rating: assistantUser.rating || 0,
+        } : {
+          id: "unknown",
+          name: "Cuidador asignado",
+          avatar: null,
+          rating: 0,
         },
-        category: request?.care_type || "general",
+        category: request.care_type,
         startDate: startDate,
         endDate: endDate,
         duration: duration,
         totalCost: totalCost,
         status: "Completado",
-        myRating: 0, // TODO: Get from reviews table when implemented
-        caregiverRating: service.assistant.rating || 0,
+        myRating: 0, // TODO: Get from service_ratings table
+        caregiverRating: assistantUser?.rating || 0,
       };
     });
 

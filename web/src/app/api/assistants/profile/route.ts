@@ -33,33 +33,49 @@ export async function GET() {
       return NextResponse.json({ error: "Assistant profile not found", userId }, { status: 404 });
     }
 
+    // TODO: Implement ratings when ServiceRating model is added to schema
     // Get ratings count and average
-    const ratings = await prisma.serviceRating.findMany({
-      where: {
-        rated_id: userId,
-      },
-      select: {
-        rating: true,
-      },
-    });
+    // const ratings = await prisma.serviceRating.findMany({
+    //   where: {
+    //     rated_id: userId,
+    //   },
+    //   select: {
+    //     rating: true,
+    //   },
+    // });
 
-    const ratingCount = ratings.length;
-    const averageRating = ratingCount > 0
-      ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratingCount
-      : 0;
+    // const ratingCount = ratings.length;
+    // const averageRating = ratingCount > 0
+    //   ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratingCount
+    //   : 0;
+
+    // Temporary: Set default rating values until ServiceRating model is implemented
+    const ratingCount = 0;
+    const averageRating = 0;
 
     const profileData = {
       name: assistant.user.full_name,
+      email: assistant.user.email,
+      phone: assistant.user.phone_number,
+      photoUrl: assistant.user.photo_url,
       avatar: assistant.user.full_name
         .split(" ")
         .map((n: string) => n[0])
         .join("")
         .toUpperCase(),
-      experience: `${assistant.years_experience || 0} años de experiencia`,
+      experience: assistant.years_experience || 0,
       rating: Math.round(averageRating * 10) / 10,
       reviews: ratingCount,
-      hourlyRate: assistant.hourly_rate || 8500,
-      location: assistant.user.location?.address_line1 || "Ubicación no especificada",
+      hourlyRate: assistant.hourly_rate || null,
+      location: {
+        province: assistant.user.location?.province || null,
+        canton: assistant.user.location?.canton || null,
+        district: assistant.user.location?.district || null,
+        addressLine1: assistant.user.location?.address_line1 || null,
+        addressLine2: assistant.user.location?.address_line2 || null,
+        country: assistant.user.location?.country || null,
+        postalCode: assistant.user.location?.postal_code || null,
+      },
       specialties: assistant.specialties || [],
       available: assistant.is_available,
       bio: assistant.bio,

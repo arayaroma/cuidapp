@@ -1,319 +1,612 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea"; // eslint-disable-line @typescript-eslint/no-unused-vars
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { ImageUpload } from "@/components/shared";
 import { 
   ArrowLeft, 
   Save, 
   User, 
   MapPin, 
-  DollarSign,
-  Banknote,
+  DollarSign, 
   Clock, 
   Calendar,
   Award,
   Briefcase,
   X,
-  Plus
+  Plus,
+  Shield,
+  Car,
+  Heart,
+  Users,
+  Globe,
+  Phone,
+  Mail,
+  FileCheck,
+  Camera,
+  Languages,
+  Baby
 } from "lucide-react";
-import alerts from "@/lib/alerts";
 
 export default function EditAssistantProfilePage() {
   const router = useRouter();
-
-  // Estado para información básica
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    location: "",
-    experience: "0 años de experiencia",
-    hourlyRate: 0,
-    available: false,
-    bio: "",
-  });
-
-  // Estado para especialidades
-  const [specialties, setSpecialties] = useState<string[]>([]);
-  const [newSpecialty, setNewSpecialty] = useState("");
-
-  // Estado para certificaciones
-  const [certifications, setCertifications] = useState<Array<{ id: string; title: string; description: string; icon: string }>>([]);
-
-  // Estado para servicios
-  const [services, setServices] = useState<string[]>([]);
-  const [newService, setNewService] = useState("");
-
+  const { status } = useSession();
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  // Estado para horario
-  const [schedule, setSchedule] = useState({
-    preferredHours: "8:00 AM - 6:00 PM",
-    availableDays: "Lunes a Viernes",
+  // Estado unificado para todo el formulario
+  const [formData, setFormData] = useState({
+    // Información básica
+    fullName: "",
+    email: "",
+    phoneNumber: "",
+    photoUrl: "",
+    bio: "",
+    
+    // Información profesional
+    yearsExperience: "",
+    hourlyRate: "",
+    isAvailable: false,
+    verified: false,
+    backgroundCheck: false,
+    hasFirstAid: false,
+    hasVehicle: false,
+    maxDistanceKm: "",
+    
+    // Ubicación
+    province: "",
+    canton: "",
+    district: "",
+    addressLine1: "",
+    addressLine2: "",
+    country: "",
+    postalCode: "",
+    
+    // Horario
+    availabilitySchedule: "8:00 AM - 6:00 PM",
+    availableWeekdays: [] as string[],
+    
+    // Arrays
+    specialties: [] as string[],
+    certifications: [] as string[],
+    languages: [] as string[],
+    preferredAgeGroups: [] as string[],
   });
+
+  // Estados temporales para inputs de arrays
+  const [newSpecialty, setNewSpecialty] = useState("");
+  const [newCertification, setNewCertification] = useState("");
+  const [newLanguage, setNewLanguage] = useState("");
+  const [newAgeGroup, setNewAgeGroup] = useState("");
+
+  const weekdayOptions = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const toggleWeekday = (day: string) => {
+    setFormData(prev => ({
+      ...prev,
+      availableWeekdays: prev.availableWeekdays.includes(day)
+        ? prev.availableWeekdays.filter(d => d !== day)
+        : [...prev.availableWeekdays, day]
+    }));
+  };
+
   useEffect(() => {
-    const controller = new AbortController();
+    if (status === "unauthenticated") {
+      router.push("/login");
+      return;
+    }
 
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        const [userRes, assistantRes] = await Promise.all([
-          fetch("/api/users/profile", { signal: controller.signal }),
-          fetch("/api/assistants/profile", { signal: controller.signal }),
-        ]);
+    if (status === "authenticated") {
+      fetchProfile();
+    }
+  }, [status, router]);
 
-        if (userRes.ok) {
-          const userData = await userRes.json();
-          setFormData((prev) => ({ ...prev, name: userData.name || "", email: userData.email || "", phone: userData.phone || "", location: userData.location?.fullAddress || prev.location }));
-        }
-
-        if (assistantRes.ok) {
-          const assistantData = await assistantRes.json();
-          setFormData((prev) => ({
-            ...prev,
-            experience: assistantData.experience || prev.experience,
-            hourlyRate: assistantData.hourlyRate || prev.hourlyRate,
-            available: typeof assistantData.available !== 'undefined' ? assistantData.available : prev.available,
-            bio: assistantData.bio || prev.bio,
-          }));
-
-          setSpecialties(Array.isArray(assistantData.specialties) ? assistantData.specialties : []);
-          setServices(Array.isArray(assistantData.specialties) ? assistantData.specialties : []);
-          if (Array.isArray(assistantData.certifications) && assistantData.certifications.length > 0) {
-            setCertifications(assistantData.certifications.map((c: string, i: number) => ({ id: String(i + 1), title: c, description: "" , icon: 'award' as const })));
-          }
-          if (assistantData.availabilitySchedule) {
-            setSchedule(prev => ({ ...prev, preferredHours: assistantData.availabilitySchedule }));
-          }
-          if (Array.isArray(assistantData.availableWeekdays) && assistantData.availableWeekdays.length > 0) {
-            setSchedule(prev => ({ ...prev, availableDays: assistantData.availableWeekdays.join(", ") }));
-          }
-        }
-      } catch (err) {
-        if ((err as any)?.name !== 'AbortError') {
-          console.error("Error loading profile data", err);
-          alerts.error.loading("la información");
-        }
-      } finally {
-        setLoading(false);
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      
+      // Usar el endpoint unificado de perfil de asistente
+      const response = await fetch("/api/assistants/profile");
+      
+      if (!response.ok) {
+        throw new Error("Error al cargar el perfil");
       }
-    };
 
-    fetchProfile();
-
-    return () => controller.abort();
-  }, []);
+      const data = await response.json();
+      
+      setFormData({
+        // Información básica
+        fullName: data.name || "",
+        email: data.email || "",
+        phoneNumber: data.phone || "",
+        photoUrl: data.photoUrl || "",
+        bio: data.bio || "",
+        
+        // Información profesional
+        yearsExperience: data.experience ? String(data.experience) : "",
+        hourlyRate: data.hourlyRate ? String(data.hourlyRate) : "",
+        isAvailable: data.available || false,
+        verified: data.verified || false,
+        backgroundCheck: data.backgroundCheck || false,
+        hasFirstAid: data.hasFirstAid || false,
+        hasVehicle: data.hasVehicle || false,
+        maxDistanceKm: data.maxDistanceKm ? String(data.maxDistanceKm) : "",
+        
+        // Ubicación
+        province: data.location?.province || "",
+        canton: data.location?.canton || "",
+        district: data.location?.district || "",
+        addressLine1: data.location?.addressLine1 || "",
+        addressLine2: data.location?.addressLine2 || "",
+        country: data.location?.country || "",
+        postalCode: data.location?.postalCode || "",
+        
+        // Horario
+        availabilitySchedule: data.availabilitySchedule || "8:00 AM - 6:00 PM",
+        availableWeekdays: Array.isArray(data.availableWeekdays) ? data.availableWeekdays : [],
+        
+        // Arrays
+        specialties: Array.isArray(data.specialties) ? data.specialties : [],
+        certifications: Array.isArray(data.certifications) ? data.certifications : [],
+        languages: Array.isArray(data.languages) ? data.languages : [],
+        preferredAgeGroups: Array.isArray(data.preferredAgeGroups) ? data.preferredAgeGroups : [],
+      });
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      alert("Error al cargar el perfil");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddSpecialty = () => {
     if (newSpecialty.trim()) {
-      setSpecialties([...specialties, newSpecialty.trim()]);
+      setFormData(prev => ({
+        ...prev,
+        specialties: [...prev.specialties, newSpecialty.trim()]
+      }));
       setNewSpecialty("");
     }
   };
 
   const handleRemoveSpecialty = (index: number) => {
-    setSpecialties(specialties.filter((_, i) => i !== index));
-  };
-
-  const handleAddService = () => {
-    if (newService.trim()) {
-      setServices([...services, newService.trim()]);
-      setNewService("");
-    }
-  };
-
-  const handleRemoveService = (index: number) => {
-    setServices(services.filter((_, i) => i !== index));
+    setFormData(prev => ({
+      ...prev,
+      specialties: prev.specialties.filter((_, i) => i !== index)
+    }));
   };
 
   const handleAddCertification = () => {
-    const newCert = {
-      id: Date.now().toString(),
-      title: "",
-      description: "",
-      icon: "award" as const,
-    };
-    setCertifications([...certifications, newCert]);
+    if (newCertification.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        certifications: [...prev.certifications, newCertification.trim()]
+      }));
+      setNewCertification("");
+    }
   };
 
-  const handleUpdateCertification = (id: string, field: string, value: string) => {
-    setCertifications(certifications.map(cert => 
-      cert.id === id ? { ...cert, [field]: value } : cert
-    ));
+  const handleRemoveCertification = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      certifications: prev.certifications.filter((_, i) => i !== index)
+    }));
   };
 
-  const handleRemoveCertification = (id: string) => {
-    setCertifications(certifications.filter(cert => cert.id !== id));
+  const handleAddLanguage = () => {
+    if (newLanguage.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        languages: [...prev.languages, newLanguage.trim()]
+      }));
+      setNewLanguage("");
+    }
   };
 
-  const handleSave = () => {
-    // Build payload for assistant update endpoint
-    const payload = {
-      fullName: formData.name,
-      phone: formData.phone,
-      bio: formData.bio,
-      yearsExperience: parseInt(String(formData.experience).replace(/[^0-9]/g, "")) || 0,
-      hourlyRate: Number(formData.hourlyRate) || null,
-      available: Boolean(formData.available),
-      specialties,
-      services,
-      certifications,
-      availabilitySchedule: schedule.preferredHours,
-      availableWeekdays: schedule.availableDays ? [schedule.availableDays] : [],
-      location: {
-        addressLine1: formData.location,
-      },
-    };
+  const handleRemoveLanguage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      languages: prev.languages.filter((_, i) => i !== index)
+    }));
+  };
 
-    alerts.loading.processing("Guardando tu perfil...");
+  const handleAddAgeGroup = () => {
+    if (newAgeGroup.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        preferredAgeGroups: [...prev.preferredAgeGroups, newAgeGroup.trim()]
+      }));
+      setNewAgeGroup("");
+    }
+  };
 
-    fetch("/api/assistants/profile/update", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    })
-      .then(async (res) => {
-        alerts.loading.close();
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          console.error("Error saving assistant profile", err);
-          alerts.error.saving(err?.error || "No se pudieron guardar los cambios");
-          return;
-        }
-        alerts.success.saved();
-        router.push("/asistentes/profile");
-      })
-      .catch((err) => {
-        alerts.loading.close();
-        console.error(err);
-        alerts.error.network();
+  const handleRemoveAgeGroup = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      preferredAgeGroups: prev.preferredAgeGroups.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+
+      const response = await fetch("/api/assistants/profile/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          phone: formData.phoneNumber,
+          photoUrl: formData.photoUrl,
+          bio: formData.bio,
+          yearsExperience: formData.yearsExperience ? Number(formData.yearsExperience) : 0,
+          hourlyRate: formData.hourlyRate ? Number(formData.hourlyRate) : null,
+          available: formData.isAvailable,
+          hasFirstAid: formData.hasFirstAid,
+          hasVehicle: formData.hasVehicle,
+          maxDistanceKm: formData.maxDistanceKm ? Number(formData.maxDistanceKm) : null,
+          specialties: formData.specialties,
+          certifications: formData.certifications,
+          languages: formData.languages,
+          preferredAgeGroups: formData.preferredAgeGroups,
+          availabilitySchedule: formData.availabilitySchedule,
+          availableWeekdays: formData.availableWeekdays,
+          location: {
+            province: formData.province,
+            canton: formData.canton,
+            district: formData.district,
+            addressLine1: formData.addressLine1,
+            addressLine2: formData.addressLine2,
+            country: formData.country,
+            postalCode: formData.postalCode,
+          },
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("Error al guardar el perfil");
+      }
+
+      alert("Perfil actualizado exitosamente");
+      router.push("/asistentes/profile");
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      alert("Error al guardar el perfil");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
     router.back();
   };
 
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center py-12">
+          <p className="text-muted-foreground">Cargando perfil...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
-      <div className="space-y-6 max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
+      <div className="space-y-6">
+        {/* Header with Gradient - Tema Verde/Emerald */}
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 p-4 sm:p-6 md:p-8 text-white shadow-lg">
+          <div className="absolute inset-0 bg-black/5"></div>
+          <div className="relative z-10">
+            <Button 
+              variant="ghost" 
+              size="icon" 
               onClick={handleCancel}
+              className="mb-4 text-white hover:bg-white/20"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div>
-              <h1 className="text-2xl font-bold">Editar Perfil</h1>
-              <p className="text-muted-foreground">Actualiza tu información profesional</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Editar Perfil Profesional</h1>
+                <p className="text-green-100 text-lg">
+                  Actualiza tu información y amplía tus características profesionales
+                </p>
+              </div>
+              <div className="hidden md:flex items-center gap-4">
+                <div className="text-right">
+                  <p className="text-sm text-green-100">Última actualización</p>
+                  <p className="font-semibold">{new Date().toLocaleDateString('es-ES')}</p>
+                </div>
+              </div>
             </div>
           </div>
-          <Button onClick={handleSave} className="bg-gradient-to-r from-cyan-500 to-blue-500">
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row justify-end gap-2">
+          <Button variant="outline" onClick={handleCancel} size="default" className="w-full sm:w-auto">
+            <X className="w-4 h-4 mr-2" />
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleSave} 
+            disabled={saving}
+            size="default"
+            className="w-full sm:w-auto bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
+          >
             <Save className="w-4 h-4 mr-2" />
-            Guardar Cambios
+            {saving ? "Guardando..." : "Guardar Cambios"}
           </Button>
         </div>
 
-        {/* Información Personal */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5 text-cyan-500" />
-              Información Personal
+        {/* Personal Information Card */}
+        <Card className="border-l-4 border-l-cyan-500 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-emerald-950/30 dark:to-green-950/30">
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-emerald-500/10">
+                <User className="w-6 h-6 text-cyan-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl">Información Personal</h2>
+                <p className="text-sm text-muted-foreground font-normal">Datos básicos de tu cuenta</p>
+              </div>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardContent className="space-y-6 pt-6">
+            {/* Profile Photo with Upload */}
+            <div className="p-4 bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-950/20 dark:to-blue-950/20 rounded-lg">
+              <Label className="text-base font-semibold mb-4 block">
+                Foto de Perfil
+              </Label>
+              <ImageUpload
+                currentImage={formData.photoUrl}
+                onImageChange={(url: string) => setFormData(prev => ({ ...prev, photoUrl: url }))}
+                bucket="avatars"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="fullName" className="text-sm sm:text-base flex items-center gap-2">
+                <User className="w-4 h-4 text-cyan-600" />
+                Nombre Completo
+              </Label>
+              <Input
+                id="fullName"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleInputChange}
+                placeholder="Juan Pérez González"
+                className="h-10 sm:h-11"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Nombre Completo</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Tu nombre completo"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Correo Electrónico</Label>
+                <Label htmlFor="email" className="text-sm sm:text-base flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-cyan-600" />
+                  Correo Electrónico
+                </Label>
                 <Input
                   id="email"
                   name="email"
                   type="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  placeholder="tu@email.com"
+                  disabled
+                  className="h-11 bg-muted"
                 />
+                <p className="text-xs text-muted-foreground">El correo no puede ser modificado</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Teléfono</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder="+506 0000-0000"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">
-                  <MapPin className="w-4 h-4 inline mr-1" />
-                  Ubicación
+                <Label htmlFor="phoneNumber" className="text-sm sm:text-base flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-cyan-600" />
+                  Teléfono
                 </Label>
                 <Input
-                  id="location"
-                  name="location"
-                  value={formData.location}
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
                   onChange={handleInputChange}
-                  placeholder="Ciudad, País"
+                  placeholder="+506 0000-0000"
+                  className="h-10 sm:h-11"
+                />
+              </div>
+            </div>
+
+            {/* Bio Section */}
+            <div className="space-y-2 pt-4 border-t-2 border-cyan-100 dark:border-cyan-900">
+              <Label htmlFor="bio" className="text-sm sm:text-base flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-cyan-600" />
+                Biografía Profesional
+              </Label>
+              <Textarea
+                id="bio"
+                name="bio"
+                value={formData.bio}
+                onChange={handleInputChange}
+                placeholder="Cuéntanos sobre tu experiencia, habilidades y enfoque de cuidado..."
+                rows={3}
+                className="resize-none"
+              />
+              <p className="text-xs text-muted-foreground">
+                Esta información se mostrará a los usuarios en tu perfil
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Location Card */}
+        <Card className="border-l-4 border-l-blue-500 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-green-950/30 dark:to-emerald-950/30">
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-green-500/10">
+                <MapPin className="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl">Ubicación</h2>
+                <p className="text-sm text-muted-foreground font-normal">Dirección de operación</p>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6 pt-6">
+            {/* Geographic Location */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="province" className="text-sm sm:text-base flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  Provincia
+                </Label>
+                <Input 
+                  id="province" 
+                  name="province" 
+                  value={formData.province} 
+                  onChange={handleInputChange} 
+                  placeholder="San José"
+                  className="h-10 sm:h-11"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="canton" className="text-sm sm:text-base flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                  Cantón
+                </Label>
+                <Input 
+                  id="canton" 
+                  name="canton" 
+                  value={formData.canton} 
+                  onChange={handleInputChange} 
+                  placeholder="Escazú"
+                  className="h-10 sm:h-11"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="district" className="text-sm sm:text-base flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-lime-500"></div>
+                  Distrito
+                </Label>
+                <Input 
+                  id="district" 
+                  name="district" 
+                  value={formData.district} 
+                  onChange={handleInputChange} 
+                  placeholder="San Rafael"
+                  className="h-10 sm:h-11"
+                />
+              </div>
+            </div>
+
+            {/* Address Lines */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="addressLine1" className="text-base">Dirección Línea 1</Label>
+                <Input 
+                  id="addressLine1" 
+                  name="addressLine1" 
+                  value={formData.addressLine1} 
+                  onChange={handleInputChange} 
+                  placeholder="Calle principal, número de casa"
+                  className="h-10 sm:h-11"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="addressLine2" className="text-base text-muted-foreground">
+                  Dirección Línea 2 <span className="text-xs">(opcional)</span>
+                </Label>
+                <Input 
+                  id="addressLine2" 
+                  name="addressLine2" 
+                  value={formData.addressLine2} 
+                  onChange={handleInputChange} 
+                  placeholder="Apartamento, unidad, edificio"
+                  className="h-10 sm:h-11"
+                />
+              </div>
+            </div>
+
+            {/* Country and Postal Code */}
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="country" className="text-sm sm:text-base flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-green-600" />
+                  País
+                </Label>
+                <Input 
+                  id="country" 
+                  name="country" 
+                  value={formData.country} 
+                  onChange={handleInputChange} 
+                  placeholder="Costa Rica"
+                  className="h-10 sm:h-11"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="postalCode" className="text-base">Código Postal</Label>
+                <Input 
+                  id="postalCode" 
+                  name="postalCode" 
+                  value={formData.postalCode} 
+                  onChange={handleInputChange} 
+                  placeholder="10101"
+                  className="h-10 sm:h-11"
                 />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Información Profesional */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Briefcase className="w-5 h-5 text-cyan-500" />
-              Información Profesional
+        {/* Professional Information Card */}
+        <Card className="border-l-4 border-l-cyan-500 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-emerald-950/30 dark:to-green-950/30">
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-emerald-500/10">
+                <Briefcase className="w-6 h-6 text-cyan-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl">Información Profesional</h2>
+                <p className="text-sm text-muted-foreground font-normal">Experiencia y tarifas</p>
+              </div>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardContent className="space-y-6 pt-6">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label htmlFor="experience">Experiencia</Label>
+                <Label htmlFor="yearsExperience" className="text-sm sm:text-base flex items-center gap-2">
+                  <Award className="w-4 h-4 text-cyan-600" />
+                  Años de Experiencia
+                </Label>
                 <Input
-                  id="experience"
-                  name="experience"
-                  value={formData.experience}
+                  id="yearsExperience"
+                  name="yearsExperience"
+                  type="number"
+                  value={formData.yearsExperience}
                   onChange={handleInputChange}
-                  placeholder="Ej: 5 años de experiencia"
+                  placeholder="5"
+                  className="h-10 sm:h-11"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="hourlyRate">
-                  <Banknote className="w-4 h-4 inline mr-1" />
-                  Tarifa por Hora (₡)
+                <Label htmlFor="hourlyRate" className="text-sm sm:text-base flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-cyan-600" />
+                  Tarifa por Hora (CRC)
                 </Label>
                 <Input
                   id="hourlyRate"
@@ -321,48 +614,150 @@ export default function EditAssistantProfilePage() {
                   type="number"
                   value={formData.hourlyRate}
                   onChange={handleInputChange}
-                  placeholder="25"
+                  placeholder="8500"
+                  className="h-10 sm:h-11"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div>
-                <p className="font-medium">Disponibilidad</p>
-                <p className="text-sm text-muted-foreground">
-                  {formData.available ? "Disponible para nuevos servicios" : "No disponible actualmente"}
-                </p>
+            <div className="grid grid-cols-1 gap-3 sm:gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="maxDistanceKm" className="text-sm sm:text-base flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-cyan-600" />
+                  Distancia Máxima (km)
+                </Label>
+                <Input
+                  id="maxDistanceKm"
+                  name="maxDistanceKm"
+                  type="number"
+                  value={formData.maxDistanceKm}
+                  onChange={handleInputChange}
+                  placeholder="10"
+                  className="h-10 sm:h-11"
+                />
+              </div>
+            </div>
+
+            {/* Availability Switch */}
+            <div className="flex items-center justify-between p-5 border-2 border-emerald-200 dark:border-emerald-800 rounded-xl bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-emerald-950/30 dark:to-green-950/30 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500">
+                  <Calendar className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-base">Disponibilidad</p>
+                  <p className="text-sm text-muted-foreground">
+                    {formData.isAvailable ? "✓ Disponible para nuevos servicios" : "No disponible actualmente"}
+                  </p>
+                </div>
               </div>
               <Switch
-                checked={formData.available}
-                onCheckedChange={(checked: boolean) => 
-                  setFormData(prev => ({ ...prev, available: checked }))
+                checked={formData.isAvailable}
+                onCheckedChange={(checked) => 
+                  setFormData(prev => ({ ...prev, isAvailable: checked }))
                 }
+                className="data-[state=checked]:bg-emerald-500"
               />
             </div>
           </CardContent>
         </Card>
 
-        {/* Especialidades */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-cyan-500" />
-              Especialidades
+        {/* Qualifications Card */}
+        <Card className="border-l-4 border-l-blue-500 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-green-950/30 dark:to-emerald-950/30">
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-green-500/10">
+                <FileCheck className="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl">Cualificaciones y Verificaciones</h2>
+                <p className="text-sm text-muted-foreground font-normal">Certificaciones y documentos</p>
+              </div>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6 pt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+              {/* Background Check */}
+              <div className="flex items-center justify-between p-4 border-2 border-green-200 dark:border-green-800 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-green-950/30 dark:to-emerald-950/30">
+                <div className="flex items-center gap-3">
+                  <Shield className="w-5 h-5 text-green-600" />
+                  <div>
+                    <p className="font-medium text-sm">Antecedentes</p>
+                    <p className="text-xs text-muted-foreground">Verificado</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={formData.backgroundCheck}
+                  onCheckedChange={(checked) => 
+                    setFormData(prev => ({ ...prev, backgroundCheck: checked }))
+                  }
+                  className="data-[state=checked]:bg-green-500"
+                />
+              </div>
+
+              {/* First Aid */}
+              <div className="flex items-center justify-between p-4 border-2 border-emerald-200 dark:border-emerald-800 rounded-xl bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-emerald-950/30 dark:to-green-950/30">
+                <div className="flex items-center gap-3">
+                  <Heart className="w-5 h-5 text-cyan-600" />
+                  <div>
+                    <p className="font-medium text-sm">Primeros Auxilios</p>
+                    <p className="text-xs text-muted-foreground">Certificado</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={formData.hasFirstAid}
+                  onCheckedChange={(checked) => 
+                    setFormData(prev => ({ ...prev, hasFirstAid: checked }))
+                  }
+                  className="data-[state=checked]:bg-emerald-500"
+                />
+              </div>
+
+              {/* Vehicle */}
+              <div className="flex items-center justify-between p-4 border-2 border-green-200 dark:border-green-800 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-green-950/30 dark:to-emerald-950/30">
+                <div className="flex items-center gap-3">
+                  <Car className="w-5 h-5 text-green-600" />
+                  <div>
+                    <p className="font-medium text-sm">Vehículo Propio</p>
+                    <p className="text-xs text-muted-foreground">Disponible</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={formData.hasVehicle}
+                  onCheckedChange={(checked) => 
+                    setFormData(prev => ({ ...prev, hasVehicle: checked }))
+                  }
+                  className="data-[state=checked]:bg-green-500"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Specialties Card */}
+        <Card className="border-l-4 border-l-cyan-500 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-emerald-950/30 dark:to-green-950/30">
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-emerald-500/10">
+                <Award className="w-6 h-6 text-cyan-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl">Especialidades</h2>
+                <p className="text-sm text-muted-foreground font-normal">Áreas de experiencia</p>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-6">
             <div className="flex flex-wrap gap-2">
-              {specialties.map((specialty, index) => (
+              {formData.specialties.map((specialty, index) => (
                 <Badge 
                   key={index} 
-                  variant="secondary"
-                  className="bg-cyan-50 text-cyan-700 hover:bg-cyan-100"
+                  className="gap-2 px-3 py-1 bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-emerald-600 hover:to-green-600"
                 >
                   {specialty}
                   <button
                     onClick={() => handleRemoveSpecialty(index)}
-                    className="ml-2 hover:text-cyan-900"
+                    className="ml-1 hover:bg-white/20 rounded-full p-0.5 transition-colors"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -373,144 +768,272 @@ export default function EditAssistantProfilePage() {
               <Input
                 value={newSpecialty}
                 onChange={(e) => setNewSpecialty(e.target.value)}
-                placeholder="Agregar especialidad"
+                placeholder="Agregar especialidad (ej: Cuidado de adultos mayores)"
                 onKeyPress={(e) => e.key === 'Enter' && handleAddSpecialty()}
+                className="h-10 sm:h-11"
               />
-              <Button onClick={handleAddSpecialty} variant="outline">
+              <Button onClick={handleAddSpecialty} variant="outline" size="default" className="w-full sm:w-auto">
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Certificaciones */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-cyan-500" />
-                Certificaciones
+        {/* Certifications Card */}
+        <Card className="border-l-4 border-l-blue-500 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-green-950/30 dark:to-emerald-950/30">
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-green-500/10">
+                <Award className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
-              <Button onClick={handleAddCertification} variant="outline" size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                Agregar
-              </Button>
+              <div>
+                <h2 className="text-lg sm:text-xl">Certificaciones</h2>
+                <p className="text-sm text-muted-foreground font-normal">Formación y capacitación</p>
+              </div>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {certifications.map((cert) => (
-              <div key={cert.id} className="p-4 border rounded-lg space-y-3">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1 space-y-3">
-                    <Input
-                      value={cert.title}
-                      onChange={(e) => handleUpdateCertification(cert.id, 'title', e.target.value)}
-                      placeholder="Título de la certificación"
-                    />
-                    <Input
-                      value={cert.description}
-                      onChange={(e) => handleUpdateCertification(cert.id, 'description', e.target.value)}
-                      placeholder="Institución y año"
-                    />
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemoveCertification(cert.id)}
-                    className="ml-2"
+          <CardContent className="space-y-4 pt-6">
+            <div className="flex flex-wrap gap-2">
+              {formData.certifications.map((cert, index) => (
+                <Badge 
+                  key={index} 
+                  className="gap-2 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600"
+                >
+                  {cert}
+                  <button
+                    onClick={() => handleRemoveCertification(index)}
+                    className="ml-1 hover:bg-white/20 rounded-full p-0.5 transition-colors"
                   >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Servicios Ofrecidos */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Briefcase className="w-5 h-5 text-cyan-500" />
-              Servicios Ofrecidos
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              {services.map((service, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <span className="text-sm">{service}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveService(index)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
               ))}
             </div>
             <div className="flex gap-2">
               <Input
-                value={newService}
-                onChange={(e) => setNewService(e.target.value)}
-                placeholder="Agregar servicio"
-                onKeyPress={(e) => e.key === 'Enter' && handleAddService()}
+                value={newCertification}
+                onChange={(e) => setNewCertification(e.target.value)}
+                placeholder="Agregar certificación (ej: Enfermería Básica)"
+                onKeyPress={(e) => e.key === 'Enter' && handleAddCertification()}
+                className="h-10 sm:h-11"
               />
-              <Button onClick={handleAddService} variant="outline">
+              <Button onClick={handleAddCertification} variant="outline" size="default" className="w-full sm:w-auto">
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Horario */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-cyan-500" />
-              Horario de Disponibilidad
+        {/* Languages Card */}
+        <Card className="border-l-4 border-l-cyan-500 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-emerald-950/30 dark:to-green-950/30">
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-emerald-500/10">
+                <Globe className="w-6 h-6 text-cyan-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl">Idiomas</h2>
+                <p className="text-sm text-muted-foreground font-normal">Idiomas que hablas</p>
+              </div>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="preferredHours">
-                  <Clock className="w-4 h-4 inline mr-1" />
-                  Horas Preferidas
-                </Label>
-                <Input
-                  id="preferredHours"
-                  value={schedule.preferredHours}
-                  onChange={(e) => setSchedule(prev => ({ ...prev, preferredHours: e.target.value }))}
-                  placeholder="8:00 AM - 6:00 PM"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="availableDays">
-                  <Calendar className="w-4 h-4 inline mr-1" />
-                  Días Disponibles
-                </Label>
-                <Input
-                  id="availableDays"
-                  value={schedule.availableDays}
-                  onChange={(e) => setSchedule(prev => ({ ...prev, availableDays: e.target.value }))}
-                  placeholder="Lunes a Viernes"
-                />
-              </div>
+          <CardContent className="space-y-4 pt-6">
+            <div className="flex flex-wrap gap-2">
+              {formData.languages.map((language, index) => (
+                <Badge 
+                  key={index} 
+                  className="gap-2 px-3 py-1 bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-emerald-600 hover:to-green-600"
+                >
+                  {language}
+                  <button
+                    onClick={() => handleRemoveLanguage(index)}
+                    className="ml-1 hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={newLanguage}
+                onChange={(e) => setNewLanguage(e.target.value)}
+                placeholder="Agregar idioma (ej: Español, Inglés)"
+                onKeyPress={(e) => e.key === 'Enter' && handleAddLanguage()}
+                className="h-10 sm:h-11"
+              />
+              <Button onClick={handleAddLanguage} variant="outline" size="default" className="w-full sm:w-auto">
+                <Plus className="w-4 h-4" />
+              </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Botones de acción */}
-        <div className="flex justify-end gap-3 pb-6">
-          <Button variant="outline" onClick={handleCancel}>
-            Cancelar
-          </Button>
-          <Button onClick={handleSave} className="bg-gradient-to-r from-cyan-500 to-blue-500">
-            <Save className="w-4 h-4 mr-2" />
-            Guardar Cambios
-          </Button>
+        {/* Preferred Age Groups Card */}
+        <Card className="border-l-4 border-l-blue-500 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-green-950/30 dark:to-emerald-950/30">
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-green-500/10">
+                <Users className="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl">Grupos de Edad Preferidos</h2>
+                <p className="text-sm text-muted-foreground font-normal">Edades con las que prefieres trabajar</p>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-6">
+            <div className="flex flex-wrap gap-2">
+              {formData.preferredAgeGroups.map((ageGroup, index) => (
+                <Badge 
+                  key={index} 
+                  className="gap-2 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600"
+                >
+                  {ageGroup}
+                  <button
+                    onClick={() => handleRemoveAgeGroup(index)}
+                    className="ml-1 hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={newAgeGroup}
+                onChange={(e) => setNewAgeGroup(e.target.value)}
+                placeholder="Agregar grupo de edad (ej: Adultos mayores, Niños)"
+                onKeyPress={(e) => e.key === 'Enter' && handleAddAgeGroup()}
+                className="h-10 sm:h-11"
+              />
+              <Button onClick={handleAddAgeGroup} variant="outline" size="default" className="w-full sm:w-auto">
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Availability Schedule Card */}
+        <Card className="border-l-4 border-l-cyan-500 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-emerald-950/30 dark:to-green-950/30">
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-emerald-500/10">
+                <Clock className="w-6 h-6 text-cyan-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl">Horario de Disponibilidad</h2>
+                <p className="text-sm text-muted-foreground font-normal">Días y horas disponibles</p>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6 pt-6">
+            <div className="space-y-2">
+              <Label htmlFor="availabilitySchedule" className="text-sm sm:text-base flex items-center gap-2">
+                <Clock className="w-4 h-4 text-cyan-600" />
+                Horas Preferidas
+              </Label>
+              <Input
+                id="availabilitySchedule"
+                value={formData.availabilitySchedule}
+                onChange={(e) => setFormData(prev => ({ ...prev, availabilitySchedule: e.target.value }))}
+                placeholder="8:00 AM - 6:00 PM"
+                className="h-10 sm:h-11"
+              />
+            </div>
+
+            {/* Weekdays Selection */}
+            <div className="space-y-4 pt-4 border-t-2 border-cyan-100 dark:border-cyan-900">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-emerald-500/10">
+                  <Calendar className="w-5 h-5 text-cyan-600 dark:text-emerald-400" />
+                </div>
+                <div className="flex-1">
+                  <Label className="text-base sm:text-lg font-semibold">
+                    Días Disponibles
+                  </Label>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Selecciona los días de la semana en los que puedes trabajar
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 border-2 border-dashed border-emerald-200 dark:border-emerald-800 rounded-xl bg-gradient-to-br from-emerald-50/50 to-green-50/50 dark:from-emerald-950/20 dark:to-green-950/20">
+                {weekdayOptions.map((day) => (
+                  <div
+                    key={day}
+                    onClick={() => toggleWeekday(day)}
+                    className={`
+                      group relative flex items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all duration-200
+                      ${
+                        formData.availableWeekdays.includes(day)
+                          ? 'border-emerald-500 bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-emerald-950 dark:to-green-950 shadow-md scale-[1.02]'
+                          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-emerald-300 hover:shadow-sm'
+                      }
+                    `}
+                  >
+                    <p className={`font-semibold text-sm ${
+                      formData.availableWeekdays.includes(day)
+                        ? 'text-emerald-700 dark:text-emerald-300'
+                        : 'text-gray-900 dark:text-gray-100'
+                    }`}>
+                      {day}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {formData.availableWeekdays.length > 0 && (
+                <div className="p-4 bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-emerald-950/30 dark:to-green-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                  <p className="text-sm font-semibold mb-3 flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-cyan-600" />
+                    Días Seleccionados ({formData.availableWeekdays.length})
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.availableWeekdays.map(day => (
+                      <Badge 
+                        key={day} 
+                        className="gap-2 px-3 py-1 bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-emerald-600 hover:to-green-600"
+                      >
+                        {day}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleWeekday(day);
+                          }}
+                          className="ml-1 hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Bottom Action Buttons */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pb-8 pt-4">
+          <p className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
+            Los cambios se aplicarán inmediatamente al guardar
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+            <Button variant="outline" onClick={handleCancel} size="default" className="w-full sm:w-auto sm:min-w-[120px]">
+              <X className="w-4 h-4 mr-2" />
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleSave} 
+              disabled={saving}
+              size="default"
+              className="w-full sm:w-auto sm:min-w-[160px] bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {saving ? "Guardando..." : "Guardar Cambios"}
+            </Button>
+          </div>
         </div>
       </div>
     </DashboardLayout>

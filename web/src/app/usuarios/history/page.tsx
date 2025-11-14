@@ -10,45 +10,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search, ArrowLeft, Star, CheckCircle2, Loader2, FileText } from "lucide-react";
 import { colors, careTypeColors } from "@/config/colors";
 
-const mockHistory: HistoryItem[] = [
-  {
-    id: "1",
-    title: "Cuidado para mi madre de 78 años",
-    caregiver: {
-      id: "1",
-      name: "María González",
-      avatar: null,
-      rating: 4.8,
-    },
-    category: "elderly",
-    startDate: new Date("2025-09-01"),
-    endDate: new Date("2025-09-30"),
-    duration: "30 días",
-    totalCost: 8400,
-    status: "Completado",
-    myRating: 5,
-    caregiverRating: 4.8,
-  },
-  {
-    id: "2",
-    title: "Cuidado nocturno para bebé",
-    caregiver: {
-      id: "2",
-      name: "Ana Rodríguez",
-      avatar: null,
-      rating: 4.9,
-    },
-    category: "children",
-    startDate: new Date("2025-08-15"),
-    endDate: new Date("2025-08-20"),
-    duration: "5 días",
-    totalCost: 1200,
-    status: "Completado",
-    myRating: 5,
-    caregiverRating: 4.9,
-  },
-];
-
 const getCareTypeInfo = (category: string) => {
   const careTypes = {
     elderly: { label: "Adultos Mayores", colors: careTypeColors.elderly },
@@ -71,6 +32,7 @@ const formatDate = (date: Date | string) => {
 
 interface HistoryItem {
   id: string;
+  requestId: string;
   title: string;
   caregiver: {
     id: string;
@@ -94,36 +56,57 @@ export default function HistorialPage() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    fetch('/api/users/history')
+      .then(res => res.json())
+      .then(data => {
+        setHistory(data);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error("Error fetching history:", error);
+        setIsLoading(false);
+      });
+  }, []);
+
   const filteredHistory = useMemo(() => {
-    return mockHistory.filter((item) =>
+    return history.filter((item) =>
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.caregiver.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.category.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [searchQuery]);
+  }, [history, searchQuery]);
 
-  const handleViewDetails = (id: string) => {
-    router.push(`/usuarios/history/${id}`);
+  const handleViewDetails = (requestId: string) => {
+    router.push(`/usuarios/history/${requestId}`);
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-cyan-50 to-blue-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-sky-600" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-cyan-50 to-blue-50 pb-10">
+    <div className="min-h-screen pb-10" style={{ background: colors.background.secondary }}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-sky-500 to-cyan-500 text-white py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Button
-            variant="ghost"
-            className="text-white hover:text-white hover:bg-white/20 mb-4"
-            onClick={() => router.push("/usuarios/dashboard")}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al Dashboard
-          </Button>
-          <h1 className="text-3xl font-bold">Historial de Servicios</h1>
-          <p className="text-sky-100 mt-2">
-            Revisa todos tus servicios completados
-          </p>
-        </div>
+      <div className="text-white py-8 px-4 shadow-lg" style={{ background: colors.gradients.primary }}>
+      <div className="max-w-7xl mx-auto">
+        <Button
+        variant="ghost"
+        className="text-white hover:bg-white/20 mb-4"
+        onClick={() => router.push("/usuarios/dashboard")}
+        >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Volver al Dashboard
+        </Button>
+        <h1 className="text-3xl font-bold">Historial de Servicios</h1>
+        <p className="mt-2" style={{ color: colors.accent[100] }}>
+        Revisa todos tus servicios completados
+        </p>
+      </div>
       </div>
 
       {/* Content */}
@@ -152,7 +135,7 @@ export default function HistorialPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-sky-600">{mockHistory.length}</p>
+                <p className="text-3xl font-bold text-sky-600">{history.length}</p>
                 <p className="text-sm text-muted-foreground">Servicios Completados</p>
               </div>
             </CardContent>
@@ -162,7 +145,12 @@ export default function HistorialPage() {
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1">
                   <Star className="w-6 h-6 fill-yellow-400 text-yellow-400" />
-                  <p className="text-3xl font-bold">4.9</p>
+                  <p className="text-3xl font-bold">
+                    {history.length > 0 
+                      ? (history.reduce((sum, item) => sum + item.caregiverRating, 0) / history.length).toFixed(1)
+                      : '0.0'
+                    }
+                  </p>
                 </div>
                 <p className="text-sm text-muted-foreground">Calificación Promedio</p>
               </div>
@@ -171,7 +159,9 @@ export default function HistorialPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-sky-600">₡1.25M</p>
+                <p className="text-3xl font-bold text-sky-600">
+                  ₡{history.reduce((sum, item) => sum + item.totalCost, 0).toLocaleString()}
+                </p>
                 <p className="text-sm text-muted-foreground">Total Invertido</p>
               </div>
             </CardContent>
@@ -194,41 +184,32 @@ export default function HistorialPage() {
               const categoryInfo = getCareTypeInfo(item.category);
               
               return (
-                <Card key={item.id} className="hover:shadow-lg transition-shadow border-neutral-200">
+                <Card key={item.id} className="hover:shadow-md transition-shadow">
                   <CardHeader>
-                    <div className="flex items-start justify-between">
+                    <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-4 flex-1">
-                        <Avatar className="w-16 h-16 border-4" style={{ borderColor: colors.success[100] }}>
+                        <Avatar className="h-14 w-14">
                           {item.caregiver.avatar && <AvatarImage src={item.caregiver.avatar} />}
-                          <AvatarFallback 
-                            className="text-white text-lg"
-                            style={{ background: colors.gradients.cool }}
-                          >
+                          <AvatarFallback className="bg-sky-100 text-sky-700">
                             {item.caregiver.name.split(" ").map(n => n[0]).join("")}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <CardTitle className="text-xl" style={{ color: colors.neutral[900] }}>
-                              {item.title}
-                            </CardTitle>
-                            <Badge 
-                              className="border"
-                              style={{
-                                backgroundColor: colors.success[50],
-                                color: colors.success[700],
-                                borderColor: colors.success[200],
-                              }}
-                            >
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <CardTitle className="text-lg">{item.title}</CardTitle>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                Cuidador: {item.caregiver.name}
+                              </p>
+                            </div>
+                            <Badge className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100">
                               <CheckCircle2 className="w-3 h-3 mr-1" />
-                              {item.status}
+                              Completado
                             </Badge>
                           </div>
-                          <p className="text-sm" style={{ color: colors.neutral[600] }}>
-                            Cuidador: {item.caregiver.name}
-                          </p>
                           <Badge 
                             variant="outline"
+                            className="w-fit"
                             style={{
                               backgroundColor: categoryInfo.colors.bg,
                               color: categoryInfo.colors.text,
@@ -246,35 +227,35 @@ export default function HistorialPage() {
                       {/* Service Details */}
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
-                          <p style={{ color: colors.neutral[600] }}>Fecha inicio</p>
-                          <p className="font-semibold" style={{ color: colors.neutral[900] }}>
+                          <p className="text-muted-foreground">Fecha inicio</p>
+                          <p className="font-medium">
                             {formatDate(item.startDate)}
                           </p>
                         </div>
                         <div>
-                          <p style={{ color: colors.neutral[600] }}>Fecha fin</p>
-                          <p className="font-semibold" style={{ color: colors.neutral[900] }}>
+                          <p className="text-muted-foreground">Fecha fin</p>
+                          <p className="font-medium">
                             {formatDate(item.endDate)}
                           </p>
                         </div>
                         <div>
-                          <p style={{ color: colors.neutral[600] }}>Duración</p>
-                          <p className="font-semibold" style={{ color: colors.neutral[900] }}>
+                          <p className="text-muted-foreground">Duración</p>
+                          <p className="font-medium">
                             {item.duration}
                           </p>
                         </div>
                         <div>
-                          <p style={{ color: colors.neutral[600] }}>Costo total</p>
-                          <p className="font-semibold" style={{ color: colors.success[600] }}>
+                          <p className="text-muted-foreground">Costo total</p>
+                          <p className="font-medium text-green-600">
                             ₡{item.totalCost.toLocaleString()}
                           </p>
                         </div>
                       </div>
 
                       {/* Ratings */}
-                      <div className="flex items-center gap-6 pt-2 border-t border-neutral-200">
+                      <div className="flex items-center gap-6 pt-2 border-t">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm" style={{ color: colors.neutral[600] }}>
+                          <span className="text-sm text-muted-foreground">
                             Calificación del cuidador:
                           </span>
                           <div className="flex items-center gap-1">
@@ -289,17 +270,12 @@ export default function HistorialPage() {
                         <Button
                           variant="outline"
                           className="flex-1"
-                          style={{
-                            borderColor: colors.primary[300],
-                            color: colors.primary[700],
-                          }}
-                          onClick={() => handleViewDetails(item.id)}
+                          onClick={() => handleViewDetails(item.requestId)}
                         >
                           Ver Detalles
                         </Button>
                         <Button
-                          className="flex-1 text-white"
-                          style={{ background: colors.gradients.cool }}
+                          className="flex-1 bg-sky-600 hover:bg-sky-700 text-white"
                           onClick={() => router.push(`/usuarios/available-caregivers`)}
                         >
                           Contratar de Nuevo
