@@ -1,26 +1,32 @@
 "use client";
 
-import { Search, FileText, History, Clock } from "lucide-react";
+import { Search, FileText, History, Clock, Inbox } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { colors } from "@/config/colors";
 
 interface UserDashboardCardsProps {
   onSearchCaregivers?: () => void;
   onViewRequests?: () => void;
+  onViewOffers?: () => void;
   onViewInProgress?: () => void;
   onViewHistory?: () => void;
   inProgressCount?: number;
+  pendingApplicationsCount?: number;
+  isLoading?: boolean;
 }
 
 export function UserDashboardCards({
   onSearchCaregivers,
   onViewRequests,
+  onViewOffers,
   onViewInProgress,
   onViewHistory,
   inProgressCount = 0,
+  pendingApplicationsCount = 0,
+  isLoading = false,
 }: UserDashboardCardsProps) {
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       <DashboardCard
         icon={Search}
         iconColor={colors.primary[500]}
@@ -39,6 +45,17 @@ export function UserDashboardCards({
         buttonText="Ver Solicitudes"
         buttonGradient={colors.gradients.primary}
         onClick={onViewRequests}
+      />
+
+      <DashboardCard
+        icon={Inbox}
+        iconColor={colors.warning[500]}
+        title="Ofertas Recibidas"
+        description={`Tienes ${pendingApplicationsCount} postulación${pendingApplicationsCount !== 1 ? 'es' : ''} pendiente${pendingApplicationsCount !== 1 ? 's' : ''} de cuidador${pendingApplicationsCount !== 1 ? 'es' : ''}.`}
+        buttonText="Ver Ofertas"
+        buttonGradient={colors.gradients.accent}
+        onClick={onViewOffers}
+        badge={pendingApplicationsCount > 0 ? pendingApplicationsCount : undefined}
       />
 
       <DashboardCard

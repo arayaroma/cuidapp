@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
   ThumbsDown,
   MessageSquare
 } from "lucide-react";
+import Swal from 'sweetalert2'
 
 export default function ServiceReviewPage() {
   const router = useRouter();
@@ -28,45 +29,112 @@ export default function ServiceReviewPage() {
   const [wouldRecommend, setWouldRecommend] = useState<boolean | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Mock data del servicio
-  const service = {
-    id: serviceId,
-    title: "Cuidado Infantil",
-    caregiver: {
-      name: "Ana Rodríguez",
-      avatar: "",
-      rating: 5.0,
-      totalReviews: 45,
-    },
-    startDate: "05/10/2025",
-    endDate: "12/10/2025",
-    totalDays: 7,
-    totalCost: "₡294,000",
-  };
+  // Real service data
+  const [service, setService] = useState<any | null>(null);
+
+  useEffect(() => {
+    if (!serviceId) return;
+    const controller = new AbortController();
+
+    const fetchData = async () => {
+      try {
+        const reqRes = await fetch(`/api/requests/${serviceId}`, { signal: controller.signal });
+        if (!reqRes.ok) {
+          console.error('Error fetching request:', reqRes.statusText);
+          return;
+        }
+        const reqData = await reqRes.json();
+
+        // Fetch assigned assistant (caregiver) if any
+        let caregiver = null;
+        try {
+          const assRes = await fetch(`/api/requests/${serviceId}/assignment`, { signal: controller.signal });
+          if (assRes.ok) caregiver = await assRes.json();
+        } catch (e: any) {
+          if (e.name !== 'AbortError') console.error('Error fetching assignment', e);
+        }
+
+        if (!controller.signal.aborted) {
+          setService({
+            id: reqData.id,
+            title: reqData.title,
+            ownerId: reqData.createdById,
+            caregiver: caregiver || {
+              name: 'Cuidador',
+              avatar: null,
+              rating: 0,
+              totalReviews: 0,
+            },
+            startDate: reqData.startDate || null,
+            endDate: null,
+            totalDays: null,
+            totalCost: null,
+          });
+        }
+      } catch (e: any) {
+        if (e.name === 'AbortError') return;
+        console.error('Error fetching service data', e);
+      }
+    };
+
+    fetchData();
+    return () => controller.abort();
+  }, [serviceId]);
 
   const handleSubmitReview = async () => {
     if (rating === 0) {
-      alert("Por favor selecciona una calificación");
+      Swal.fire({ icon: 'warning', title: 'Calificación requerida', text: 'Por favor selecciona una calificación', confirmButtonText: 'OK' })
       return;
     }
 
     setIsSubmitting(true);
 
-    // Simular envío
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      // Quick client-side check: ensure the currently signed-in user matches the request owner
+      try {
+        const sessionRes = await fetch('/api/auth/session');
+        if (sessionRes.ok) {
+          const sess = await sessionRes.json();
+          const currentUserId = sess?.user?.id;
+          if (service?.ownerId && currentUserId !== service.ownerId) {
+            console.error('Client-side: current user id does not match request owner', { currentUserId, ownerId: service.ownerId });
+            Swal.fire({ icon: 'warning', title: 'Cuenta incorrecta', text: 'No estás autenticado con la cuenta que creó este servicio. Inicia sesión con la cuenta correcta e inténtalo de nuevo.' });
+            setIsSubmitting(false);
+            return;
+          }
+        }
+      } catch (e) {
+        // ignore session fetch errors and proceed to let server validate
+        console.warn('Could not verify session before submitting review', e);
+      }
 
-    // Aquí iría la lógica para enviar la reseña al backend
-    console.log({
-      serviceId,
-      rating,
-      review,
-      wouldRecommend,
-    });
+      // Enviar la calificación a la API
+      const response = await fetch("/api/service-ratings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          requestId: serviceId,
+          rating: rating,
+          comment: review.trim() || null,
+          wouldRecommend: wouldRecommend,
+        }),
+      });
 
-    setIsSubmitting(false);
-    
-    // Redirigir al historial
-    router.push("/usuarios/history");
+      if (response.ok) {
+        // Redirigir al historial después de enviar la reseña
+        router.push("/usuarios/history");
+      } else {
+        console.error("Error submitting review");
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Error al enviar la reseña. Inténtalo de nuevo.' })
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Error al enviar la reseña. Inténtalo de nuevo.' })
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSkipReview = () => {
@@ -110,43 +178,40 @@ export default function ServiceReviewPage() {
           </CardHeader>
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
-              <Avatar className="w-20 h-20">
-                {service.caregiver.avatar && (
+                <Avatar className="w-20 h-20">
+                {service?.caregiver?.avatar && (
                   <AvatarImage src={service.caregiver.avatar} />
                 )}
                 <AvatarFallback className="bg-gradient-to-br from-green-500 to-emerald-500 text-white text-xl">
-                  {service.caregiver.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
+                  {service?.caregiver?.name
+                    ? service.caregiver.name.split(" ").map((n: string) => n[0]).join("")
+                    : 'C'}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h3 className="text-xl font-bold">{service.title}</h3>
+                <h3 className="text-xl font-bold">{service?.title || 'Servicio'}</h3>
                 <p className="text-muted-foreground">
-                  Cuidador: {service.caregiver.name}
+                  Cuidador: {service?.caregiver?.name || 'Cuidador'}
                 </p>
                 <div className="flex items-center gap-2 mt-2">
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="font-semibold">{service.caregiver.rating}</span>
+                    <p className="font-semibold">{service?.caregiver?.rating ?? 0}</p>
                   </div>
-                  <span className="text-sm text-muted-foreground">
-                    ({service.caregiver.totalReviews} reseñas)
-                  </span>
+                  <span className="text-sm text-muted-foreground">({service?.caregiver?.totalReviews ?? 0} reseñas)</span>
                 </div>
                 <div className="grid grid-cols-3 gap-4 mt-4 text-sm">
                   <div>
                     <p className="text-muted-foreground">Inicio</p>
-                    <p className="font-semibold">{service.startDate}</p>
+                    <p className="font-semibold">{service?.startDate || '-'}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Fin</p>
-                    <p className="font-semibold">{service.endDate}</p>
+                    <p className="font-semibold">{service?.endDate || '-'}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Costo Total</p>
-                    <p className="font-semibold text-green-600">{service.totalCost}</p>
+                    <p className="font-semibold text-green-600">{service?.totalCost || '-'}</p>
                   </div>
                 </div>
               </div>

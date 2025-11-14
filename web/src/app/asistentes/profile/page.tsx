@@ -159,7 +159,7 @@ export default function AssistantProfilePage() {
   const ratingCount = profileData.ratingCount || 0;
 
   return (
-    <DashboardLayout>
+    <DashboardLayout backgroundClass="from-purple-50 via-pink-50 to-rose-50">
       <div className="space-y-6">
         {/* Header Premium con gradiente y estadísticas */}
         <Card className="overflow-hidden border-0 shadow-xl">

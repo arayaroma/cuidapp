@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +15,10 @@ import {
   Star,
   CheckCircle,
   MessageSquare,
-  Loader2
+  Loader2,
+  Edit3,
+  Save,
+  X
 } from "lucide-react";
 import { colors, careTypeColors } from "@/config/colors";
 
@@ -37,12 +41,16 @@ interface Service {
   nextSession: string;
   hourlyRate: number;
   canComplete: boolean;
+  progressNotes?: string;
 }
 
 export default function InProgressServicesPage() {
   const router = useRouter();
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [editingProgress, setEditingProgress] = useState<string | null>(null);
+  const [progressText, setProgressText] = useState("");
+  const [updatingProgress, setUpdatingProgress] = useState(false);
 
   useEffect(() => {
     async function fetchServices() {
@@ -63,16 +71,214 @@ export default function InProgressServicesPage() {
     fetchServices();
   }, []);
 
-  const handleCompleteService = (serviceId: string) => {
-    router.push(`/usuarios/in-progress/${serviceId}/review`);
+  const handleCompleteService = async (serviceId: string) => {
+    const service = services.find(s => s.id === serviceId);
+    if (!service) return;
+    // If service is not yet ready to complete, show stronger confirmation
+    const earlyFinish = !service.canComplete;
+
+    const result = await Swal.fire({
+      title: earlyFinish ? '¿Finalizar servicio antes de tiempo?' : '¿Finalizar servicio?',
+      html: `
+        <div style="text-align: left; padding: 10px;">
+          <p>${earlyFinish ? 'Estás a punto de marcar el servicio como completado antes de su finalización estimada.' : '¿Estás seguro de que deseas finalizar el servicio?'} </p>
+          <br/>
+          <p><strong>Servicio:</strong> ${service.title}</p>
+          <p><strong>Cuidador:</strong> ${service.caregiver.name}</p>
+          <br/>
+          <p style="color: #6b7280; font-size: 14px;">
+            Esta acción marcará el servicio como completado y lo removerá de la lista de servicios en progreso.
+          </p>
+        </div>
+      `,
+      icon: earlyFinish ? 'warning' : 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, finalizar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch("/api/users/in-progress", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            requestId: serviceId,
+            status: "COMPLETED",
+          }),
+        });
+
+        if (response.ok) {
+          // Redirect to review page so user can rate the assistant
+          router.push(`/usuarios/in-progress/${serviceId}/review`);
+        } else {
+          throw new Error('Error al finalizar servicio');
+        }
+      } catch (error) {
+        console.error("Error completing service:", error);
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo finalizar el servicio. Intenta nuevamente.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+        });
+      }
+    }
+  };
+
+  const handleCancelService = async (serviceId: string) => {
+    const service = services.find(s => s.id === serviceId);
+    if (!service) return;
+
+    const result = await Swal.fire({
+      title: '¿Cancelar servicio?',
+      html: `
+        <div style="text-align: left; padding: 10px;">
+          <p>¿Estás seguro de que deseas cancelar este servicio?</p>
+          <br/>
+          <p><strong>Servicio:</strong> ${service.title}</p>
+          <p><strong>Cuidador:</strong> ${service.caregiver.name}</p>
+          <br/>
+          <p style="color: #6b7280; font-size: 14px;">
+            Esta acción marcará el servicio como cancelado y notificará al cuidador.
+          </p>
+        </div>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cancelar',
+      cancelButtonText: 'Mantener',
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch("/api/users/in-progress", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            requestId: serviceId,
+            status: "CANCELLED",
+          }),
+        });
+
+        if (response.ok) {
+          setServices(prev => prev.filter(s => s.id !== serviceId));
+          Swal.fire({
+            title: 'Servicio cancelado',
+            text: 'El servicio ha sido cancelado y el cuidador ha sido notificado.',
+            icon: 'success',
+            confirmButtonColor: '#0ea5e9',
+          });
+        } else {
+          throw new Error('Error al cancelar servicio');
+        }
+      } catch (error) {
+        console.error('Error cancelling service:', error);
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo cancelar el servicio. Intenta nuevamente.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+        });
+      }
+    }
   };
 
   const handleViewDetails = (serviceId: string) => {
-    console.log("Ver detalles:", serviceId);
+    const service = services.find(s => s.id === serviceId);
+    if (service) {
+      Swal.fire({
+        title: '📋 Detalles del Servicio',
+        html: `
+          <div style="text-align: left; padding: 10px;">
+            <p><strong>Título:</strong> ${service.title}</p>
+            <p><strong>Cuidador:</strong> ${service.caregiver.name}</p>
+            <p><strong>Progreso:</strong> ${service.progress}%</p>
+            <p><strong>Tarifa:</strong> ₡${service.hourlyRate.toLocaleString()}/hora</p>
+            <p><strong>Próxima sesión:</strong> ${service.nextSession}</p>
+          </div>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Cerrar',
+        confirmButtonColor: '#0ea5e9',
+      });
+    }
   };
 
-  const handleContactCaregiver = (caregiverId: string) => {
-    console.log("Contactar cuidador:", caregiverId);
+  const handleContact = (serviceId: string) => {
+    const service = services.find(s => s.id === serviceId);
+    if (service) {
+      Swal.fire({
+        title: `📞 Contactar a ${service.caregiver.name}`,
+        text: '¿Deseas contactar al cuidador? Puedes llamar o enviar un mensaje para coordinar detalles del servicio.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Contactar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#0ea5e9',
+        cancelButtonColor: '#6b7280',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: '¡Contacto iniciado!',
+            text: 'Pronto podrás comunicarte con el cuidador.',
+            icon: 'success',
+            confirmButtonColor: '#0ea5e9',
+          });
+        }
+      });
+    }
+  };
+
+  const handleEditProgress = (serviceId: string, currentProgress: string) => {
+    setEditingProgress(serviceId);
+    setProgressText(currentProgress || "");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingProgress(null);
+    setProgressText("");
+  };
+
+  const handleSaveProgress = async (serviceId: string) => {
+    try {
+      setUpdatingProgress(true);
+      const response = await fetch("/api/users/in-progress", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          requestId: serviceId,
+          progress: progressText,
+        }),
+      });
+
+      if (response.ok) {
+        // Update local state
+        setServices(prev => prev.map(service => 
+          service.id === serviceId 
+            ? { ...service, progressNotes: progressText }
+            : service
+        ));
+        setEditingProgress(null);
+        setProgressText("");
+      } else {
+        console.error("Error updating progress");
+      }
+    } catch (error) {
+      console.error("Error updating progress:", error);
+    } finally {
+      setUpdatingProgress(false);
+    }
   };
 
   const getCareTypeInfo = (category: string) => {
@@ -87,7 +293,7 @@ export default function InProgressServicesPage() {
     return categoryMap[category] || { label: category, colors: careTypeColors.companion };
   };
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: Date | string) => {
     return new Date(date).toLocaleDateString("es-CR", {
       day: "2-digit",
       month: "2-digit",
@@ -271,6 +477,63 @@ export default function InProgressServicesPage() {
                         <Progress value={service.progress} className="h-3" />
                       </div>
 
+                      {/* Progress Notes */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium" style={{ color: colors.neutral[700] }}>
+                            Notas de progreso
+                          </p>
+                          {editingProgress === service.id ? (
+                            <div className="flex gap-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleSaveProgress(service.id)}
+                                disabled={updatingProgress}
+                                className="h-6 w-6 p-0"
+                              >
+                                {updatingProgress ? (
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                ) : (
+                                  <Save className="w-3 h-3" />
+                                )}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={handleCancelEdit}
+                                className="h-6 w-6 p-0"
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleEditProgress(service.id, service.progressNotes || "")}
+                              className="h-6 w-6 p-0"
+                            >
+                              <Edit3 className="w-3 h-3" />
+                            </Button>
+                          )}
+                        </div>
+                        {editingProgress === service.id ? (
+                          <textarea
+                            value={progressText}
+                            onChange={(e) => setProgressText(e.target.value)}
+                            placeholder="Agregar notas sobre el progreso del servicio..."
+                            className="w-full p-2 text-sm border rounded-md resize-none"
+                            rows={3}
+                            style={{ borderColor: colors.neutral[300] }}
+                          />
+                        ) : (
+                          <p className="text-sm" style={{ color: colors.neutral[600] }}>
+                            {service.progressNotes || "Sin notas de progreso"}
+                          </p>
+                        )}
+                      </div>
+
                       {/* Service Details */}
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm pt-2">
                         <div>
@@ -322,21 +585,29 @@ export default function InProgressServicesPage() {
                           borderColor: colors.secondary[300],
                           color: colors.secondary[700],
                         }}
-                        onClick={() => handleContactCaregiver(service.caregiver.id)}
+                        onClick={() => handleContact(service.id)}
                       >
                         <MessageSquare className="w-4 h-4 mr-2" />
                         Contactar
                       </Button>
-                      {service.canComplete && (
-                        <Button
-                          className="flex-1 text-white font-semibold shadow-md"
-                          style={{ background: colors.gradients.secondary }}
-                          onClick={() => handleCompleteService(service.id)}
-                        >
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Completar
-                        </Button>
-                      )}
+                      <Button
+                        className="flex-1 text-white font-semibold shadow-md"
+                        style={{ background: colors.gradients.secondary }}
+                        onClick={() => handleCompleteService(service.id)}
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Completar
+                      </Button>
+
+                      <Button
+                        variant="destructive"
+                        className="flex-1"
+                        onClick={() => handleCancelService(service.id)}
+                        style={{ borderColor: colors.error[500] }}
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Cancelar
+                      </Button>
                     </div>
                   </div>
                 </CardContent>

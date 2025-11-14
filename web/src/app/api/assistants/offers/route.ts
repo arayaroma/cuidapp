@@ -5,22 +5,24 @@ import { prisma } from '@/lib/prisma'
 import { MyRequest } from '@/types/request'
 
 export async function GET() {
-  const session = await getServerSession(authOptions)
+  const session = (await getServerSession(authOptions as any)) as any;
   if (!session || !session.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const userId = (session.user as any).id
+  const userId = session.user.id as string;
 
   // Get pending applications for this assistant
   const applications = await prisma.applicationRequest.findMany({
     where: {
       status: 'PENDING',
       user_assistant_application: {
-        user_assistant: {
-          assistant_id: userId
-        }
-      }
+        is: {
+          user: {
+            assistant_id: userId,
+          },
+        },
+      },
     },
     include: {
       user_request: {

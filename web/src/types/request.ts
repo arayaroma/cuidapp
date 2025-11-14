@@ -2,6 +2,8 @@ export type CareType = 'children' | 'elderly' | 'disability' | 'hospital';
 
 export type Weekday = 'lunes' | 'martes' | 'miercoles' | 'jueves' | 'viernes' | 'sabado' | 'domingo';
 
+export type RequestStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+
 export interface CareRequest {
   id: string;
   title: string;
@@ -9,7 +11,7 @@ export interface CareRequest {
   personAge: number;
   description: string;
   location: string;
-  startDate: Date;
+  startDate: Date | string;
   isRecurring: boolean;
   weekdays?: Weekday[];
   schedule: string;
@@ -19,7 +21,9 @@ export interface CareRequest {
   urgency: 'low' | 'medium' | 'high';
   createdBy: string;
   applicants: number;
-  status: 'active' | 'accepted' | 'completed' | 'cancelled';
+  status: RequestStatus;
+  progress?: string;
+  hasApplied?: boolean; // Whether the current assistant has applied
 }
 
 export interface MyRequest extends CareRequest {
@@ -47,4 +51,15 @@ export interface RequestItem {
   applicantsCount: number;
   hourlyRate?: string | number;
   applicants: Applicant[];
+}
+
+export interface ServiceRating {
+  id: string;
+  userRequestId: string;
+  raterId: string;
+  ratedId: string;
+  rating: number; // 1-5 stars
+  comment?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

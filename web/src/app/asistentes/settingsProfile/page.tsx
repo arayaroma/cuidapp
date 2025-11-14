@@ -24,61 +24,35 @@ import {
   X,
   Plus
 } from "lucide-react";
+import alerts from "@/lib/alerts";
 
 export default function EditAssistantProfilePage() {
   const router = useRouter();
 
   // Estado para información básica
   const [formData, setFormData] = useState({
-    name: "María González",
-    email: "maria.gonzalez@example.com",
-    phone: "+506 8888-7777",
-    location: "San José, Costa Rica",
-    experience: "8 años de experiencia",
-    hourlyRate: 25,
-    available: true,
+    name: "",
+    email: "",
+    phone: "",
+    location: "",
+    experience: "0 años de experiencia",
+    hourlyRate: 0,
+    available: false,
+    bio: "",
   });
 
   // Estado para especialidades
-  const [specialties, setSpecialties] = useState([
-    "Cuidado de Adultos Mayores",
-    "Enfermería",
-    "Compañía"
-  ]);
+  const [specialties, setSpecialties] = useState<string[]>([]);
   const [newSpecialty, setNewSpecialty] = useState("");
 
   // Estado para certificaciones
-  const [certifications, setCertifications] = useState([
-    {
-      id: "1",
-      title: "Certificada en Primeros Auxilios",
-      description: "Cruz Roja Costarricense - 2022",
-      icon: "shield" as const,
-    },
-    {
-      id: "2",
-      title: "Técnico en Enfermería",
-      description: "Colegio Universitario de Cartago - 2015",
-      icon: "award" as const,
-    },
-    {
-      id: "3",
-      title: "Curso de Cuidado Geriátrico",
-      description: "Universidad de Costa Rica - 2020",
-      icon: "award" as const,
-    },
-  ]);
+  const [certifications, setCertifications] = useState<Array<{ id: string; title: string; description: string; icon: string }>>([]);
 
   // Estado para servicios
-  const [services, setServices] = useState([
-    "Cuidado personal y asistencia diaria",
-    "Administración de medicamentos",
-    "Compañía y apoyo emocional",
-    "Preparación de comidas",
-    "Acompañamiento a citas médicas",
-    "Ejercicios de rehabilitación básica",
-  ]);
+  const [services, setServices] = useState<string[]>([]);
   const [newService, setNewService] = useState("");
+
+  const [loading, setLoading] = useState(true);
 
   // Estado para horario
   const [schedule, setSchedule] = useState({
@@ -90,6 +64,59 @@ export default function EditAssistantProfilePage() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        const [userRes, assistantRes] = await Promise.all([
+          fetch("/api/users/profile", { signal: controller.signal }),
+          fetch("/api/assistants/profile", { signal: controller.signal }),
+        ]);
+
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          setFormData((prev) => ({ ...prev, name: userData.name || "", email: userData.email || "", phone: userData.phone || "", location: userData.location?.fullAddress || prev.location }));
+        }
+
+        if (assistantRes.ok) {
+          const assistantData = await assistantRes.json();
+          setFormData((prev) => ({
+            ...prev,
+            experience: assistantData.experience || prev.experience,
+            hourlyRate: assistantData.hourlyRate || prev.hourlyRate,
+            available: typeof assistantData.available !== 'undefined' ? assistantData.available : prev.available,
+            bio: assistantData.bio || prev.bio,
+          }));
+
+          setSpecialties(Array.isArray(assistantData.specialties) ? assistantData.specialties : []);
+          setServices(Array.isArray(assistantData.specialties) ? assistantData.specialties : []);
+          if (Array.isArray(assistantData.certifications) && assistantData.certifications.length > 0) {
+            setCertifications(assistantData.certifications.map((c: string, i: number) => ({ id: String(i + 1), title: c, description: "" , icon: 'award' as const })));
+          }
+          if (assistantData.availabilitySchedule) {
+            setSchedule(prev => ({ ...prev, preferredHours: assistantData.availabilitySchedule }));
+          }
+          if (Array.isArray(assistantData.availableWeekdays) && assistantData.availableWeekdays.length > 0) {
+            setSchedule(prev => ({ ...prev, availableDays: assistantData.availableWeekdays.join(", ") }));
+          }
+        }
+      } catch (err) {
+        if ((err as any)?.name !== 'AbortError') {
+          console.error("Error loading profile data", err);
+          alerts.error.loading("la información");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+
+    return () => controller.abort();
+  }, []);
 
   const handleAddSpecialty = () => {
     if (newSpecialty.trim()) {
@@ -134,15 +161,47 @@ export default function EditAssistantProfilePage() {
   };
 
   const handleSave = () => {
-    // TODO: Implementar guardado de datos
-    console.log("Guardando datos:", {
-      formData,
+    // Build payload for assistant update endpoint
+    const payload = {
+      fullName: formData.name,
+      phone: formData.phone,
+      bio: formData.bio,
+      yearsExperience: parseInt(String(formData.experience).replace(/[^0-9]/g, "")) || 0,
+      hourlyRate: Number(formData.hourlyRate) || null,
+      available: Boolean(formData.available),
       specialties,
-      certifications,
       services,
-      schedule,
-    });
-    router.push("/asistentes/profile");
+      certifications,
+      availabilitySchedule: schedule.preferredHours,
+      availableWeekdays: schedule.availableDays ? [schedule.availableDays] : [],
+      location: {
+        addressLine1: formData.location,
+      },
+    };
+
+    alerts.loading.processing("Guardando tu perfil...");
+
+    fetch("/api/assistants/profile/update", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+      .then(async (res) => {
+        alerts.loading.close();
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          console.error("Error saving assistant profile", err);
+          alerts.error.saving(err?.error || "No se pudieron guardar los cambios");
+          return;
+        }
+        alerts.success.saved();
+        router.push("/asistentes/profile");
+      })
+      .catch((err) => {
+        alerts.loading.close();
+        console.error(err);
+        alerts.error.network();
+      });
   };
 
   const handleCancel = () => {

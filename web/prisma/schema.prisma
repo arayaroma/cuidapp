@@ -92,7 +92,12 @@ model Assistant {
   user_id               String   @unique
   bio                   String?
   specialties           String[] @default([])
+  specialties           String[] @default([])
   years_experience      Int      @default(0)
+  certifications        String[] @default([])
+  languages             String[] @default([])
+  availability_schedule String?
+  available_weekdays    String[] @default([])
   certifications        String[] @default([])
   languages             String[] @default([])
   availability_schedule String?
@@ -103,8 +108,12 @@ model Assistant {
   background_check      Boolean  @default(false)
   preferred_age_groups  String[] @default([])
   max_distance_km       Int?
+  preferred_age_groups  String[] @default([])
+  max_distance_km       Int?
   has_vehicle           Boolean  @default(false)
   has_first_aid         Boolean  @default(false)
+  rating                Float?
+  rating_count          Int      @default(0)
   rating                Float?
   rating_count          Int      @default(0)
   created_at            DateTime @default(now())
@@ -123,6 +132,7 @@ model UsersAssistant {
   end_date                    DateTime?
   created_at                  DateTime                   @default(now())
   updated_at                  DateTime                   @updatedAt
+  user_assistant_applications UserAssistantApplication[]
   user_assistant_applications UserAssistantApplication[]
   assistant                   User                       @relation("AssistantOf", fields: [assistant_id], references: [id], onDelete: Cascade)
   user                        User                       @relation("UserAssistants", fields: [user_id], references: [id], onDelete: Cascade)
@@ -152,6 +162,7 @@ model UserAssistantApplication {
   created_at        DateTime             @default(now())
   updated_at        DateTime             @updatedAt
   requests          ApplicationRequest[]
+  requests          ApplicationRequest[]
   user              UsersAssistant       @relation(fields: [user_assistant_id], references: [id], onDelete: Cascade)
 
   @@map("user_assistant_applications")
@@ -160,10 +171,16 @@ model UserAssistantApplication {
 
 model ApplicationRequest {
   id                            String                   @id @default(cuid())
+  id                            String                   @id @default(cuid())
   user_assistant_application_id String
   user_request_id               String
   status                        ApplicationStatus        @default(PENDING)
+  status                        ApplicationStatus        @default(PENDING)
   notes                         String?
+  created_at                    DateTime                 @default(now())
+  updated_at                    DateTime                 @updatedAt
+  user_assistant_application    UserAssistantApplication @relation(fields: [user_assistant_application_id], references: [id], onDelete: Cascade)
+  user_request                  UserRequests             @relation(fields: [user_request_id], references: [id], onDelete: Cascade)
   created_at                    DateTime                 @default(now())
   updated_at                    DateTime                 @updatedAt
   user_assistant_application    UserAssistantApplication @relation(fields: [user_assistant_application_id], references: [id], onDelete: Cascade)
@@ -180,18 +197,23 @@ model UserRequests {
   title        String               @default("Solicitud de cuidado")
   description  String
   care_type    String               @default("companion")
+  care_type    String               @default("companion")
   person_age   Int                  @default(0)
+  requirements String[]             @default([])
+  urgency      String               @default("medium")
   requirements String[]             @default([])
   urgency      String               @default("medium")
   hourly_rate  Float?
   total_hours  Int?
   is_recurring Boolean              @default(false)
   weekdays     String[]             @default([])
+  weekdays     String[]             @default([])
   request_date DateTime
   request_time String
   status       String
   created_at   DateTime             @default(now())
   updated_at   DateTime             @updatedAt
+  applications ApplicationRequest[]
   applications ApplicationRequest[]
   user         User                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
 

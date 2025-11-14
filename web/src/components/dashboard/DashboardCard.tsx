@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { LucideIcon } from "lucide-react";
 import { colors } from "@/config/colors";
 
@@ -13,6 +14,7 @@ interface DashboardCardProps {
   buttonText: string;
   buttonGradient?: string;
   onClick?: () => void;
+  badge?: number;
 }
 
 export function DashboardCard({
@@ -23,6 +25,7 @@ export function DashboardCard({
   buttonText,
   buttonGradient,
   onClick,
+  badge,
 }: DashboardCardProps) {
   const gradient = buttonGradient || colors.gradients.trust;
   const iconBg = iconColor || colors.primary[500];
@@ -32,13 +35,20 @@ export function DashboardCard({
       <CardHeader>
         <CardTitle className="flex items-center gap-3">
           <div 
-            className="p-3 rounded-xl shadow-sm"
+            className="p-3 rounded-xl shadow-sm relative"
             style={{ backgroundColor: `${iconBg}15` }}
           >
             <Icon 
               className="w-6 h-6" 
               style={{ color: iconBg }}
             />
+            {badge && badge > 0 && (
+              <Badge 
+                className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs bg-red-500 hover:bg-red-600"
+              >
+                {badge > 99 ? '99+' : badge}
+              </Badge>
+            )}
           </div>
           <span className="text-lg font-semibold text-gray-800">{title}</span>
         </CardTitle>

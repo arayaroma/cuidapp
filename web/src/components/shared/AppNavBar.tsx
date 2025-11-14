@@ -14,6 +14,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter, usePathname } from "next/navigation";
 import { colors } from "@/config/colors";
+import { useEffect, useState } from "react";
+import { Session } from "next-auth";
+
+interface ExtendedUser {
+  id: string;
+  email: string;
+  name: string;
+  role: "user" | "assistant";
+}
+
+interface ExtendedSession extends Session {
+  user: ExtendedUser;
+}
 
 interface AppNavBarProps {
   title?: string;
@@ -32,9 +45,16 @@ export function AppNavBar({
   onProfileClick,
   userRole = "user",
 }: AppNavBarProps) {
-  const { data: session } = useSession();
+  const { data: session } = useSession() as { data: ExtendedSession | null };
   const router = useRouter();
   const pathname = usePathname();
+  const [role, setRole] = useState<"user" | "assistant">("user");
+
+  useEffect(() => {
+    if (session?.user?.role) {
+      setRole(session.user.role);
+    }
+  }, [session]);
 
   const displayName = userName || session?.user?.name || "Usuario";
   const displayEmail = userEmail || session?.user?.email;
@@ -53,13 +73,13 @@ export function AppNavBar({
     if (onProfileClick) {
       onProfileClick();
     } else {
-      const profilePath = userRole === "assistant" ? "/asistentes/profile" : "/usuarios/profile";
+      const profilePath = role === "assistant" ? "/asistentes/profile" : "/usuarios/profile";
       router.push(profilePath);
     }
   };
 
   const handleLogoClick = () => {
-    const dashboardPath = userRole === "assistant" ? "/asistentes/dashboard" : "/usuarios/dashboard";
+    const dashboardPath = role === "assistant" ? "/asistentes/dashboard" : "/usuarios/dashboard";
     router.push(dashboardPath);
   };
 
@@ -159,7 +179,7 @@ export function AppNavBar({
                           backgroundColor: colors.primary[50]
                         }}
                       >
-                        {userRole === "assistant" ? "Asistente" : "Usuario"}
+                        {role === "assistant" ? "Asistente" : "Usuario"}
                       </Badge>
                     </div>
                   </div>
@@ -183,14 +203,6 @@ export function AppNavBar({
                   <User className="mr-2 h-4 w-4" style={{ color: colors.secondary[600] }} />
                   <span>Mi Perfil</span>
                 </DropdownMenuItem>
-                
-                {/* <DropdownMenuItem 
-                  onClick={() => router.push(userRole === "assistant" ? "/asistentes/settingsProfile" : "/usuarios/settings")}
-                  className="cursor-pointer"
-                >
-                  <Settings className="mr-2 h-4 w-4" style={{ color: colors.accent[600] }} />
-                  <span>Configuración</span>
-                </DropdownMenuItem> */}
                 
                 <DropdownMenuSeparator />
                 

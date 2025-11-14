@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 export interface LoginFormData {
   email: string;
@@ -71,12 +71,19 @@ export function useLoginForm() {
         setName('');
         setError('');
         
-        // Redirect based on user type
-        if (userType === 'caregiver') {
-          router.push('/asistentes');
-        } else {
-          router.push('/usuarios');
-        }
+        // Esperar un momento para que la sesión se actualice
+        setTimeout(async () => {
+          // Obtener la sesión actualizada
+          const response = await fetch('/api/auth/session');
+          const session = await response.json();
+          
+          // Redirigir basándose en el rol real
+          if (session?.user?.role === 'assistant') {
+            window.location.href = '/asistentes/dashboard';
+          } else {
+            window.location.href = '/usuarios/dashboard';
+          }
+        }, 500);
       }
     } catch (error) {
       console.error("Sign in error:", error);
