@@ -9,6 +9,7 @@ import {
   Inbox,
   CheckCircle2,
   Clock,
+  History,
 } from "lucide-react";
 import { NavSection } from "@/components/shared/NavigationDrawer";
 
@@ -26,17 +27,21 @@ export const assistantNavSections: NavSection[] = [
         label: "Solicitudes Disponibles",
         href: "/asistentes/available-requests",
       },
-      
-      {
-        icon: CheckCircle2,
-        label: "Trabajos Finalizados",
-        href: "/asistentes/accepted-jobs",
-      },
       {
         icon: Clock,
         label: "En Progreso",
         href: "/asistentes/in-progress",
         badge: 2,
+      },
+      {
+        icon: CheckCircle2,
+        label: "Trabajos Aceptados",
+        href: "/asistentes/accepted-jobs",
+      },
+      {
+        icon: History,
+        label: "Historial",
+        href: "/asistentes/history",
       },
       {
         icon: Calendar,

@@ -1,6 +1,6 @@
 "use client";
 
-import { Briefcase, CheckCircle2, Clock } from "lucide-react";
+import { Briefcase, CheckCircle2, Clock, History } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { colors } from "@/config/colors";
 
@@ -9,10 +9,12 @@ interface AssistantDashboardCardsProps {
   onViewOffers?: () => void;
   onViewInProgress?: () => void;
   onViewAccepted?: () => void;
+  onViewHistory?: () => void;
   availableCount?: number;
   offersCount?: number;
   inProgressCount?: number;
   acceptedCount?: number;
+  historyCount?: number;
 }
 
 export function AssistantDashboardCards({
@@ -20,10 +22,12 @@ export function AssistantDashboardCards({
   onViewOffers,
   onViewInProgress,
   onViewAccepted,
+  onViewHistory,
   availableCount = 0,
   offersCount = 0,
   inProgressCount = 0,
   acceptedCount = 0,
+  historyCount = 0,
 }: AssistantDashboardCardsProps) {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -51,12 +55,22 @@ export function AssistantDashboardCards({
 
       <DashboardCard
         icon={CheckCircle2}
-        iconColor="green-500"
-        title="Trabajos Finalizados"
-        description={`Revisa tus ${acceptedCount} trabajos finalizados y el historial de servicios.`}
+        iconColor="blue-500"
+        title="Trabajos Aceptados"
+        description={`Revisa tus ${acceptedCount} trabajos aceptados actualmente en curso.`}
         buttonText="Ver Trabajos"
         buttonGradient={colors.gradients.secondary}
         onClick={onViewAccepted}
+      />
+
+      <DashboardCard
+        icon={History}
+        iconColor="green-500"
+        title="Historial"
+        description={`Consulta tus ${historyCount} trabajos completados y estadísticas.`}
+        buttonText="Ver Historial"
+        buttonGradient={colors.gradients.cool}
+        onClick={onViewHistory}
       />
     </div>
   );

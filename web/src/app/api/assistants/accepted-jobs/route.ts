@@ -24,6 +24,11 @@ export async function GET() {
             requests: {
               where: {
                 status: "ACCEPTED",
+                user_request: {
+                  status: {
+                    not: "COMPLETED", // Exclude completed requests
+                  },
+                },
               },
               include: {
                 user_request: {

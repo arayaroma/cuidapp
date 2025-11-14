@@ -17,8 +17,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ 
   children, 
-  backgroundColor = "bg-gray-50 dark:bg-gray-900"
-  backgroundClass = "",
+  backgroundClass = "bg-gray-50 dark:bg-gray-900",
   backgroundStyle,
 }: DashboardLayoutProps) {
   const defaultStyle: CSSProperties = { background: colors.background.secondary };

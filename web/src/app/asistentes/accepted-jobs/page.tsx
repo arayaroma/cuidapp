@@ -52,9 +52,9 @@ export default function TrabajosAceptadosPage() {
           <div className="flex items-center gap-3">
             <CheckCircle2 className="w-8 h-8" />
             <div>
-              <h1 className="text-3xl font-bold">Trabajos Finalizados</h1>
+              <h1 className="text-3xl font-bold">Trabajos en Progreso</h1>
               <p className="text-green-100 mt-2">
-                Revisa tus trabajos finalizados y el historial de servicios
+                Trabajos actualmente en curso
               </p>
             </div>
           </div>
@@ -76,16 +76,16 @@ export default function TrabajosAceptadosPage() {
 
         {/* Header Section */}
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Mis Trabajos Finalizados</h2>
-          <Badge className="bg-green-100 text-green-800">
-            {acceptedJobs.length} finalizados
+          <h2 className="text-lg font-semibold">Mis Trabajos en Progreso</h2>
+          <Badge className="bg-blue-100 text-blue-800">
+            {acceptedJobs.length} en progreso
           </Badge>
         </div>
 
         {/* Results */}
         {filteredJobs.length === 0 ? (
           <Card className="p-8 text-center">
-            <p className="text-muted-foreground">No tienes trabajos finalizados actualmente</p>
+            <p className="text-muted-foreground">No tienes trabajos en progreso actualmente</p>
           </Card>
         ) : (
           <div className="space-y-4">

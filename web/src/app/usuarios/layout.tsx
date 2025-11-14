@@ -2,8 +2,10 @@
 
 import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { AppNavBar } from "@/components/shared/AppNavBar";
+import { useSession, signOut } from "next-auth/react";
+import { AppNavBar, NavBarMenuItem } from "@/components/shared/AppNavBar";
+import { User, Settings, LogOut } from "lucide-react";
+import { userNavSections } from "@/config/userNavConfig";
 import { colors } from "@/config/colors";
 
 interface UserLayoutProps {
@@ -38,6 +40,29 @@ export default function UserLayout({ children }: UserLayoutProps) {
     return null;
   }
 
+  const menuItems: NavBarMenuItem[] = [
+    {
+      icon: User,
+      label: "Ver Perfil",
+      onClick: () => router.push("/usuarios/profile"),
+    },
+    {
+      icon: Settings,
+      label: "Configuración",
+      onClick: () => router.push("/usuarios/settingsProfile"),
+    },
+    {
+      icon: LogOut,
+      label: "Cerrar Sesión",
+      onClick: () => signOut({ callbackUrl: "/login" }),
+      variant: "destructive",
+    },
+  ];
+
+  const handleLogout = () => {
+    signOut({ callbackUrl: "/login" });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <AppNavBar
@@ -45,7 +70,9 @@ export default function UserLayout({ children }: UserLayoutProps) {
         userName={session.user?.name || "Usuario"}
         userEmail={session.user?.email || ""}
         avatarGradient={colors.gradients.primary}
-        userRole="user"
+        menuItems={menuItems}
+        navSections={userNavSections}
+        onLogout={handleLogout}
       />
       {children}
     </div>
