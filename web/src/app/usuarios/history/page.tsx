@@ -103,77 +103,78 @@ export default function HistorialPage() {
   return (
     <div className="min-h-screen pb-10" style={{ background: colors.background.secondary }}>
       {/* Header */}
-      <div className="text-white py-8 px-4 shadow-lg" style={{ background: colors.gradients.primary }}>
+      <div className="text-white py-6 sm:py-8 px-4 shadow-lg" style={{ background: colors.gradients.primary }}>
       <div className="max-w-7xl mx-auto">
         <Button
         variant="ghost"
+        size="sm"
         className="text-white hover:bg-white/20 mb-4"
         onClick={() => router.push("/usuarios/dashboard")}
         >
         <ArrowLeft className="w-4 h-4 mr-2" />
         Volver al Dashboard
         </Button>
-        <h1 className="text-3xl font-bold">Historial de Servicios</h1>
-        <p className="mt-2" style={{ color: colors.accent[100] }}>
+        <h1 className="text-2xl sm:text-3xl font-bold">Historial de Servicios</h1>
+        <p className="mt-2 text-sm sm:text-base" style={{ color: colors.accent[100] }}>
         Revisa todos tus servicios completados
         </p>
       </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-4 sm:space-y-6">
         {/* Search Bar */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
           <Input
             placeholder="Buscar en historial..."
-            className="pl-10 bg-white"
+            className="pl-9 sm:pl-10 bg-white h-10 sm:h-11 text-sm sm:text-base"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
         {/* Filters */}
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="cursor-pointer hover:bg-sky-100">Todos</Badge>
-          <Badge variant="outline" className="cursor-pointer hover:bg-sky-100">Adultos Mayores</Badge>
-          <Badge variant="outline" className="cursor-pointer hover:bg-sky-100">Niños</Badge>
-          <Badge variant="outline" className="cursor-pointer hover:bg-sky-100">Cuidado Especial</Badge>
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <Badge variant="outline" className="cursor-pointer hover:bg-sky-100 text-xs sm:text-sm whitespace-nowrap">Todos</Badge>
+          <Badge variant="outline" className="cursor-pointer hover:bg-sky-100 text-xs sm:text-sm whitespace-nowrap">Adultos Mayores</Badge>
+          <Badge variant="outline" className="cursor-pointer hover:bg-sky-100 text-xs sm:text-sm whitespace-nowrap">Niños</Badge>
+          <Badge variant="outline" className="cursor-pointer hover:bg-sky-100 text-xs sm:text-sm whitespace-nowrap">Cuidado Especial</Badge>
         </div>
 
         {/* Stats Summary */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 sm:pt-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-sky-600">{history.length}</p>
-                <p className="text-sm text-muted-foreground">Servicios Completados</p>
+                <p className="text-2xl sm:text-3xl font-bold text-sky-600">{history.length}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Servicios Completados</p>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 sm:pt-6">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1">
-                  <Star className="w-6 h-6 fill-yellow-400 text-yellow-400" />
-                  <p className="text-3xl font-bold">
+                  <Star className="w-5 h-5 sm:w-6 sm:h-6 fill-yellow-400 text-yellow-400" />
+                  <p className="text-2xl sm:text-3xl font-bold">
                     {history.length > 0 
                       ? (history.reduce((sum, item) => sum + item.caregiverRating, 0) / history.length).toFixed(1)
                       : '0.0'
                     }
                   </p>
                 </div>
-                <p className="text-sm text-muted-foreground">Calificación Promedio</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Calificación Promedio</p>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 sm:pt-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-sky-600">
+                <p className="text-2xl sm:text-3xl font-bold text-sky-600">
                   ₡{history.reduce((sum, item) => sum + item.totalCost, 0).toLocaleString()}
                 </p>
-                <p className="text-sm text-muted-foreground">Total Invertido</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Total Invertido</p>
               </div>
             </CardContent>
           </Card>
@@ -264,29 +265,31 @@ export default function HistorialPage() {
                       </div>
 
                       {/* Ratings */}
-                      <div className="flex items-center gap-6 pt-2 border-t">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 pt-2 border-t">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-xs sm:text-sm text-muted-foreground">
                             Calificación del cuidador:
                           </span>
                           <div className="flex items-center gap-1">
                             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                            <span className="font-semibold">{item.caregiver.rating.toFixed(1)}</span>
+                            <span className="font-semibold text-sm sm:text-base">{item.caregiver.rating.toFixed(1)}</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Actions */}
-                      <div className="flex gap-2 pt-2">
+                      <div className="flex flex-col sm:flex-row gap-2 pt-2">
                         <Button
                           variant="outline"
-                          className="flex-1"
+                          size="sm"
+                          className="w-full sm:flex-1 h-9"
                           onClick={() => handleViewDetails(item.requestId)}
                         >
                           Ver Detalles
                         </Button>
                         <Button
-                          className="flex-1 bg-sky-600 hover:bg-sky-700 text-white"
+                          size="sm"
+                          className="w-full sm:flex-1 h-9 bg-sky-600 hover:bg-sky-700 text-white"
                           onClick={() => router.push(`/usuarios/available-caregivers`)}
                         >
                           Contratar de Nuevo
