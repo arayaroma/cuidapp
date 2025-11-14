@@ -78,33 +78,36 @@ export function RequestCard({ request, onViewDetails, onApply, actionButton }: R
   };
 
   return (
-    <Card className={`p-4 hover:shadow-md transition-shadow ${request.hasApplied ? 'bg-green-50 border-green-200' : ''}`}>
-      <div className="flex items-start gap-4">
-        <div className="w-12 h-12 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-          <CareTypeIcon className="w-6 h-6 text-cyan-600" />
+    <Card className={`p-4 sm:p-5 md:p-6 hover:shadow-md transition-shadow ${request.hasApplied ? 'bg-green-50 border-green-200' : ''}`}>
+      <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+        {/* Icon */}
+        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+          <CareTypeIcon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
         </div>
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <h4 className="font-medium text-sm sm:text-base line-clamp-1">{request.title}</h4>
-            <div className="flex gap-1">
+        <div className="flex-1 min-w-0 w-full">
+          {/* Title and Badges */}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+            <h4 className="font-medium text-base sm:text-lg line-clamp-2">{request.title}</h4>
+            <div className="flex gap-1 flex-wrap">
               {request.hasApplied && (
-                <Badge className="bg-green-100 text-green-800 border-green-200" variant="secondary">
+                <Badge className="bg-green-100 text-green-800 border-green-200 text-xs sm:text-sm" variant="outline">
                   Ya postulado
                 </Badge>
               )}
-              <Badge className={urgencyColors[request.urgency]} variant="secondary">
+              <Badge className={`${urgencyColors[request.urgency]} text-xs sm:text-sm`} variant="outline">
                 {urgencyLabels[request.urgency]}
               </Badge>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 mb-2 text-xs sm:text-sm">
-            <div className="flex items-center gap-1">
+          {/* Info Grid - Stack on mobile, 2 columns on larger screens */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3 text-xs sm:text-sm">
+            <div className="flex items-center gap-1.5">
               <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <span className="text-muted-foreground truncate">{request.location}</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <span className="text-muted-foreground">
                 {new Date(request.startDate).toLocaleDateString("es-ES", {
@@ -113,72 +116,69 @@ export function RequestCard({ request, onViewDetails, onApply, actionButton }: R
                 })}
               </span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <span className="text-muted-foreground">{request.schedule}</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <Users className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <span className="text-muted-foreground">{request.applicants} postulados</span>
             </div>
           </div>
 
+          {/* Description */}
           <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{request.description}</p>
 
-          <div className="flex items-center justify-between gap-2">
+          {/* Bottom Section: Care Type, Rate, and Actions */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            {/* Care Type and Rate */}
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge className={careTypeColors[request.careType]} variant="secondary">
+              <Badge className={`${careTypeColors[request.careType]} text-xs sm:text-sm`} variant="outline">
                 {careTypeLabels[request.careType]}
               </Badge>
-              <span className="font-semibold text-cyan-600">₡{request.hourlyRate.toLocaleString()}/hora</span>
+              <span className="font-semibold text-cyan-600 text-sm sm:text-base">₡{request.hourlyRate.toLocaleString()}/hora</span>
               <span className="text-xs text-muted-foreground">({request.totalHours}h)</span>
             </div>
-            <div className="flex gap-2">
+            
+            {/* Action Buttons - Stack on mobile */}
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               {request.hasApplied ? (
                 <Button
                   size="sm"
                   variant="outline"
-                  className="whitespace-nowrap bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                  className="whitespace-nowrap bg-green-50 border-green-200 text-green-700 hover:bg-green-100 w-full sm:w-auto h-9"
                   disabled
                 >
                   ✓ Postulado
                 </Button>
               ) : (
                 actionButton ? (
-                  // If an actionButton is provided, render it. The internal handler
-                  // will call the provided onClick with the request. This avoids
-                  // duplicating a "Ver Detalles" button when the action itself is
-                  // the details action.
                   <Button
                     size="sm"
                     variant={actionButton.variant || "default"}
                     onClick={handleActionClick}
-                    className="whitespace-nowrap"
+                    className="whitespace-nowrap w-full sm:w-auto h-9"
                   >
                     {actionButton.label}
                   </Button>
                 ) : (
-                  // Fallback action when no actionButton is provided
                   <Button
                     size="sm"
                     variant="default"
                     onClick={() => onApply && onApply(request.id, "")}
-                    className="whitespace-nowrap"
+                    className="whitespace-nowrap w-full sm:w-auto h-9"
                   >
                     Postularme
                   </Button>
                 )
               )}
 
-              {/* Only render a separate "Ver Detalles" button when the actionButton
-                  is not already the details action. This prevents duplicate buttons
-                  in pages that pass an actionButton with label "Ver Detalles". */}
               {!(actionButton && actionButton.label && actionButton.label.toLowerCase() === "ver detalles") && (
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => onViewDetails(request)}
-                  className="whitespace-nowrap"
+                  className="whitespace-nowrap w-full sm:w-auto h-9"
                 >
                   Ver Detalles
                 </Button>

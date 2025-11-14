@@ -221,52 +221,53 @@ export default function AssistantInProgressPage() {
   return (
     <div className="min-h-screen pb-10" style={{ background: colors.background.secondary }}>
       {/* Header */}
-      <div className="text-white py-8 px-4 shadow-lg" style={{ background: colors.gradients.primary }}>
+      <div className="text-white py-6 sm:py-8 px-4 shadow-lg" style={{ background: colors.gradients.primary }}>
         <div className="max-w-7xl mx-auto">
           <Button
             variant="ghost"
-            className="text-white hover:bg-white/20 mb-4"
+            size="sm"
+            className="text-white hover:bg-white/20 mb-3 sm:mb-4 h-9"
             onClick={() => router.push("/asistentes/dashboard")}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver al Dashboard
           </Button>
-          <h1 className="text-3xl font-bold">Trabajos en Proceso</h1>
-          <p className="mt-2" style={{ color: colors.accent[100] }}>
+          <h1 className="text-2xl sm:text-3xl font-bold">Trabajos en Proceso</h1>
+          <p className="mt-2 text-sm sm:text-base" style={{ color: colors.accent[100] }}>
             Gestiona tus trabajos activos y próximas sesiones
           </p>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Stats Summary */}
-        <div className="grid gap-4 md:grid-cols-3 mb-8">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3 mb-6 sm:mb-8">
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 sm:pt-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-amber-600">{jobs.length}</p>
-                <p className="text-sm text-muted-foreground">Trabajos Activos</p>
+                <p className="text-2xl sm:text-3xl font-bold text-amber-600">{jobs.length}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Trabajos Activos</p>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 sm:pt-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-green-600">
+                <p className="text-2xl sm:text-3xl font-bold text-green-600">
                   ₡{totalEarned.toLocaleString()}
                 </p>
-                <p className="text-sm text-muted-foreground">Total Ganado (Mes Actual)</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Total Ganado (Mes Actual)</p>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 sm:pt-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-orange-600">
+                <p className="text-2xl sm:text-3xl font-bold text-orange-600">
                   {jobs.reduce((sum, j) => sum + j.totalDays - j.daysCompleted, 0)}
                 </p>
-                <p className="text-sm text-muted-foreground">Días Restantes (Total)</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Días Restantes (Total)</p>
               </div>
             </CardContent>
           </Card>
@@ -274,65 +275,65 @@ export default function AssistantInProgressPage() {
 
         {/* Jobs List */}
         {jobs.length === 0 ? (
-          <Card className="p-8 text-center">
-            <Clock className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No tienes trabajos en progreso</p>
+          <Card className="p-6 sm:p-8 text-center">
+            <Clock className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+            <p className="text-sm sm:text-base text-muted-foreground">No tienes trabajos en progreso</p>
           </Card>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {jobs.map((job) => (
               <Card key={job.id} className="hover:shadow-xl transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-4 flex-1">
-                      <Avatar className="w-16 h-16">
+                <CardHeader className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
+                    <div className="flex items-start gap-3 sm:gap-4 flex-1 w-full">
+                      <Avatar className="w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0">
                         {job.client.avatar && (
                           <AvatarImage src={job.client.avatar} />
                         )}
-                        <AvatarFallback className="text-white text-lg" style={{ background: colors.gradients.primary }}>
+                        <AvatarFallback className="text-white text-base sm:text-lg" style={{ background: colors.gradients.primary }}>
                           {job.client.name
                             .split(" ")
                             .map((n) => n[0])
                             .join("")}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex-1 space-y-2">
+                      <div className="flex-1 space-y-2 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <CardTitle className="text-xl">{job.title}</CardTitle>
-                          <Badge className="bg-amber-100 text-amber-800">
+                          <CardTitle className="text-base sm:text-xl line-clamp-2">{job.title}</CardTitle>
+                          <Badge className="bg-amber-100 text-amber-800 text-xs whitespace-nowrap">
                             <Clock className="w-3 h-3 mr-1" />
                             {job.status}
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           Cliente: {job.client.name}
                         </p>
-                        <Badge className="bg-sky-100 text-sky-800">
+                        <Badge className="bg-sky-100 text-sky-800 text-xs">
                           {job.category}
                         </Badge>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm text-muted-foreground">Ganancia total</p>
-                      <p className="text-2xl font-bold text-green-600">{job.totalEarned}</p>
+                    <div className="text-left sm:text-right w-full sm:w-auto">
+                      <p className="text-xs sm:text-sm text-muted-foreground">Ganancia total</p>
+                      <p className="text-xl sm:text-2xl font-bold text-green-600">{job.totalEarned}</p>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4 sm:p-6">
                   <div className="space-y-4">
                     {/* Progress Bar */}
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center justify-between text-xs sm:text-sm">
                         <span className="text-muted-foreground">Progreso del trabajo</span>
                         <span className="font-semibold text-amber-600">
                           {job.daysCompleted}/{job.totalDays} días ({job.progress}%)
                         </span>
                       </div>
-                      <Progress value={job.progress} className="h-3" />
+                      <Progress value={job.progress} className="h-2 sm:h-3" />
                     </div>
 
                     {/* Job Details */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm pt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 text-xs sm:text-sm pt-2">
                       <div>
                         <p className="text-muted-foreground flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
@@ -364,41 +365,44 @@ export default function AssistantInProgressPage() {
                     </div>
 
                     {/* Earnings */}
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                      <div className="flex items-center justify-between">
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
                         <div>
-                          <p className="text-sm text-muted-foreground">Tarifa por hora</p>
-                          <p className="text-lg font-bold text-green-700">{job.hourlyRate}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Tarifa por hora</p>
+                          <p className="text-base sm:text-lg font-bold text-green-700">{job.hourlyRate}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm text-muted-foreground">Total ganado hasta ahora</p>
-                          <p className="text-lg font-bold text-green-700">{job.totalEarned}</p>
+                        <div className="text-left sm:text-right">
+                          <p className="text-xs sm:text-sm text-muted-foreground">Total ganado hasta ahora</p>
+                          <p className="text-base sm:text-lg font-bold text-green-700">{job.totalEarned}</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Actions */}
                     <div className="space-y-2 pt-2 border-t">
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <Button
                           variant="outline"
-                          className="flex-1"
+                          size="sm"
+                          className="flex-1 h-9"
                           onClick={() => handleViewDetails(job.id)}
                         >
                           Ver Detalles
                         </Button>
                         <Button
-                          className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold shadow-md"
+                          size="sm"
+                          className="flex-1 h-9 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold shadow-md"
                           onClick={() => handleContactClient(job.client.name)}
                         >
                           <MessageSquare className="w-4 h-4 mr-2" />
                           Contactar Cliente
                         </Button>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <Button
                           variant="outline"
-                          className="flex-1 border-green-500 text-green-600 hover:bg-green-50"
+                          size="sm"
+                          className="flex-1 h-9 border-green-500 text-green-600 hover:bg-green-50"
                           onClick={() => handleCompleteJob(job.id)}
                         >
                           <CheckCircle className="w-4 h-4 mr-2" />
@@ -406,7 +410,8 @@ export default function AssistantInProgressPage() {
                         </Button>
                         <Button
                           variant="outline"
-                          className="flex-1 border-red-500 text-red-600 hover:bg-red-50"
+                          size="sm"
+                          className="flex-1 h-9 border-red-500 text-red-600 hover:bg-red-50"
                           onClick={() => handleCancelJob(job.id)}
                         >
                           <XCircle className="w-4 h-4 mr-2" />

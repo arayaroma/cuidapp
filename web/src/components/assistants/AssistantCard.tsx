@@ -38,11 +38,11 @@ export function AssistantCard({
 
   return (
     <Card className="hover:shadow-xl transition-all duration-200 flex flex-col h-full">
-      <CardContent className="p-5 flex flex-col h-full">
+      <CardContent className="p-4 sm:p-5 md:p-6 flex flex-col h-full">
         {/* Header con Avatar y Verified */}
-        <div className="flex items-start gap-3 mb-3">
+        <div className="flex items-start gap-2 sm:gap-3 mb-3">
           <Avatar
-            className="w-16 h-16 border-2"
+            className="w-14 h-14 sm:w-16 sm:h-16 border-2 flex-shrink-0"
             style={{ borderColor: colors.primary[200] }}
           >
             <AvatarImage src={assistant.photoUrl} alt={assistant.name} />
@@ -57,7 +57,7 @@ export function AssistantCard({
           </Avatar>
 
           <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-lg truncate mb-1">
+            <h3 className="font-bold text-base sm:text-lg truncate mb-1">
               {assistant.name}
             </h3>
 
@@ -65,7 +65,7 @@ export function AssistantCard({
             {assistant.rating && (
               <div className="flex items-center gap-1 mb-1">
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span className="font-semibold text-sm">
+                <span className="font-semibold text-xs sm:text-sm">
                   {assistant.rating.toFixed(1)}
                 </span>
                 <span className="text-xs text-muted-foreground">
@@ -93,7 +93,7 @@ export function AssistantCard({
 
         {/* Bio */}
         {assistant.bio && (
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-3">
             {assistant.bio}
           </p>
         )}
@@ -128,7 +128,7 @@ export function AssistantCard({
         )}
 
         {/* Info Grid */}
-        <div className="space-y-2 mb-3 text-sm flex-1">
+        <div className="space-y-2 mb-3 text-xs sm:text-sm flex-1">
           {/* Experience */}
           <div className="flex items-center gap-2">
             <Award
@@ -162,7 +162,7 @@ export function AssistantCard({
                 style={{ color: colors.success[600] }}
               />
               <span
-                className="font-semibold"
+                className="font-semibold text-sm sm:text-base"
                 style={{ color: colors.success[700] }}
               >
                 ₡{assistant.hourlyRate.toLocaleString()}/hora
@@ -172,7 +172,7 @@ export function AssistantCard({
         </div>
 
         {/* Features */}
-        <div className="flex flex-wrap gap-2 mb-3">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3">
           {assistant.hasFirstAid && (
             <Badge variant="outline" className="text-xs">
               <Heart className="w-3 h-3 mr-1" />
@@ -195,7 +195,7 @@ export function AssistantCard({
 
         {/* Action Button */}
         <Button
-          className="w-full font-semibold"
+          className="w-full font-semibold h-9 sm:h-10 text-sm sm:text-base"
           onClick={() => onViewProfile(assistant.id)}
           style={{ background: colors.gradients.primary, color: "white" }}
         >
