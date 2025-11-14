@@ -84,7 +84,8 @@ export default function CreateRequestPage() {
           : null,
         totalHours: formData.totalHours ? parseInt(formData.totalHours) : null,
         isRecurring: formData.isRecurring,
-        weekdays: formData.weekdays,
+  // Weekdays selector returns strings; cast to the specific weekday union expected by Zod
+  weekdays: formData.weekdays as unknown as CreateRequestInput["weekdays"],
         requestDate: formData.requestDate,
         requestTime: formData.requestTime,
       };
