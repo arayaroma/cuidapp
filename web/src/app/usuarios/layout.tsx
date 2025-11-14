@@ -3,10 +3,11 @@
 import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { AppNavBar, NavBarMenuItem } from "@/components/shared/AppNavBar";
+import { AppNavBar } from "@/components/shared/AppNavBar";
 import { User, Settings, LogOut } from "lucide-react";
 import { userNavSections } from "@/config/userNavConfig";
 import { colors } from "@/config/colors";
+import { NavBarMenuItem } from "@/components/asistentes/AssistantNavBar";
 
 interface UserLayoutProps {
   children: ReactNode;
