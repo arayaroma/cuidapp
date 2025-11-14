@@ -2,10 +2,9 @@
 
 import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
-import { AppNavBar, NavBarMenuItem } from "@/components/shared/AppNavBar";
-import { User, Settings, LogOut } from "lucide-react";
-import { assistantNavSections } from "@/config/assistantNavConfig";
+import { useSession } from "next-auth/react";
+import { AppNavBar } from "@/components/shared/AppNavBar";
+import { colors } from "@/config/colors";
 
 interface AssistantLayoutProps {
   children: ReactNode;
@@ -23,43 +22,28 @@ export default function AssistantLayout({ children }: AssistantLayoutProps) {
   }, [session, status, router]);
 
   if (status === "loading") {
-    return <div className="min-h-screen flex items-center justify-center">Cargando...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div 
+          className="animate-spin rounded-full h-32 w-32 border-b-2"
+          style={{ borderColor: colors.secondary[500] }}
+        ></div>
+      </div>
+    );
   }
 
   if (!session) {
     return null;
   }
 
-  const menuItems: NavBarMenuItem[] = [
-    {
-      icon: User,
-      label: "Ver Perfil",
-      onClick: () => router.push("/asistentes/profile"),
-    },
-    {
-      icon: Settings,
-      label: "Configuración",
-      onClick: () => router.push("/asistentes/settings"),
-    },
-    {
-      icon: LogOut,
-      label: "Cerrar Sesión",
-      onClick: () => signOut({ callbackUrl: "/login" }),
-      variant: "destructive",
-    },
-  ];
-
-  const handleLogout = () => {
-    signOut({ callbackUrl: "/login" });
-  };
-
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <AppNavBar
-        userName={session.user?.name || "Usuario"}
-        menuItems={menuItems}
-        navSections={assistantNavSections}
-        onLogout={handleLogout}
+        title="CuidApp Pro"
+        userName={session.user?.name || "Asistente"}
+        userEmail={session.user?.email || ""}
+        avatarGradient={colors.gradients.trust}
+        userRole="assistant"
       />
       {children}
     </div>

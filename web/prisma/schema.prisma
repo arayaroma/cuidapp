@@ -44,12 +44,13 @@ model Role {
 }
 
 model Disability {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String?
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  users       User[]
+  id                String           @id @default(cuid())
+  name              String           @unique
+  description       String?
+  created_at        DateTime         @default(now())
+  updated_at        DateTime         @updatedAt
+  users             User[]
+  user_disabilities UserDisability[]
 
   @@map("disabilities")
   @@schema("cuidapp")
@@ -73,13 +74,14 @@ model User {
   is_active        Boolean          @default(true)
   created_at       DateTime         @default(now())
   updated_at       DateTime         @updatedAt
+  assistant        Assistant?
   location         Location?
+  requests         UserRequests[]
   disability       Disability?      @relation(fields: [disability_id], references: [id])
   role             Role             @relation(fields: [role_id], references: [id])
   assistant_of     UsersAssistant[] @relation("AssistantOf")
   users_assistants UsersAssistant[] @relation("UserAssistants")
-  requests         UserRequests[]
-  assistant        Assistant?
+  user_disabilities UserDisability[]
 
   @@map("users")
   @@schema("cuidapp")
@@ -89,22 +91,22 @@ model Assistant {
   id                    String   @id @default(cuid())
   user_id               String   @unique
   bio                   String?
-  specialties           String[] @default([]) // 'elderly', 'children', 'disability', 'hospital', 'companion', 'special-needs'
+  specialties           String[] @default([])
   years_experience      Int      @default(0)
-  certifications        String[] @default([]) // Array of certifications
-  languages             String[] @default([]) // Array of languages spoken
-  availability_schedule String?  // e.g., "Lunes a Viernes 8:00-17:00"
-  available_weekdays    String[] @default([]) // Days available: 'lunes', 'martes', etc.
+  certifications        String[] @default([])
+  languages             String[] @default([])
+  availability_schedule String?
+  available_weekdays    String[] @default([])
   hourly_rate           Float?
   is_available          Boolean  @default(true)
   verified              Boolean  @default(false)
   background_check      Boolean  @default(false)
-  preferred_age_groups  String[] @default([]) // Age ranges they prefer to work with
-  max_distance_km       Int?     // Maximum distance willing to travel
+  preferred_age_groups  String[] @default([])
+  max_distance_km       Int?
   has_vehicle           Boolean  @default(false)
   has_first_aid         Boolean  @default(false)
-  rating                Float?   // Average rating (1-5)
-  rating_count          Int      @default(0) // Number of ratings received
+  rating                Float?
+  rating_count          Int      @default(0)
   created_at            DateTime @default(now())
   updated_at            DateTime @updatedAt
   user                  User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
@@ -121,10 +123,10 @@ model UsersAssistant {
   end_date                    DateTime?
   created_at                  DateTime                   @default(now())
   updated_at                  DateTime                   @updatedAt
+  user_assistant_applications UserAssistantApplication[]
   assistant                   User                       @relation("AssistantOf", fields: [assistant_id], references: [id], onDelete: Cascade)
   user                        User                       @relation("UserAssistants", fields: [user_id], references: [id], onDelete: Cascade)
   rules                       UsersAssistantsRule[]
-  user_assistant_applications UserAssistantApplication[]
 
   @@map("users_assistants")
   @@schema("cuidapp")
@@ -149,24 +151,23 @@ model UserAssistantApplication {
   status            String
   created_at        DateTime             @default(now())
   updated_at        DateTime             @updatedAt
-  user              UsersAssistant       @relation(fields: [user_assistant_id], references: [id], onDelete: Cascade)
   requests          ApplicationRequest[]
+  user              UsersAssistant       @relation(fields: [user_assistant_id], references: [id], onDelete: Cascade)
 
   @@map("user_assistant_applications")
   @@schema("cuidapp")
 }
 
 model ApplicationRequest {
-  id                            String            @id @default(cuid())
+  id                            String                   @id @default(cuid())
   user_assistant_application_id String
   user_request_id               String
-  status                        ApplicationStatus @default(PENDING)
+  status                        ApplicationStatus        @default(PENDING)
   notes                         String?
-  created_at                    DateTime          @default(now())
-  updated_at                    DateTime          @updatedAt
-
-  user_assistant_application UserAssistantApplication @relation(fields: [user_assistant_application_id], references: [id], onDelete: Cascade)
-  user_request               UserRequests             @relation(fields: [user_request_id], references: [id], onDelete: Cascade)
+  created_at                    DateTime                 @default(now())
+  updated_at                    DateTime                 @updatedAt
+  user_assistant_application    UserAssistantApplication @relation(fields: [user_assistant_application_id], references: [id], onDelete: Cascade)
+  user_request                  UserRequests             @relation(fields: [user_request_id], references: [id], onDelete: Cascade)
 
   @@unique([user_assistant_application_id, user_request_id])
   @@map("application_requests")
@@ -178,23 +179,50 @@ model UserRequests {
   user_id      String
   title        String               @default("Solicitud de cuidado")
   description  String
-  care_type    String               @default("companion") // 'children' | 'elderly' | 'disability' | 'hospital' | 'companion' | 'special-needs'
+  care_type    String               @default("companion")
   person_age   Int                  @default(0)
-  requirements String[]             @default([]) // Array of requirements
-  urgency      String               @default("medium") // 'low' | 'medium' | 'high'
+  requirements String[]             @default([])
+  urgency      String               @default("medium")
   hourly_rate  Float?
   total_hours  Int?
   is_recurring Boolean              @default(false)
-  weekdays     String[]             @default([]) // Array of weekdays: 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'
+  weekdays     String[]             @default([])
   request_date DateTime
   request_time String
   status       String
   created_at   DateTime             @default(now())
   updated_at   DateTime             @updatedAt
-  user         User                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
   applications ApplicationRequest[]
+  user         User                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("user_requests")
+  @@schema("cuidapp")
+}
+
+model service_ratings {
+  id              String   @id
+  request_id      String
+  rater_id        String
+  rated_id        String
+  rating          Int
+  comment         String?
+  would_recommend Boolean?
+  created_at      DateTime @default(now())
+  updated_at      DateTime
+
+  @@schema("cuidapp")
+}
+
+model UserDisability {
+  id            String     @id @default(cuid())
+  user_id       String
+  disability_id String
+  created_at    DateTime   @default(now())
+  user          User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  disability    Disability @relation(fields: [disability_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, disability_id])
+  @@map("user_disabilities")
   @@schema("cuidapp")
 }
 

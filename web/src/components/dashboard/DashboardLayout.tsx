@@ -9,10 +9,10 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ 
   children, 
-  backgroundColor = "bg-white"
+  backgroundColor = "bg-gray-50 dark:bg-gray-900"
 }: DashboardLayoutProps) {
   return (
-    <div className={`min-h-screen ${backgroundColor} p-8`}>
+    <div className={`min-h-screen ${backgroundColor} p-3 sm:p-6 md:p-8`}>
       <div className="max-w-7xl mx-auto">
         {children}
       </div>

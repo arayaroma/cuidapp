@@ -8,6 +8,7 @@ import {
   HelpCircle,
   Inbox,
   CheckCircle2,
+  Clock,
 } from "lucide-react";
 import { NavSection } from "@/components/shared/NavigationDrawer";
 
@@ -37,6 +38,12 @@ export const assistantNavSections: NavSection[] = [
         href: "/asistentes/accepted-jobs",
       },
       {
+        icon: Clock,
+        label: "En Progreso",
+        href: "/asistentes/in-progress",
+        badge: 2,
+      },
+      {
         icon: Calendar,
         label: "Calendario",
         href: "/asistentes/calendar",
@@ -60,7 +67,7 @@ export const assistantNavSections: NavSection[] = [
       {
         icon: Settings,
         label: "Configuración",
-        href: "/asistentes/settings",
+        href: "/asistentes/settingsProfile",
       },
       {
         icon: HelpCircle,

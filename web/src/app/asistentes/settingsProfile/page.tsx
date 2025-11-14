@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,8 +16,7 @@ import {
   Save, 
   User, 
   MapPin, 
-  DollarSign,
-  Banknote,
+  DollarSign, 
   Clock, 
   Calendar,
   Award,
@@ -253,8 +253,8 @@ export default function EditAssistantProfilePage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="hourlyRate">
-                  <Banknote className="w-4 h-4 inline mr-1" />
-                  Tarifa por Hora (₡)
+                  <DollarSign className="w-4 h-4 inline mr-1" />
+                  Tarifa por Hora (USD)
                 </Label>
                 <Input
                   id="hourlyRate"
